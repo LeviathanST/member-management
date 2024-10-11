@@ -12,7 +12,7 @@
     </properties>
 
     <build>
-        <sourceDirectory>src</sourceDirectory>
+        <sourceDirectory>src/main</sourceDirectory>
         <resources>
             <resource>
                 <directory>src</directory>
@@ -76,19 +76,4 @@
             <version>2.15.2</version>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>windows</id>
-            <properties>
-                <main.class>Main</main.class> <!-- Main class without package -->
-            </properties>
-        </profile>
-        <profile>
-            <id>linux</id>
-            <properties>
-                <main.class>Main</main.class> <!-- Main class without package -->
-            </properties>
-        </profile>
-    </profiles>
 </project>
