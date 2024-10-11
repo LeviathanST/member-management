@@ -1,4 +1,8 @@
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+import models.SignUpData;
+import services.Auth;
 
 public class Main {
 	public static void main(String[] args) {
@@ -9,17 +13,11 @@ public class Main {
 					"root",
 					"admin");
 
+			SignUpData data = new SignUpData("hung", "hungdeptrai");
+
+			Auth.SignUp(connection, data);
+
 			System.out.println("Connection successfully!");
-
-			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery("Select * from user_account");
-
-			while (rs.next()) {
-				System.out.println(rs.getString("id"));
-				System.out.println(rs.getString("username"));
-				System.out.println(rs.getString("password"));
-			}
-			;
 
 			connection.close();
 		} catch (Exception e) {
