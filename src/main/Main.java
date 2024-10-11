@@ -1,25 +1,19 @@
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 public class Main {
 	public static void main(String[] args) {
+		String db_user = "root";
+		String db_password = "admin";
+
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			Connection connection = DriverManager.getConnection(
 					"jdbc:mysql://localhost:3306/member-management",
-					"root",
-					"admin");
+					db_user,
+					db_password);
 
 			System.out.println("Connection successfully!");
-
-			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery("Select * from user_account");
-
-			while (rs.next()) {
-				System.out.println(rs.getString("id"));
-				System.out.println(rs.getString("username"));
-				System.out.println(rs.getString("password"));
-			}
-			;
 
 			connection.close();
 		} catch (Exception e) {
