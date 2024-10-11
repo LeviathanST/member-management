@@ -1,4 +1,4 @@
-package models;
+package data;
 
 public class SignUpData {
 	private String username;
