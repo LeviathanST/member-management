@@ -1,7 +1,5 @@
 package exceptions;
 
-import java.lang.Exception;
-
 public class ExceptionDataEmpty extends Exception {
 	public String message;
 
