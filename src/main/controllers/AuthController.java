@@ -2,8 +2,8 @@ package controllers;
 
 import java.sql.Connection;
 
+import data.LoginData;
 import data.SignUpData;
-import models.UserAccount;
 import services.AuthService;
 
 public class AuthController {
@@ -11,11 +11,15 @@ public class AuthController {
 		try {
 			AuthService.signUpInternal(con, data);
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 	}
 
-	public static void login(Connection con, SignUpData data) {
-
+	public static void login(Connection con, LoginData data) {
+		try {
+			AuthService.loginInternal(con, data);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
