@@ -67,8 +67,6 @@ public class AuthService {
         return errors.toArray(new String[0]);
     }
 
-
-
 	public static void loginInternal(Connection con, LoginData data) throws AuthException {
 		try {
 			PreparedStatement stmt = con.prepareStatement(
