@@ -25,7 +25,7 @@ public class AuthService {
 			data.setPassword(UserAccount.hasingPassword(data.getPassword(), round));
 			UserAccount.insert(con, data);
 		} catch (Exception e) {
-			System.out.println("Error occurs in sign up : "  + e.getMessage());
+			System.out.println("Error occurs in sign up: "  + e.getMessage());
 		} 
 	}
 
