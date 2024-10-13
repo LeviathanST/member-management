@@ -1,11 +1,11 @@
 package exceptions;
 
-public class PasswordException extends Exception{
+public class InvalidPasswordException extends Exception{
     private String message;
 
-    public PasswordException(){}
+    public InvalidPasswordException(){}
 
-    public PasswordException(String message) {
+    public InvalidPasswordException(String message) {
         this.message = message;
         System.err.println("Exception with password : " + message);
         printStackTrace();

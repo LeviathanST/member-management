@@ -16,18 +16,18 @@ import data.LoginData;
 import data.SignUpData;
 import data.TokenPairData;
 import exceptions.AuthException;
-import exceptions.PasswordException;
+import exceptions.InvalidPasswordException;
 import exceptions.UserException;
 import models.UserAccount;
 
 public class AuthService {
-	public static void signUpInternal(Connection con, SignUpData data) throws PasswordException, AuthException{
+	public static void signUpInternal(Connection con, SignUpData data) throws InvalidPasswordException, AuthException{
 		try {
 			int round = Optional.ofNullable(Integer.parseInt(System.getenv("ROUND_HASHING"))).orElse(1);
 			String[] errorsPassword = AuthService.validatePassword(data.getPassword());
 			if(errorsPassword.length != 0) 
 				for(String tmp : errorsPassword)
-					throw new PasswordException(tmp);
+					throw new InvalidPasswordException(tmp);
 			if(data.getUsername() == null)
 				throw new UserException("User is empty");
 			data.setPassword(hashingPassword(data.getPassword(), round));
