@@ -5,11 +5,12 @@ public class Main {
 	public static void main(String[] args) {
 		String db_user = "root";
 		String db_password = "admin";
-
+		// int round = Optional.ofNullable(Integer.parseInt(System.getenv("ROUND_HASHING"))).orElse(1);
+		String port = System.getenv("PORT");
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			Connection connection = DriverManager.getConnection(
-					"jdbc:mysql://localhost:3308/member-management",
+					"jdbc:mysql://localhost:" + port + "/member-management",
 					db_user,
 					db_password);
 

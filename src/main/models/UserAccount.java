@@ -5,18 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
 import data.SignUpData;
 import exceptions.ExceptionDataEmpty;
 
 public class UserAccount {
-	// TODO: Hashing password
-	public static String hasingPassword(String password, int round) {
-		String bcryptHash = BCrypt.withDefaults()
-                                  .hashToString(round, password.toCharArray());
-		return bcryptHash;
-	}
-	
+
+
+
 	public static void insert(Connection con, SignUpData data)
 			throws ExceptionDataEmpty, SQLException {
 
