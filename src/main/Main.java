@@ -9,7 +9,7 @@ public class Main {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			Connection connection = DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/member-management",
+					"jdbc:mysql://localhost:3308/member-management",
 					db_user,
 					db_password);
 

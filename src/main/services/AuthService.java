@@ -19,15 +19,17 @@ import exceptions.AuthException;
 import models.UserAccount;
 
 public class AuthService {
-	public static void signUpInternal(Connection con, SignUpData data) {
+	public static void signUpInternal(Connection con, SignUpData data) throws AuthException{
 		try {
 			int round = Optional.ofNullable(Integer.parseInt(System.getenv("ROUND_HASHING"))).orElse(1);
-
+			data.setPassword(UserAccount.hasingPassword(data.getPassword(), round));
 			UserAccount.insert(con, data);
 		} catch (Exception e) {
-			// TODO: handle exception
-		}
+			System.out.println("Error occurs in sign up : "  + e.getMessage());
+		} 
 	}
+
+
 
 	public static void loginInternal(Connection con, LoginData data) throws AuthException {
 		try {
