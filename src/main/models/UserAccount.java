@@ -10,12 +10,10 @@ import exceptions.ExceptionDataEmpty;
 
 public class UserAccount {
 
-
-
 	public static void insert(Connection con, SignUpData data)
 			throws ExceptionDataEmpty, SQLException {
 
-		String query = "INSERT INTO user_account (id, username, hashed_password) VALUES (UUID(), ?, ?)";
+		String query = "INSERT INTO user_account (username, hashed_password) VALUES (?, ?)";
 
 		if (data.getPassword() == null || data.getUsername() == null) {
 			throw new ExceptionDataEmpty("Your username or password is empty");
