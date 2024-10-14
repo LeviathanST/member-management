@@ -1,16 +1,18 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Optional;
 
 public class Main {
 	public static void main(String[] args) {
 		String db_user = "root";
 		String db_password = "admin";
-		// int round = Optional.ofNullable(Integer.parseInt(System.getenv("ROUND_HASHING"))).orElse(1);
-		String port = System.getenv("PORT");
+		int port = Integer.parseInt(Optional.ofNullable(System.getenv("PORT")).orElse("3306"));
+		String db_url = String.format("jdbc:mysql://localhost:%d/member-management", port);
+
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			Connection connection = DriverManager.getConnection(
-					"jdbc:mysql://localhost:" + port + "/member-management",
+					db_url,
 					db_user,
 					db_password);
 
