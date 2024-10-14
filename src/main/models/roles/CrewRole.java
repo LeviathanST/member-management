@@ -5,10 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import data.CrewData;
-import exceptions.DeleteFailure;
-import exceptions.InsertFailure;
 import exceptions.NotFoundException;
-import exceptions.UpdateFailure;
 import models.UserAccount;
 import java.sql.ResultSet;
 
@@ -67,7 +64,7 @@ public class CrewRole {
 		return rs.getInt("id");
 	}
 
-	public void insertCrewMember(Connection con, CrewData crewData) throws SQLException, InsertFailure, NotFoundException{
+	public void insertCrewMember(Connection con, CrewData crewData) throws SQLException, NotFoundException{
 		String account_id = getAccountId(con, crewData);
 		int crew_role_id = getCrewRoleId(con, crewData);
 		String query = "INSERT INTO user_role(account_id, crew_role_id) VALUES (?, ?)";
@@ -76,10 +73,10 @@ public class CrewRole {
 		stmt.setInt(2, crew_role_id);
 		int row = stmt.executeUpdate();
 		if(row == 0)
-			throw new InsertFailure("Insert failured");
+			throw new SQLException("Insert failured");
 	}
 
-	public void updateCrewMember(Connection con, CrewData crewData, String newCrewRoleId) throws SQLException, NotFoundException, UpdateFailure{
+	public void updateCrewMember(Connection con, CrewData crewData, String newCrewRoleId) throws SQLException, NotFoundException{
 		String account_id = getAccountId(con, crewData);
 		int crew_role_id = getCrewRoleId(con, crewData);
 		String query = "UPDATE user_role SET crew_role_id = ? WHERE account_id = ?";
@@ -88,17 +85,17 @@ public class CrewRole {
 		stmt.setString(2, account_id);
 		int row = stmt.executeUpdate();
 		if(row == 0)
-			throw new UpdateFailure("Update failured");
+			throw new SQLException("Update failured");
 	} 
 
-	public void deleteCrewMember(Connection con, CrewData crewData) throws SQLException, NotFoundException, DeleteFailure{
+	public void deleteCrewMember(Connection con, CrewData crewData) throws SQLException, NotFoundException{
 		String account_id = getAccountId(con, crewData);
 		String query = "DELETE FROM user_role WHERE account_id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, account_id);
 		int row = stmt.executeUpdate();
 		if(row == 0)
-			throw new DeleteFailure("Delete failured");
+			throw new SQLException("Delete failured");
 	} 
 
 	// public void insertCrewMember(Connection con, UserAccount userAccount) throws SQLException {
