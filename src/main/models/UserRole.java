@@ -16,15 +16,18 @@ public class UserRole {
 	private CrewRole crew_role;
 	private GuildRole guild_role;
 
-	private UserRole(Role role, CrewRole crew_role, GuildRole guild_role) {
+	private Connection con;
+
+	private UserRole(Role role, CrewRole crew_role, GuildRole guild_role, Connection con) {
 		this.role = role;
 		this.crew_role = crew_role;
 		this.guild_role = guild_role;
+		this.con = con;
 	}
 
-	// TODO:
 	// public static UserRole getByAccountId(Connection con, String account_id)
 	// throws NotFoundException, SQLException {
+	//
 	// String query = "SELECT role_id, crew_role_id, guild_role_id FROM user_role
 	// WHERE account_id = ?";
 	//
