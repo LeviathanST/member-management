@@ -16,18 +16,64 @@ import data.LoginData;
 import data.SignUpData;
 import data.TokenPairData;
 import exceptions.AuthException;
+import exceptions.InvalidPasswordException;
+import exceptions.UserException;
 import models.UserAccount;
 
 public class AuthService {
-	public static void signUpInternal(Connection con, SignUpData data) {
+	public static void signUpInternal(Connection con, SignUpData data) throws InvalidPasswordException, AuthException{
 		try {
 			int round = Optional.ofNullable(Integer.parseInt(System.getenv("ROUND_HASHING"))).orElse(1);
-
+			String[] errorsPassword = AuthService.validatePassword(data.getPassword());
+			if(errorsPassword.length != 0) 
+				for(String tmp : errorsPassword)
+					throw new InvalidPasswordException(tmp);
+			if(data.getUsername() == null)
+				throw new UserException("User is empty");
+			data.setPassword(hashingPassword(data.getPassword(), round));
 			UserAccount.insert(con, data);
 		} catch (Exception e) {
-			// TODO: handle exception
-		}
+			System.out.println("Error occurs in sign up: "  + e.getMessage());
+		} 
 	}
+
+	public static String hashingPassword(String password, int round) {
+		String bcryptHashing = BCrypt.withDefaults()
+                                  .hashToString(round, password.toCharArray());
+		return bcryptHashing;
+	}
+
+	public static String[] validatePassword(String password) {
+        // List to hold validation error messages
+        java.util.List<String> errors = new java.util.ArrayList<>();
+
+        if (password == null) {
+            errors.add("Password cannot be null.");
+            return errors.toArray(new String[0]);
+        }
+
+        if (password.length() <= 8) {
+            errors.add("Password must be longer than 8 characters.");
+        }
+
+        if (!password.matches(".*[A-Z].*")) {
+            errors.add("Password must contain at least one uppercase letter.");
+        }
+
+        if (!password.matches(".*[a-z].*")) {
+            errors.add("Password must contain at least one lowercase letter.");
+        }
+
+        if (!password.matches(".*\\d.*")) {
+            errors.add("Password must contain at least one digit.");
+        }
+
+        if (!password.matches(".*[@#$%^&+=!].*")) {
+            errors.add("Password must contain at least one special character (@#$%^&+=!).");
+        }
+
+        return errors.toArray(new String[0]);
+    }
 
 	public static void loginInternal(Connection con, LoginData data) throws AuthException {
 		try {

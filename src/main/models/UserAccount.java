@@ -9,7 +9,9 @@ import data.SignUpData;
 import exceptions.ExceptionDataEmpty;
 
 public class UserAccount {
-	// TODO: Hashing password
+
+
+
 	public static void insert(Connection con, SignUpData data)
 			throws ExceptionDataEmpty, SQLException {
 

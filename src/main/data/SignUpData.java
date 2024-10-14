@@ -20,4 +20,6 @@ public class SignUpData {
 	public void setPassword(String pwd) {
 		this.password = pwd;
 	}
+
+	
 }
