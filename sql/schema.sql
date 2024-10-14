@@ -1,7 +1,7 @@
 -- TODO: impl uuid for id 
 
 CREATE TABLE IF NOT EXISTS user_account (
-	id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+	id CHAR(36) PRIMARY KEY,
 	username VARCHAR(255) UNIQUE NOT NULL,
 	hashed_password VARCHAR(255) NOT NULL,
 	email VARCHAR(255),
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS user_account (
 
 CREATE TABLE IF NOT EXISTS user_profile (
 	id CHAR(36) PRIMARY KEY,
-	account_id CHAR(36) UNIQUE,
+	account_id CHAR(36),
 	full_name VARCHAR(255) NOT NULL,
 	sex ENUM ('MALE', 'FEMALE') NOT NULL,
 	student_code VARCHAR(8) NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS crew_role (
 
 CREATE TABLE IF NOT EXISTS user_role (
 	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	account_id CHAR(36) UNIQUE NOT NULL,
+	account_id CHAR(36) NOT NULL,
 	role_id INTEGER UNSIGNED NOT NULL,
 	guild_role_id INTEGER UNSIGNED,
 	crew_role_id INTEGER UNSIGNED,
