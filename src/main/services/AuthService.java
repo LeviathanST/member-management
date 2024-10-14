@@ -22,7 +22,7 @@ public class AuthService {
 	public static void signUpInternal(Connection con, SignUpData data) {
 
 		try {
-			//int round = Optional.ofNullable(Integer.parseInt(System.getenv("ROUND_HASHING"))).orElse(1);
+			int round = Optional.ofNullable(Integer.parseInt(System.getenv("ROUND_HASHING"))).orElse(1);
 			UserAccount.insert(con,data);
 
 		} catch (Exception e) {
@@ -67,21 +67,5 @@ public class AuthService {
 		}
 	}
 
-	public static void editAccount(Connection con, SignUpData data, String username) {
 
-		try {
-			UserAccount.edit(con,data,username);
-
-		} catch (Exception e) {
-
-			System.out.println(e.getMessage());
-		}
-	}
-	public static void deleteAccount(Connection con, String username) {
-		try{
-			UserAccount.delete(con,username);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-	}
 }

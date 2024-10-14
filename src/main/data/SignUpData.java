@@ -9,6 +9,7 @@ public class SignUpData {
 	private Date created_at;
 	private Date updated_at;
 	private int count_mistake;
+
 	public SignUpData(String username, String password, String email, boolean is_active,int count_mistake) {
 		this.username = username;
 		this.password = password;
@@ -18,6 +19,7 @@ public class SignUpData {
 		this.updated_at = new Date(System.currentTimeMillis());
 		this.count_mistake = count_mistake;
 	}
+
 	public String getEmail() {return this.email;}
 	public void setEmail(String email) {this.email = email;}
 
@@ -40,7 +42,6 @@ public class SignUpData {
 	public String getPassword() {
 		return this.password;
 	}
-
 	public void setPassword(String pwd) {
 		this.password = pwd;
 	}
