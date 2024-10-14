@@ -1,10 +1,10 @@
 package data;
 
-public class SignUpData {
+public class LoginData {
 	private String username;
 	private String password;
 
-	public SignUpData(String username, String password) {
+	public LoginData(String username, String password) {
 		this.username = username;
 		this.password = password;
 	}
@@ -15,9 +15,5 @@ public class SignUpData {
 
 	public String getPassword() {
 		return this.password;
-	}
-
-	public void setPassword(String pwd) {
-		this.password = pwd;
 	}
 }
