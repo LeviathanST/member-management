@@ -8,17 +8,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import data.TokenPairData;
-import exceptions.TokenPairException;
+import exceptions.TokenException;
 
 public class TokenService {
-	public static void saveToFile(Path savingFilePath, TokenPairData data) throws TokenPairException {
+	public static void saveToFile(Path savingFilePath, TokenPairData data) throws TokenException {
 		ObjectMapper mapper = new ObjectMapper();
 
 		if (!Files.exists(savingFilePath)) {
 			try {
 				Files.createFile(savingFilePath);
 			} catch (Exception e) {
-				throw new TokenPairException(
+				throw new TokenException(
 						"Error occurs when create file to saving tokens: " + e.getMessage(), e);
 			}
 		}
@@ -43,11 +43,11 @@ public class TokenService {
 			System.out.println("Your token is updated");
 
 		} catch (Exception e) {
-			throw new TokenPairException("Error occurs when saving tokens: " + e.getMessage(), e);
+			throw new TokenException("Error occurs when saving tokens: " + e.getMessage(), e);
 		}
 	}
 
-	public static TokenPairData loadFromFile(Path savingFilePath) throws TokenPairException {
+	public static TokenPairData loadFromFile(Path savingFilePath) throws TokenException {
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
@@ -55,7 +55,7 @@ public class TokenService {
 			JsonNode tokenNode = rootNode.path("token");
 
 			if (tokenNode.isMissingNode()) {
-				throw new TokenPairException("Please login to get token pair");
+				throw new TokenException("Please login to get token pair");
 			}
 
 			return new TokenPairData(
@@ -63,7 +63,7 @@ public class TokenService {
 					tokenNode.path("refreshToken").asText());
 
 		} catch (Exception e) {
-			throw new TokenPairException("Error occurs when loading token: " + e.getMessage(), e);
+			throw new TokenException("Error occurs when loading token: " + e.getMessage(), e);
 		}
 	}
 
