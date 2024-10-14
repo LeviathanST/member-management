@@ -31,7 +31,7 @@ public class GuildRole {
 
 	public String getName() {return name;}
 
-	public String getAccountId(Connection con, GuildData data) throws SQLException, NotFoundException {
+	public int getAccountId(Connection con, GuildData data) throws SQLException, NotFoundException {
 		String query = "SELECT * FROM user_account WHERE username = ?";
 
 		PreparedStatement stmt = con.prepareStatement(query);
@@ -40,7 +40,7 @@ public class GuildRole {
 		ResultSet rs = stmt.executeQuery();
 		if(!rs.next())
 			throw new NotFoundException("Account ID doesn't exist!");
-		return rs.getString("id");
+		return rs.getInt("id");
 	}
 
 	public int getGuildId(Connection con, GuildData guildData) throws SQLException, NotFoundException{
@@ -65,33 +65,33 @@ public class GuildRole {
 		return rs.getInt("id");
 	}
 	public void insert(Connection con, GuildData guildData) throws SQLException, NotFoundException{
-		String accountId = getAccountId(con, guildData);
+		int accountId = getAccountId(con, guildData);
 		int guildRoleId = getGuildRoleId(con, guildData);
 		String query = "INSERT INTO user_role(account_id, guild_role_id) VALUES (?, ?)";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, accountId);
+		stmt.setInt(1, accountId);
 		stmt.setInt(2, guildRoleId);
 		int rowEffected = stmt.executeUpdate();
 		if (rowEffected == 0)
 			throw new SQLException("Insert role is failed, no row is effected!");
 	}
 	public void update(Connection con, GuildData guildData) throws SQLException, NotFoundException{
-		String accountId = getAccountId(con, guildData);
+		int accountId = getAccountId(con, guildData);
 		int guildRoleId = getGuildRoleId(con, guildData);
 		String query = "UPDATE user_role SET guild_role_id = ? WHERE account_id = ? ";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setInt(1, guildRoleId);
-		stmt.setString(2, accountId);
+		stmt.setInt(2, accountId);
 		int rowEffected = stmt.executeUpdate();
 		if (rowEffected == 0)
 			throw new SQLException("Update role is failed, no row is effected!");
 	}
 	public void delete(Connection con, GuildData guildData) throws SQLException, NotFoundException{
-		String accountId = getAccountId(con, guildData);
+		int accountId = getAccountId(con, guildData);
 		int guildRoleId = getGuildRoleId(con, guildData);
 		String query = "DELETE FROM user_role WHERE account_id = ? AND guild_role_id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, accountId);
+		stmt.setInt(1, accountId);
 		stmt.setInt(2, guildRoleId);
 		int rowEffected = stmt.executeUpdate();
 		if (rowEffected == 0)
