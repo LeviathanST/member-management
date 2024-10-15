@@ -27,7 +27,7 @@ public class CrewRole {
 	public String getName() { return this.name; }
 
 	public String getAccountId(Connection con, CrewData crewData) throws SQLException, NotFoundException{
-		String query = "SELECT * FROM user_account WHERE username = ?";
+		String query = "SELECT id FROM user_account WHERE username = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, crewData.getUserName());
 		ResultSet rs = stmt.executeQuery();
@@ -37,7 +37,7 @@ public class CrewRole {
 	}
 
 	public int getCrewId(Connection con, CrewData crewData) throws SQLException, NotFoundException{
-		String query = "SELECT * FROM crew WHERE name = ?";
+		String query = "SELECT id FROM crew WHERE name = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, crewData.getUserName());
 		ResultSet rs = stmt.executeQuery();
@@ -73,10 +73,12 @@ public class CrewRole {
 
 	public void updateCrewMember(Connection con, CrewData crewData, int newCrewRoleId) throws SQLException, NotFoundException{
 		String account_id = getAccountId(con, crewData);
-		String query = "UPDATE user_role SET crew_role_id = ? WHERE account_id = ?";
+		int crew_role_id = getCrewRoleId(con, crewData);
+		String query = "UPDATE user_role SET crew_role_id = ? WHERE account_id = ? AND crew_role_id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setInt(1, newCrewRoleId);
 		stmt.setString(2, account_id);
+		stmt.setInt(3, crew_role_id);
 		int row = stmt.executeUpdate();
 		if(row == 0)
 			throw new SQLException("Update failured");
