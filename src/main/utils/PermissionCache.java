@@ -3,7 +3,7 @@ package utils;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import contants.RoleType;
+import constants.RoleType;
 import exceptions.CacheException;
 
 public class PermissionCache {
