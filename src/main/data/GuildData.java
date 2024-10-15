@@ -1,16 +1,21 @@
 package data;
 
 public class GuildData {
-    private int guildRoleId;
+    private String guildName;
+    private String guildRoleName;
     private String Username;
 
-    public GuildData(int guildRoleId, String guildName) {
-        this.guildRoleId = guildRoleId;
-        this.Username = guildName;
+    public GuildData(String guildName, String username, String guildRoleName) {
+        this.guildName = guildName;
+        this.Username = username;
+        this.guildRoleName = guildRoleName;
     }
 
-    public int getGuildRoleId() {return guildRoleId;}
-    public void setGuildRoleId(int guildRoleId) {this.guildRoleId = guildRoleId;}
+    public String getGuildRoleName() {return guildRoleName;}
+    public void setGuildRoleName(String guildRoleName) {this.guildRoleName = guildRoleName;}
+
+    public String getGuildName() {return guildName;}
+    public void setGuildName(String guildName) {this.guildName = guildName;}
 
     public String getUsername() {return Username;}
 }
