@@ -88,11 +88,11 @@ public class CrewRole {
 			throw new SQLException("Update failured");
 	} 
 
-	public void deleteCrewMember(Connection con, CrewData crewData) throws SQLException, NotFoundException{
-		String account_id = getAccountId(con, crewData);
-		String query = "DELETE FROM user_role WHERE account_id = ?";
+	public void deleteCrewMember(Connection con, CrewData crewData, String CrewRoleId) throws SQLException, NotFoundException{
+		int crew_role_id = getCrewRoleId(con, crewData);
+		String query = "DELETE FROM user_role WHERE crew_role_id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, account_id);
+		stmt.setInt(1, crew_role_id);
 		int row = stmt.executeUpdate();
 		if(row == 0)
 			throw new SQLException("Delete failured");
