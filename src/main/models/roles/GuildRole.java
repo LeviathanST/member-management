@@ -7,20 +7,49 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import constants.GuildType;
 import exceptions.NotFoundException;
 
 public class GuildRole {
 	private String name;
+	private int guild_id;
 	private Connection con;
 
-	private GuildRole(String name, Connection con) {
+	private GuildRole(int guild_id, String name, Connection con) {
+		this.guild_id = guild_id;
 		this.name = name;
 		this.con = con;
 	}
 
+	public static List<GuildRole> getAllByGuildId(Connection con, int guild_id) throws SQLException {
+		String query = """
+				SELECT name
+				FROM guild_role
+				WHERE guild_id = ?
+				""";
+		List<GuildRole> list = new ArrayList<GuildRole>();
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, guild_id);
+
+		ResultSet rs = stmt.executeQuery();
+
+		while (rs.next()) {
+			list.add(new GuildRole(guild_id, rs.getString("name"), con));
+		}
+
+		return list;
+	}
+
 	public static List<GuildRole> getAllByAccountId(Connection con, String account_id)
 			throws SQLException, NotFoundException {
-		String query = "SELECT guild_role_name FROM user_guild_role WHERE account_id = ?";
+		String query = """
+					SELECT gr.guild_id as id, gr.name as name
+					FROM user_account ua
+					JOIN user_guild_role ugr ON ugr.account_id = ua.id
+					JOIN guild_role gr ON gr.id = ugr.guild_role_id
+					WHERE ua.id = ?
+				""";
 
 		List<GuildRole> list = new ArrayList<>();
 
@@ -30,27 +59,10 @@ public class GuildRole {
 		ResultSet rs = stmt.executeQuery();
 
 		while (rs.next()) {
-			System.out.println(rs.getString("guild_role_name"));
-			GuildRole gr = new GuildRole(rs.getString("guild_role_name"), con);
-
+			GuildRole gr = new GuildRole(rs.getInt("id"), rs.getString("name"), con);
 			list.add(gr);
 		}
 
 		return list;
-	}
-
-	public void loadToCache() throws SQLException {
-		System.out.println("Starting to load...");
-		String query = "SELECT gp.name as name FROM guild_role gr LEFT JOIN guild_permission gp ON gr.guild_permission_id = gp.id WHERE gr.name = ?";
-
-		System.out.println("Load to cache");
-		PreparedStatement stmt = this.con.prepareStatement(query);
-		stmt.setString(1, this.name);
-
-		ResultSet rs = stmt.executeQuery();
-
-		while (rs.next()) {
-			System.out.println(rs.getString("name"));
-		}
 	}
 }
