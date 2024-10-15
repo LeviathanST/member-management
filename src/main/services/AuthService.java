@@ -33,7 +33,7 @@ public class AuthService {
 			for (String tmp : errorsPassword)
 				throw new InvalidPasswordException(tmp);
 
-		if (data.getUsername() == null)
+		if (data.getUsername() == null || data.getUsername() == "")
 			throw new IllegalArgumentException("Your username musn't be empty!");
 
 		data.setPassword(hashingPassword(data.getPassword(), round));
@@ -61,9 +61,7 @@ public class AuthService {
 			} else {
 				Path path = Paths.get("auth.json");
 				ClaimsData claimsData = new ClaimsData(rs.getString("username"));
-
 				TokenPairData tokenData = TokenPairData.GenerateNew(claimsData);
-
 				TokenService.saveToFile(path, tokenData);
 			}
 		}
@@ -106,5 +104,8 @@ public class AuthService {
 		}
 
 		return errors.toArray(new String[0]);
+	}
+
+	public static void Authorization() {
 	}
 }
