@@ -14,11 +14,6 @@ public class CrewRole {
 	private String crew_id;
 	private String name;
 
-	// TODO:
-	// public static CrewRole getByAccountId(Connection con, String account_id) {
-		
-	// }
-
 	public CrewRole(String id, String crew_id, String name) {
 		this.id = id;
 		this.crew_id = crew_id;
@@ -89,26 +84,17 @@ public class CrewRole {
 
 	public void deleteCrewMember(Connection con, CrewData crewData) throws SQLException, NotFoundException{
 		int crew_role_id = getCrewRoleId(con, crewData);
-		String query = "DELETE FROM user_role WHERE crew_role_id = ?";
+		String account_id = getAccountId(con, crewData);
+		String query = "DELETE FROM user_role WHERE crew_role_id = ? AND account_id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setInt(1, crew_role_id);
+		stmt.setString(2, account_id);
 		int row = stmt.executeUpdate();
 		if(row == 0)
 			throw new SQLException("Delete failured");
 	} 
 
-	// public void insertCrewMember(Connection con, UserAccount userAccount) throws SQLException {
-	// 	String query = "INSERT INTO crew (name) VALUES (?)";
 
-	// 	PreparedStatement stmt = con.prepareStatement(query);
-	// 	stmt.setString(1, userAccount.getN());
-
-	// 	int row = stmt.executeUpdate();
-	// 	if (row == 0)
-	// 		throw new SQLException("A permission is failed when adding!");
-
-	// 	System.out.println("Add a permission successfully!");
-	// }
 
 
 }
