@@ -20,11 +20,13 @@ import exceptions.InvalidPasswordException;
 import exceptions.NotFoundException;
 import exceptions.TokenException;
 import models.UserAccount;
+import models.UserRole;
+import models.roles.Role;
 
 public class AuthService {
 	public static void signUpInternal(Connection con, SignUpData data)
 			throws InvalidPasswordException, AuthException, DataEmptyException, SQLException,
-			SQLIntegrityConstraintViolationException {
+			SQLIntegrityConstraintViolationException, NotFoundException {
 
 		int round = Integer.parseInt(Optional.ofNullable(System.getenv("ROUND_HASHING")).orElse("4"));
 		String[] errorsPassword = AuthService.validatePassword(data.getPassword());
@@ -38,6 +40,9 @@ public class AuthService {
 
 		data.setPassword(hashingPassword(data.getPassword(), round));
 		UserAccount.insert(con, data);
+		String account_id = UserAccount.getIdByUsername(con, data.getUsername());
+		int role_id = Role.getByName(con, "Member").getId();
+		UserRole.insert(con, account_id, role_id);
 	}
 
 	public static void loginInternal(Connection con, LoginData data)
