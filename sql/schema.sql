@@ -38,7 +38,8 @@ CREATE TABLE IF NOT EXISTS role_permission (
 	permission_id INTEGER UNSIGNED NOT NULL,
 
 	PRIMARY KEY (role_id, permission_id),
-	FOREIGN KEY (permission_id) REFERENCES permission(id)
+	FOREIGN KEY (permission_id) REFERENCES permission(id),
+	FOREIGN KEY (role_id) REFERENCES role(id)
 );
 CREATE TABLE IF NOT EXISTS user_role (
 	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,

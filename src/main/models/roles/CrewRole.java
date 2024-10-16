@@ -53,10 +53,10 @@ public class CrewRole {
 	public static List<CrewRole> getAllByAccountId(Connection con, String account_id)
 			throws SQLException, NotFoundException {
 		String query = """
-					SELECT gr.crew_id as id, cr.name as name
+					SELECT cr.crew_id AS id, cr.name AS name
 					FROM user_account ua
 					JOIN user_crew_role ucr ON ucr.account_id = ua.id
-					JOIN crew_role cr ON cr.id = ucr.cuild_role_id
+					JOIN crew_role cr ON cr.id = ucr.crew_role_id
 					WHERE ua.id = ?
 				""";
 
@@ -78,7 +78,7 @@ public class CrewRole {
 	public int getCrewId(Connection con, CrewData crewData) throws SQLException, NotFoundException {
 		String query = "SELECT * FROM crew WHERE name = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, crewData.getAccount_id());
+		stmt.setString(1, crewData.getName());
 		ResultSet rs = stmt.executeQuery();
 
 		if (!rs.next()) {
@@ -89,9 +89,10 @@ public class CrewRole {
 
 	public int getCrewRoleId(Connection con, CrewData crewData) throws SQLException, NotFoundException {
 		crewData.setCrewRoleId(getCrewId(con, crewData));
-		String query = "SELECT * FROM crew_role WHERE crew_id = ?";
+		String query = "SELECT * FROM crew_role WHERE crew_id = ? AND name  = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setInt(1, crewData.getCrewRoleId());
+		stmt.setString(2, crewData.getName());
 		ResultSet rs = stmt.executeQuery();
 		if (!rs.next())
 			throw new NotFoundException("Crew role id is not existed!");
@@ -100,7 +101,7 @@ public class CrewRole {
 
 	public void insertCrewMember(Connection con, CrewData data) throws SQLException, NotFoundException {
 		int crew_role_id = getCrewRoleId(con, data);
-		String query = "INSERT INTO user_role(account_id, crew_role_id) VALUES (?, ?)";
+		String query = "INSERT INTO user_crew_role(account_id, crew_role_id) VALUES (?, ?)";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, data.getAccount_id());
 		stmt.setInt(2, crew_role_id);
@@ -109,39 +110,28 @@ public class CrewRole {
 			throw new SQLException("Insert failured");
 	}
 
-	public void updateCrewMember(Connection con, CrewData data, String newCrewRoleId)
+	public void updateCrewMember(Connection con, CrewData data, int newCrewRoleId)
 			throws SQLException, NotFoundException {
 		int crew_role_id = getCrewRoleId(con, data);
-		String query = "UPDATE user_role SET crew_role_id = ? WHERE account_id = ?";
+		String query = "UPDATE user_crew_role SET crew_role_id = ? WHERE account_id = ? AND crew_role_id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, crew_role_id);
+		stmt.setInt(1, newCrewRoleId);
 		stmt.setString(2, data.getAccount_id());
+		stmt.setInt(3, crew_role_id);
 		int row = stmt.executeUpdate();
 		if (row == 0)
 			throw new SQLException("Update failured");
 	}
 
 	public void deleteCrewMember(Connection con, CrewData crewData) throws SQLException, NotFoundException {
-		String query = "DELETE FROM user_role WHERE account_id = ?";
+		String query = "DELETE FROM user_crew_role WHERE account_id = ? AND crew_role_id = ?";
+		int crew_role_id = getCrewRoleId(con, crewData);
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, crewData.getAccount_id());
+		stmt.setInt(2, crew_role_id);
 		int row = stmt.executeUpdate();
 		if (row == 0)
 			throw new SQLException("Delete failured");
 	}
-
-	// public void insertCrewMember(Connection con, UserAccount userAccount) throws
-	// SQLException {
-	// String query = "INSERT INTO crew (name) VALUES (?)";
-
-	// PreparedStatement stmt = con.prepareStatement(query);
-	// stmt.setString(1, userAccount.getN());
-
-	// int row = stmt.executeUpdate();
-	// if (row == 0)
-	// throw new SQLException("A permission is failed when adding!");
-
-	// System.out.println("Add a permission successfully!");
-	// }
 
 }
