@@ -35,10 +35,12 @@ public class TokenPairData {
 		String secretKey = Optional.ofNullable(System.getenv("SECRET_KEY")).orElse("huyngu");
 		Algorithm algo = Algorithm.HMAC384(secretKey);
 
+		System.out.println(data.getAccountId());
+
 		String accessToken = JWT
 				.create()
 				.withIssuedAt(new Date())
-				.withClaim("username", data.getUsername())
+				.withClaim("account_id", data.getAccountId())
 				.withClaim("user_role_id", data.getUserRoleId())
 				.withClaim("user_guild_role_ids", data.getUserGuildRoleId())
 				.withClaim("user_crew_role_ids", data.getUserCrewRoleId())

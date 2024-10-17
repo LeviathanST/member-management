@@ -17,7 +17,7 @@ public class AuthController {
 	public static void signUp(Connection con, SignUpData data) {
 		try {
 			String accessToken = TokenService.loadFromFile(Paths.get("auth.json")).getAccessToken();
-			String accountId = TokenPairData.Verify(accessToken).getClaim("account_id").toString();
+			String accountId = TokenPairData.Verify(accessToken).getClaim("account_id").asString();
 
 			int guildId = Guild.getIdByName(con, "Media");
 			int guildRoleId = GuildRole.getIdByName(con, guildId, "Member");
