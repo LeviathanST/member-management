@@ -31,7 +31,25 @@ public class CrewRole {
 		return this.name;
 	}
 
-	public static List<CrewRole> getAllByCrewId(Connection con, int crew_id) throws SQLException {
+	/// Find role id by name of a specified crew
+	public static int getIdByName(Connection con, int crew_id, String name)
+			throws SQLException, NotFoundException {
+		String query = "SELECT id FROM crew_role WHERE name = ? AND crew_id = ?";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, name);
+		stmt.setInt(2, crew_id);
+
+		ResultSet rs = stmt.executeQuery();
+
+		if (!rs.next()) {
+			throw new NotFoundException("Specified crew name is not found!");
+		} else {
+			return rs.getInt("id");
+		}
+	}
+
+	public static List<CrewRole> getAllByCrewId(Connection con, int crewId) throws SQLException {
 		String query = """
 				SELECT name
 				FROM crew_role
@@ -40,12 +58,12 @@ public class CrewRole {
 		List<CrewRole> list = new ArrayList<>();
 
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, crew_id);
+		stmt.setInt(1, crewId);
 
 		ResultSet rs = stmt.executeQuery();
 
 		while (rs.next()) {
-			list.add(new CrewRole(crew_id, rs.getString("name"), con));
+			list.add(new CrewRole(crewId, rs.getString("name"), con));
 		}
 
 		return list;

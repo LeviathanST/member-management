@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS crew_role_permission (
 
 	PRIMARY KEY (crew_role_id, crew_permission_id),
 	FOREIGN KEY (crew_role_id) REFERENCES crew_role(id),
-	FOREIGN KEY (crew_permissioN_id) REFERENCES crew_permission(id)
+	FOREIGN KEY (crew_permission_id) REFERENCES crew_permission(id)
 );
 CREATE TABLE IF NOT EXISTS user_crew_role (
 	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
