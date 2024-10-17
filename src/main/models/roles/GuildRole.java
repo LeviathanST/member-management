@@ -9,6 +9,7 @@ import java.util.List;
 
 import constants.GuildType;
 import exceptions.NotFoundException;
+import data.UserGuildRoleData;
 
 public class GuildRole {
 	private String name;
@@ -19,6 +20,24 @@ public class GuildRole {
 		this.guild_id = guild_id;
 		this.name = name;
 		this.con = con;
+	}
+
+	/// Find role id by name of a specified guild
+	public static int getIdByName(Connection con, int guild_id, String name) throws SQLException,
+			NotFoundException {
+		String query = "SELECT id FROM guild_role WHERE name = ? AND guild_id = ?";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, name);
+		stmt.setInt(2, guild_id);
+
+		ResultSet rs = stmt.executeQuery();
+
+		if (!rs.next()) {
+			throw new NotFoundException("Specified guild role name not found!");
+		} else {
+			return rs.getInt("id");
+		}
 	}
 
 	public static List<GuildRole> getAllByGuildId(Connection con, int guild_id) throws SQLException {
@@ -64,5 +83,15 @@ public class GuildRole {
 		}
 
 		return list;
+	}
+
+	public void insertCrewMember(Connection con, UserGuildRoleData data) throws SQLException, NotFoundException {
+		String query = "INSERT INTO user_crew_role(account_id, crew_role_id) VALUES (?, ?)";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, data.getAccountId());
+		stmt.setInt(2, data.getGuildRoleId());
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("Insert failured");
 	}
 }
