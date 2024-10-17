@@ -30,22 +30,26 @@ CREATE TABLE IF NOT EXISTS permission (
 	name VARCHAR(255) UNIQUE NOT NULL
 );
 CREATE TABLE IF NOT EXISTS role (
-	name VARCHAR(255) NOT NULL,
+	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(255) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS role_permission (
+	role_id VARCHAR(255) NOT NULL,
 	permission_id INTEGER UNSIGNED NOT NULL,
 
-	PRIMARY KEY (name, permission_id),
-	FOREIGN KEY (permission_id) REFERENCES permission(id)
+	PRIMARY KEY (role_id, permission_id),
+	FOREIGN KEY (permission_id) REFERENCES permission(id),
+	FOREIGN KEY (role_id) REFERENCES role(id)
 );
 CREATE TABLE IF NOT EXISTS user_role (
 	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	account_id CHAR(36) NOT NULL,
-	role_name VARCHAR(255) NOT NULL,
+	role_id INTEGER UNSIGNED NOT NULL,
 
 	FOREIGN KEY (account_id) REFERENCES user_account(id),
-	FOREIGN KEY (role_name) REFERENCES role(name)
+	FOREIGN KEY (role_id) REFERENCES role(id)
 );
 -- + CREW
-
 CREATE TABLE IF NOT EXISTS crew (
 	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(255) UNIQUE NOT NULL
@@ -68,7 +72,7 @@ CREATE TABLE IF NOT EXISTS crew_role_permission (
 
 	PRIMARY KEY (crew_role_id, crew_permission_id),
 	FOREIGN KEY (crew_role_id) REFERENCES crew_role(id),
-	FOREIGN KEY (crew_permissioN_id) REFERENCES crew_permission(id)
+	FOREIGN KEY (crew_permission_id) REFERENCES crew_permission(id)
 );
 CREATE TABLE IF NOT EXISTS user_crew_role (
 	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
