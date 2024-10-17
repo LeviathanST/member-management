@@ -8,7 +8,6 @@ import data.LoginData;
 import data.SignUpData;
 import data.TokenPairData;
 import models.Guild;
-import models.roles.CrewRole;
 import models.roles.GuildRole;
 import services.AuthService;
 import services.TokenService;

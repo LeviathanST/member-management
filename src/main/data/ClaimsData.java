@@ -3,22 +3,22 @@ package data;
 import java.util.List;
 
 public class ClaimsData {
-	private String username;
+	private String accountId;
 	private int userRoleId;
 	private List<Integer> userGuildRoleIds;
 	private List<Integer> userCrewRoleIds;
 
-	public ClaimsData(String username, int userRoleId,
+	public ClaimsData(String accountId, int userRoleId,
 			List<Integer> userGuildRoleIds,
 			List<Integer> userCrewRoleIds) {
-		this.username = username;
+		this.accountId = accountId;
 		this.userRoleId = userRoleId;
 		this.userGuildRoleIds = userGuildRoleIds;
 		this.userCrewRoleIds = userCrewRoleIds;
 	}
 
-	public String getUsername() {
-		return this.username;
+	public String getAccountId() {
+		return this.accountId;
 	}
 
 	public int getUserRoleId() {

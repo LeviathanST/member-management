@@ -74,7 +74,7 @@ public class AuthService {
 				List<Integer> userGuildRoleId = UserGuildRole.getIdByAccountId(con, account_id);
 				List<Integer> userCrewRole = UserCrewRole.getIdByAccountId(con, account_id);
 
-				ClaimsData claimsData = new ClaimsData(data.getUsername(), userRoleId, userGuildRoleId,
+				ClaimsData claimsData = new ClaimsData(account_id, userRoleId, userGuildRoleId,
 						userCrewRole);
 				TokenPairData tokenData = TokenPairData.GenerateNew(claimsData);
 				TokenService.saveToFile(path, tokenData);
