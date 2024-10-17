@@ -8,6 +8,7 @@ import java.util.List;
 
 import data.CrewData;
 import exceptions.NotFoundException;
+import models.Crew;
 import models.UserAccount;
 import java.sql.ResultSet;
 
@@ -75,20 +76,8 @@ public class CrewRole {
 		return list;
 	}
 
-	public int getCrewId(Connection con, CrewData crewData) throws SQLException, NotFoundException {
-		String query = "SELECT * FROM crew WHERE name = ?";
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, crewData.getName());
-		ResultSet rs = stmt.executeQuery();
-
-		if (!rs.next()) {
-			throw new NotFoundException("Crew ID is not existed!");
-		}
-		return rs.getInt("id");
-	}
-
 	public int getCrewRoleId(Connection con, CrewData crewData) throws SQLException, NotFoundException {
-		crewData.setCrewRoleId(getCrewId(con, crewData));
+		crewData.setCrewRoleId(Crew.getCrewId(con, crewData));
 		String query = "SELECT * FROM crew_role WHERE crew_id = ? AND name  = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setInt(1, crewData.getCrewRoleId());
