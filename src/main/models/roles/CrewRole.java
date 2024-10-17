@@ -9,7 +9,7 @@ import java.util.List;
 import data.CrewData;
 import exceptions.NotFoundException;
 import models.Crew;
-import models.UserAccount;
+
 import java.sql.ResultSet;
 
 public class CrewRole {
