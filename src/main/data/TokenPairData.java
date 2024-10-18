@@ -32,16 +32,21 @@ public class TokenPairData {
 	}
 
 	public static TokenPairData GenerateNew(ClaimsData data) {
-		Algorithm algo = Algorithm.HMAC384("hehe");
+		String secretKey = Optional.ofNullable(System.getenv("SECRET_KEY")).orElse("huyngu");
+		Algorithm algo = Algorithm.HMAC384(secretKey);
+
+		System.out.println(data.getAccountId());
 
 		String accessToken = JWT
 				.create()
 				.withIssuedAt(new Date())
-				.withClaim("username", data.getUsername())
+				.withClaim("account_id", data.getAccountId())
+				.withClaim("user_role_id", data.getUserRoleId())
+				.withClaim("user_guild_role_ids", data.getUserGuildRoleId())
+				.withClaim("user_crew_role_ids", data.getUserCrewRoleId())
 				.sign(algo);
 
 		String refreshToken = JWT.create().withIssuedAt(new Date()).sign(algo);
-
 		TokenPairData tokenPairData = new TokenPairData(accessToken, refreshToken);
 
 		return tokenPairData;
