@@ -28,6 +28,36 @@ public class CrewPermission {
 		return id;
 	}
 
+	public static List<CrewPermission> getAllByAccountIdAndGuildId(Connection con, String accountId,
+			int guildId)
+			throws SQLException {
+
+		String query = """
+				SELECT cp.name as name, cp.id as id
+				FROM crew c
+				JOIN crew_role cr ON cr.crew_id = c.id
+				JOIN crew_role_permission crp ON crp.crew_role_id = cr.id
+				JOIN crew_permission cp ON cp.id = crp.crew_permission_id
+				JOIN user_crew_role ucr ON ucr.crew_role_id = cr.id
+				WHERE c.id = ? AND ucr.account_id = ?
+				""";
+
+		List<CrewPermission> list = new ArrayList<>();
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, guildId);
+		stmt.setString(2, accountId);
+
+		ResultSet rs = stmt.executeQuery();
+
+		while (rs.next()) {
+			System.out.println(rs.getString("name"));
+			list.add(new CrewPermission(rs.getInt("id"), rs.getString("name")));
+		}
+
+		return list;
+	}
+
 	public static List<CrewPermission> getAllByCrewRoleId(Connection con, int crewRoleId)
 			throws SQLException, NotFoundException {
 		String query = "SELECT id, name FROM crew_role_permission WHERE crew_role_id = ?";

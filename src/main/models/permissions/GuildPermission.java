@@ -11,35 +11,37 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class GuildPermission {
-	private int guildId;
+	private int id;
 	private String name;
 
-	public GuildPermission(int guildId, String name) {
-		this.guildId = guildId;
+	public GuildPermission(int id, String name) {
+		this.id = id;
 		this.name = name;
 	}
 
-	public int getGuildId() {
-		return guildId;
+	public int getId() {
+		return id;
 	}
 
-	public static List<GuildPermission> getAllByAccountIdAndRoleId(Connection con, String accountId,
-																   int guildRoleId)
+	public static List<GuildPermission> getAllByAccountIdAndGuildId(Connection con, String accountId,
+			int guildId)
 			throws SQLException {
 
 		String query = """
-				SELECT gp.id as id, gp.name as name
-				FROM user_guild_role ugr
-				JOIN guild_role_permission grp ON grp.guild_role_id = ugr.guild_role_id
+				SELECT gp.name as name, gp.id as id
+				FROM guild g
+				JOIN guild_role gr ON gr.guild_id = g.id
+				JOIN guild_role_permission grp ON grp.guild_role_id = gr.id
 				JOIN guild_permission gp ON gp.id = grp.guild_permission_id
-				WHERE ugr.account_id = ? AND ugr.guild_role_id = ?
+				JOIN user_guild_role ugr ON ugr.guild_role_id = gr.id
+				WHERE g.id = ? AND ugr.account_id = ?
 				""";
 
 		List<GuildPermission> list = new ArrayList<>();
 
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, accountId);
-		stmt.setInt(2, guildRoleId);
+		stmt.setInt(1, guildId);
+		stmt.setString(2, accountId);
 
 		ResultSet rs = stmt.executeQuery();
 
@@ -47,8 +49,6 @@ public class GuildPermission {
 			System.out.println(rs.getString("name"));
 			list.add(new GuildPermission(rs.getInt("id"), rs.getString("name")));
 		}
-
-		System.out.println(list);
 
 		return list;
 	}
