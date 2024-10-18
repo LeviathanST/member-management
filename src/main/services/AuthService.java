@@ -23,6 +23,7 @@ import models.UserGuildRole;
 import models.UserRole;
 import models.permissions.CrewPermission;
 import models.permissions.GuildPermission;
+import models.permissions.Permission;
 import models.roles.Role;
 
 public class AuthService {
@@ -159,16 +160,21 @@ public class AuthService {
 								"This account is not have needed permission!");
 					}
 					for (CrewPermission permission : crewPermissions) {
-						System.out.println(permission.getName());
 						if (permission.getName().equals(namePermission)) {
 							isAuthorized = true;
 						}
 					}
 					break;
 				}
-				// TODO:
 				case RoleType.Application -> {
+					List<Permission> permissions = Permission.getByAccountId(con, accountId);
+
 					isAuthorized = false;
+					for (Permission permission : permissions) {
+						if (permission.getName().equals(namePermission)) {
+							isAuthorized = true;
+						}
+					}
 					break;
 				}
 				default -> throw new NotFoundException("Authorization: Your permission is not found!");
