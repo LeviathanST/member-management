@@ -1,26 +1,49 @@
 package models.permissions;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.sql.Connection;
 
 public class Permission {
-	private String id;
+	private int id;
 	private String name;
 
 	private Connection con;
 
-	public Permission(String id, String name) {
+	public Permission(int id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 
-	// TODO:
-	// public static Permission getByPermissionName(String name) {
-	// // TODO: GET ID FROM SELECT
-	// //
-	// return new Permission(id, name);
-	// }
+	public String getName() {
+		return this.name;
+	}
+
+	public static List<Permission> getByAccountId(Connection con, String accountId) throws SQLException {
+		String query = """
+				SELECT p.id as id, p.name as name
+				FROM user_role ur
+				JOIN role_permission rp ON rp.role_id = ur.role_id
+				JOIN permission p ON p.id = rp.permission_id
+				WHERE ur.account_id = ?
+				""";
+
+		List<Permission> list = new ArrayList<>();
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, accountId);
+
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			System.out.println(rs.getString("name"));
+			list.add(new Permission(rs.getInt("id"), rs.getString("name")));
+		}
+
+		return list;
+	}
 
 	public void insert(String name) throws SQLException {
 		String query = "INSERT INTO permission (name) VALUES (?)";
