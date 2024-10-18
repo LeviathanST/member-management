@@ -24,6 +24,10 @@ public class CrewPermission {
 		return this.name;
 	}
 
+	public int getId() {
+		return id;
+	}
+
 	public static List<CrewPermission> getAllByCrewRoleId(Connection con, int crewRoleId)
 			throws SQLException, NotFoundException {
 		String query = "SELECT id, name FROM crew_role_permission WHERE crew_role_id = ?";

@@ -19,8 +19,12 @@ public class GuildPermission {
 		this.name = name;
 	}
 
+	public int getGuildId() {
+		return guildId;
+	}
+
 	public static List<GuildPermission> getAllByAccountIdAndRoleId(Connection con, String accountId,
-			int guildRoleId)
+																   int guildRoleId)
 			throws SQLException {
 
 		String query = """

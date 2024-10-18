@@ -11,19 +11,18 @@ import java.util.List;
 import java.util.Optional;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import constants.RoleType;
 import data.ClaimsData;
 import data.LoginData;
 import data.SignUpData;
 import data.TokenPairData;
-import exceptions.AuthException;
-import exceptions.DataEmptyException;
-import exceptions.InvalidPasswordException;
-import exceptions.NotFoundException;
-import exceptions.TokenException;
+import exceptions.*;
 import models.UserAccount;
 import models.UserCrewRole;
 import models.UserGuildRole;
 import models.UserRole;
+import models.permissions.CrewPermission;
+import models.permissions.GuildPermission;
 import models.roles.Role;
 
 public class AuthService {
@@ -121,6 +120,49 @@ public class AuthService {
 		return errors.toArray(new String[0]);
 	}
 
-	public static void Authorization() {
+	public static boolean Authorization(Connection con, String accountId, int roleId, RoleType type, int PermissionID)
+			throws CacheException, NotFoundException, SQLException {
+		boolean isAuthorized;
+		try {
+			switch (type){
+				case RoleType.Guild:
+					List<GuildPermission> guildPermissions = GuildPermission
+							.getAllByAccountIdAndRoleId(con,
+									accountId, roleId);
+					if (guildPermissions.isEmpty()) {
+						throw new NotFoundException("This account is not have needed permission!");
+					}
+					for (GuildPermission permission : guildPermissions) {
+						if (permission.getGuildId() == PermissionID) {
+							return isAuthorized = true;
+						}
+					}
+					break;
+				case RoleType.Crew:
+					List<CrewPermission> crewPermissions = CrewPermission.getAllByCrewRoleId(con,
+							roleId);
+
+					if (crewPermissions.isEmpty()) {
+						throw new NotFoundException("This account is not have needed permission!");
+					}
+					for (CrewPermission permission : crewPermissions) {
+						if (permission.getId() == PermissionID) {
+							return isAuthorized = true;
+						}
+					}
+					break;
+				case RoleType.Application:
+					break;
+				default:
+					throw new NotFoundException("Authorization: Your permission is not found!");
+			}
+		}catch (SQLException e) {
+			throw new SQLException(e.getMessage());
+		} catch (NotFoundException e) {
+			throw new NotFoundException(e.getMessage());
+		} catch (Exception e) {
+			throw new CacheException("This permission is already contained in cache!" + e.getMessage());
+		}
+		return false;
 	}
 }
