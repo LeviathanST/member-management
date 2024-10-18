@@ -120,49 +120,66 @@ public class AuthService {
 		return errors.toArray(new String[0]);
 	}
 
-	public static boolean Authorization(Connection con, String accountId, int roleId, RoleType type, int PermissionID)
+	/// ID
+	/// + crew_id
+	/// + guild_id
+	/// if using for application let id = 0
+	public static boolean Authorization(Connection con, String accountId, int id, RoleType type,
+			String namePermission)
 			throws CacheException, NotFoundException, SQLException {
 		boolean isAuthorized;
 		try {
-			switch (type){
-				case RoleType.Guild:
+			switch (type) {
+				case RoleType.Guild -> {
 					List<GuildPermission> guildPermissions = GuildPermission
-							.getAllByAccountIdAndRoleId(con,
-									accountId, roleId);
+							.getAllByAccountIdAndGuildId(con,
+									accountId, id);
+
+					isAuthorized = false;
 					if (guildPermissions.isEmpty()) {
-						throw new NotFoundException("This account is not have needed permission!");
+						throw new NotFoundException(
+								"This account is not have needed permission!");
 					}
 					for (GuildPermission permission : guildPermissions) {
-						if (permission.getGuildId() == PermissionID) {
-							return isAuthorized = true;
+						System.out.println(permission.getName());
+						if (permission.getName().equals(namePermission)) {
+							isAuthorized = true;
 						}
 					}
 					break;
-				case RoleType.Crew:
-					List<CrewPermission> crewPermissions = CrewPermission.getAllByCrewRoleId(con,
-							roleId);
+				}
+				case RoleType.Crew -> {
+					List<CrewPermission> crewPermissions = CrewPermission
+							.getAllByAccountIdAndGuildId(con,
+									accountId, id);
 
+					isAuthorized = false;
 					if (crewPermissions.isEmpty()) {
-						throw new NotFoundException("This account is not have needed permission!");
+						throw new NotFoundException(
+								"This account is not have needed permission!");
 					}
 					for (CrewPermission permission : crewPermissions) {
-						if (permission.getId() == PermissionID) {
-							return isAuthorized = true;
+						System.out.println(permission.getName());
+						if (permission.getName().equals(namePermission)) {
+							isAuthorized = true;
 						}
 					}
 					break;
-				case RoleType.Application:
+				}
+				// TODO:
+				case RoleType.Application -> {
+					isAuthorized = false;
 					break;
-				default:
-					throw new NotFoundException("Authorization: Your permission is not found!");
+				}
+				default -> throw new NotFoundException("Authorization: Your permission is not found!");
 			}
-		}catch (SQLException e) {
-			throw new SQLException(e.getMessage());
+			return isAuthorized;
+		} catch (SQLException e) {
+			throw new SQLException(e.getMessage(), e);
 		} catch (NotFoundException e) {
 			throw new NotFoundException(e.getMessage());
 		} catch (Exception e) {
 			throw new CacheException("This permission is already contained in cache!" + e.getMessage());
 		}
-		return false;
 	}
 }
