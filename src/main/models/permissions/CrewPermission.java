@@ -76,7 +76,7 @@ public class CrewPermission {
 	}
 
 	public void insert(String name) throws SQLException {
-		String query = "INSERT INTO permission (name) VALUES (?)";
+		String query = "INSERT INTO crew_permission (name) VALUES (?)";
 
 		PreparedStatement stmt = this.con.prepareStatement(query);
 		stmt.setString(1, name);
@@ -89,7 +89,7 @@ public class CrewPermission {
 	}
 
 	public void update(String newName) throws SQLException {
-		String query = "UPDATE permission SET name = ? where name = ?";
+		String query = "UPDATE crew_permission SET name = ? where name = ?";
 
 		PreparedStatement stmt = this.con.prepareStatement(query);
 		stmt.setString(1, this.name);
@@ -103,7 +103,7 @@ public class CrewPermission {
 	}
 
 	public void delete(String name) throws SQLException {
-		String query = "DELETE FROM permission WHERE name = ?";
+		String query = "DELETE FROM crew_permission WHERE name = ?";
 
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, name);

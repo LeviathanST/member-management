@@ -6,12 +6,13 @@ import java.sql.SQLException;
 
 import exceptions.NotFoundException;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Guild {
 	private String name;
 
-	public Guild() {
-	}
+	public Guild() {}
 
 	public Guild(String name) {
 		this.name = name;
@@ -46,5 +47,16 @@ public class Guild {
 		}
 
 		throw new NotFoundException("Guild ID is not existed!");
+	}
+	public static List<String> getAllNameToList(Connection con) throws SQLException {
+		List<String> guildNames = new ArrayList<>();
+		String query = "SELECT name FROM guild ";
+		PreparedStatement stmt = con.prepareStatement(query);
+		ResultSet rs = stmt.executeQuery();
+
+		while (rs.next()) {
+			guildNames.add(rs.getString("name"));
+		}
+		return guildNames;
 	}
 }
