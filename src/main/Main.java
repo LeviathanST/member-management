@@ -3,6 +3,7 @@ import java.sql.DriverManager;
 import java.util.Optional;
 
 import controllers.AuthController;
+import data.LoginData;
 import data.SignUpData;
 import views.*;
 
@@ -24,14 +25,17 @@ public class Main {
 					db_password);
 			System.err.println("Connection Successfully!");
 			int choice = view.SignUp_LogIn();
+			view.clearScreen();
 			switch (choice) {
 				case 1:
-				SignUpData signUpData = new SignUpData();
+					SignUpData signUpData = new SignUpData();
 					view.signUpForm(signUpData);
 					AuthController.signUp(connection, signUpData);
 					break;
 				case 2 : 
-
+					LoginData loginData = new LoginData();
+					view.LogInForm(loginData);
+					AuthController.login(connection, loginData);
 					break;
 				default:
 					view.invalidValue();

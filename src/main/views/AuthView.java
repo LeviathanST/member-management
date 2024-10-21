@@ -3,12 +3,12 @@ import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 import org.beryx.textio.TextTerminal;
 import services.AuthService;
-
+import data.LoginData;
 import data.SignUpData;
 
 public class AuthView {
-    private TextIO textIO = TextIoFactory.getTextIO();
-    private  TextTerminal<?> terminal = textIO.getTextTerminal();
+    protected TextIO textIO = TextIoFactory.getTextIO();
+    protected  TextTerminal<?> terminal = textIO.getTextTerminal();
 
     public int SignUp_LogIn() {
         terminal.getProperties().setPromptColor("green");
@@ -25,9 +25,9 @@ public class AuthView {
         textIO.getTextTerminal().println("Invalid value!");
     }
     
-    public static void clearScreen(TextTerminal<?> terminal) {
-        terminal.print("\033[H\033[2J");  // Mã escape ANSI để xóa màn hình
-        terminal.print("\033[H");         // Đặt con trỏ trở lại vị trí đầu
+    public void clearScreen() {
+        this.terminal.print("\033[H\033[2J");  // Mã escape ANSI để xóa màn hình
+        this.terminal.print("\033[H");         // Đặt con trỏ trở lại vị trí đầu
     }
     
 
@@ -35,17 +35,17 @@ public class AuthView {
         terminal.getProperties().setPromptColor("green");
         terminal.getProperties().setInputColor("green");
         signUpData.setUserName(textIO.newStringInputReader().read("Enter your user name : "));
-        String pass;
-        do {
-            try {
-                pass = textIO.newStringInputReader().read("Please enter your password (must contain at least 1 letter, 1 digit, no spaces, and be at least 8 characters long): ");
-                break;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } while(true);
-        signUpData.setPassword(pass);
-        textIO.getTextTerminal().println("Sign up successfully!");
+        signUpData.setPassword(textIO.newStringInputReader().read("Enter your password" + 
+                                                                    "(must contains at least one character," +  
+                                                                    "one digit, one speacial," +  
+                                                                    "one upper case and must not contain space) : "));
+    }
+
+    public void LogInForm(LoginData loginData) {
+        terminal.getProperties().setPromptColor("green");
+        terminal.getProperties().setInputColor("green");
+        loginData.setUsername(textIO.newStringInputReader().read("Enter user name : "));
+        loginData.setPassword(textIO.newStringInputReader().read("Enter your password : "));
     }
     
     

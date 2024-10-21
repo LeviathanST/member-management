@@ -98,18 +98,4 @@ public class CrewRole {
 			throw new SQLException("Delete failured");
 	} 
 
-	// public void insertCrewMember(Connection con, UserAccount userAccount) throws SQLException {
-	// 	String query = "INSERT INTO crew (name) VALUES (?)";
-
-	// 	PreparedStatement stmt = con.prepareStatement(query);
-	// 	stmt.setString(1, userAccount.getN());
-
-	// 	int row = stmt.executeUpdate();
-	// 	if (row == 0)
-	// 		throw new SQLException("A permission is failed when adding!");
-
-	// 	System.out.println("Add a permission successfully!");
-	// }
-
-
 }

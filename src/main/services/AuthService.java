@@ -34,8 +34,10 @@ public class AuthService {
 				throw new InvalidPasswordException(tmp);
 			return;
 		}
-			
 
+		if(data.getUsername().contains(" "))
+			throw new IllegalArgumentException("User name must not contains space");
+			
 		if (data.getUsername() == null || data.getUsername() == "")
 			throw new IllegalArgumentException("Your username musn't be empty!");
 		data.setUserName(normalizeUsername(data.getUsername()));
@@ -112,6 +114,7 @@ public class AuthService {
 
 		return errors.toArray(new String[0]);
 	}
+
 
 	public static String normalizeUsername(String username) {
         String[] parts = username.toLowerCase().split(" ");
