@@ -5,6 +5,7 @@ import org.beryx.textio.TextTerminal;
 import services.AuthService;
 import data.LoginData;
 import data.SignUpData;
+import exceptions.AuthException;
 
 public class AuthView {
     protected TextIO textIO = TextIoFactory.getTextIO();
@@ -34,17 +35,27 @@ public class AuthView {
     public void signUpForm(SignUpData signUpData) {
         terminal.getProperties().setPromptColor("green");
         terminal.getProperties().setInputColor("green");
-        signUpData.setUserName(textIO.newStringInputReader().read("Enter your user name : "));
+        int checkUser = 1, checkPass = 1;
+        do {
+            try {
+                signUpData.setUserName(textIO.newStringInputReader().read("Enter your user name : "));
+                if(signUpData.getUsername().contains(" "))
+                    throw new AuthException("User name must not contains white space!");
+                checkUser = 0;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } while (checkUser == 1);
         signUpData.setPassword(textIO.newStringInputReader().read("Enter your password" + 
-                                                                    "(must contains at least one character," +  
-                                                                    "one digit, one speacial," +  
-                                                                    "one upper case and must not contain space) : "));
+                                                                         "(must contains at least one character," +  
+                                                                         "one digit, one speacial," +  
+                                                                         "one upper case and must not contain space) : "));
     }
 
     public void LogInForm(LoginData loginData) {
         terminal.getProperties().setPromptColor("green");
         terminal.getProperties().setInputColor("green");
-        loginData.setUsername(textIO.newStringInputReader().read("Enter user name : "));
+        loginData.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
         loginData.setPassword(textIO.newStringInputReader().read("Enter your password : "));
     }
     
