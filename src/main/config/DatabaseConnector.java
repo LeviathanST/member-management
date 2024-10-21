@@ -23,7 +23,7 @@ public class DatabaseConnector {
         Connection connection = null;
         try {
             Class.forName(driver);
-            String url = String.format("jdbc:mysql://localhost:%d/member-management", port);
+            String url = String.format(this.url, port);
             connection = DriverManager.getConnection(url, username, password);
             System.out.println("Connected to the database successfully!");
         } catch (ClassNotFoundException | SQLException | IllegalArgumentException  e) {
