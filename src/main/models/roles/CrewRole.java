@@ -92,7 +92,7 @@ public class CrewRole {
 		return list;
 	}
 
-	public int getCrewId(Connection con, CrewData crewData) throws SQLException, NotFoundException {
+	public static int getCrewId(Connection con, CrewData crewData) throws SQLException, NotFoundException {
 		String query = "SELECT * FROM crew WHERE name = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, crewData.getName());
@@ -104,7 +104,7 @@ public class CrewRole {
 		return rs.getInt("id");
 	}
 
-	public int getCrewRoleId(Connection con, CrewData crewData) throws SQLException, NotFoundException {
+	public static int getCrewRoleId(Connection con, CrewData crewData) throws SQLException, NotFoundException {
 		crewData.setCrewRoleId(getCrewId(con, crewData));
 		String query = "SELECT id FROM crew_role WHERE crew_id = ? AND name  = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
@@ -116,7 +116,7 @@ public class CrewRole {
 		return rs.getInt("id");
 	}
 
-	public void insertCrewMember(Connection con, CrewData data) throws SQLException, NotFoundException {
+	public static void insertCrewMember(Connection con, CrewData data) throws SQLException, NotFoundException {
 		int crew_role_id = getCrewRoleId(con, data);
 		String query = "INSERT INTO user_crew_role(account_id, crew_role_id) VALUES (?, ?)";
 		PreparedStatement stmt = con.prepareStatement(query);
@@ -127,7 +127,7 @@ public class CrewRole {
 			throw new SQLException("Insert failured");
 	}
 
-	public void updateCrewMember(Connection con, CrewData data, int newCrewRoleId)
+	public static void updateCrewMember(Connection con, CrewData data, int newCrewRoleId)
 			throws SQLException, NotFoundException {
 		int crew_role_id = getCrewRoleId(con, data);
 		String query = "UPDATE user_crew_role SET crew_role_id = ? WHERE account_id = ? AND crew_role_id = ?";
@@ -140,7 +140,7 @@ public class CrewRole {
 			throw new SQLException("Update failured");
 	}
 
-	public void deleteCrewMember(Connection con, CrewData crewData) throws SQLException, NotFoundException {
+	public static void deleteCrewMember(Connection con, CrewData crewData) throws SQLException, NotFoundException {
 		String query = "DELETE FROM user_crew_role WHERE account_id = ? AND crew_role_id = ?";
 		int crew_role_id = getCrewRoleId(con, crewData);
 		PreparedStatement stmt = con.prepareStatement(query);

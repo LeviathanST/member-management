@@ -1,20 +1,20 @@
 package models;
 
+import exceptions.NotFoundException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-import exceptions.NotFoundException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Guild {
+public class Crew {
 	private String name;
 
-	public Guild() {}
+	public Crew() {}
 
-	public Guild(String name) {
+	public Crew(String name) {
 		this.name = name;
 	}
 
@@ -27,7 +27,7 @@ public class Guild {
 	}
 
 	public static void getAllName(Connection con) throws SQLException {
-		String query = "SELECT name FROM guild ";
+		String query = "SELECT name FROM crew ";
 		PreparedStatement stmt = con.prepareStatement(query);
 		ResultSet rs = stmt.executeQuery();
 
@@ -37,7 +37,7 @@ public class Guild {
 	}
 
 	public static int getIdByName(Connection con, String name) throws SQLException, NotFoundException {
-		String query = "SELECT id FROM guild WHERE name = ?";
+		String query = "SELECT id FROM crew WHERE name = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, name);
 		ResultSet rs = stmt.executeQuery();
@@ -46,17 +46,17 @@ public class Guild {
 			return rs.getInt("id");
 		}
 
-		throw new NotFoundException("Guild ID is not existed!");
+		throw new NotFoundException("Crew ID is not existed!");
 	}
 	public static List<String> getAllNameToList(Connection con) throws SQLException {
-		List<String> guildNames = new ArrayList<>();
-		String query = "SELECT name FROM guild ";
+		List<String> crewNames = new ArrayList<>();
+		String query = "SELECT name FROM crew ";
 		PreparedStatement stmt = con.prepareStatement(query);
 		ResultSet rs = stmt.executeQuery();
 
 		while (rs.next()) {
-			guildNames.add(rs.getString("name"));
+			crewNames.add(rs.getString("name"));
 		}
-		return guildNames;
+		return crewNames;
 	}
 }

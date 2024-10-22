@@ -13,7 +13,6 @@ import java.sql.SQLException;
 public class GuildPermission {
 	private int id;
 	private String name;
-
 	public GuildPermission(int id, String name) {
 		this.id = id;
 		this.name = name;
@@ -21,6 +20,9 @@ public class GuildPermission {
 
 	public int getId() {
 		return id;
+	}
+	public String getName() {
+		return this.name;
 	}
 
 	public static List<GuildPermission> getAllByAccountIdAndGuildId(Connection con, String accountId,
@@ -70,7 +72,45 @@ public class GuildPermission {
 		return list;
 	}
 
-	public String getName() {
-		return this.name;
+
+	public void insert(String name, Connection con) throws SQLException {
+		String query = "INSERT INTO guild_permission (name) VALUES (?)";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, name);
+
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("A permission is failed when adding!");
+
+		System.out.println("Add a permission successfully!");
 	}
+
+	public void update(String newName, Connection con) throws SQLException {
+		String query = "UPDATE guild_permission SET name = ? where name = ?";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, this.name);
+		stmt.setString(2, newName);
+
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("A permission is failed when update!");
+
+		System.out.println("Update a permission successfully!");
+	}
+
+	public void delete(String name, Connection con) throws SQLException {
+		String query = "DELETE FROM guild_permission WHERE name = ?";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, name);
+
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("A permission is failed when deleting!");
+
+		System.out.println("Delete a permission successfully!");
+	}
+
 }
