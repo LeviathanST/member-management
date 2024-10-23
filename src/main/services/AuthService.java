@@ -80,7 +80,6 @@ public class AuthService {
 				TokenService.saveToFile(path, tokenData);
 			}
 		}
-		System.out.println("Login successfully!");
 	}
 
 	private static String hashingPassword(String password, int round) {
@@ -122,17 +121,17 @@ public class AuthService {
 	}
 
 	public static boolean AppAuthorization(Connection con, String accountId,
-			String namePermission) throws SQLException, NotFoundException, Exception {
+			String namePermission) throws SQLException, NotFoundException {
 		return Authorization(con, accountId, 0, RoleType.Application, namePermission);
 	}
 
 	public static boolean GuildAuthorization(Connection con, String accountId, int guildId,
-			String namePermission) throws SQLException, NotFoundException, Exception {
+			String namePermission) throws SQLException, NotFoundException {
 		return Authorization(con, accountId, guildId, RoleType.Guild, namePermission);
 	}
 
 	public static boolean CrewAuthorization(Connection con, String accountId, int crewId,
-			String namePermission) throws SQLException, NotFoundException, Exception {
+			String namePermission) throws SQLException, NotFoundException {
 		return Authorization(con, accountId, crewId, RoleType.Crew, namePermission);
 	}
 
@@ -142,7 +141,7 @@ public class AuthService {
 	/// if using for application let id = 0
 	public static boolean Authorization(Connection con, String accountId, int id, RoleType type,
 			String namePermission)
-			throws Exception, NotFoundException, SQLException {
+			throws NotFoundException, SQLException {
 		boolean isAuthorized;
 		try {
 			switch (type) {
@@ -199,8 +198,6 @@ public class AuthService {
 			throw new SQLException(e.getMessage(), e);
 		} catch (NotFoundException e) {
 			throw new NotFoundException(e.getMessage());
-		} catch (Exception e) {
-			throw new Exception("Error occurs when authorize" + e.getMessage());
 		}
 	}
 }
