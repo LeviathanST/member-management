@@ -41,7 +41,7 @@ public class CrewControllerView {
     public static void viewCRUDMemberToCrew(Connection connection, String options) throws SQLException {
         while (true) {
             List<String> crewNames = new ArrayList<>();
-            crewNames = CrewController.getAllCrews(connection);
+            crewNames = (List<String>) CrewController.getAllCrews(connection);
             TextIO textIO = TextIoFactory.getTextIO();
             String border = "+---------------------------------------+";
             textIO.getTextTerminal().println(border);
