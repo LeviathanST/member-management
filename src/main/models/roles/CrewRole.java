@@ -95,7 +95,7 @@ public class CrewRole {
 	public static int getCrewId(Connection con, CrewData crewData) throws SQLException, NotFoundException {
 		String query = "SELECT * FROM crew WHERE name = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, crewData.getName());
+		stmt.setString(1, crewData.getCrew_name());
 		ResultSet rs = stmt.executeQuery();
 
 		if (!rs.next()) {
@@ -109,7 +109,7 @@ public class CrewRole {
 		String query = "SELECT id FROM crew_role WHERE crew_id = ? AND name  = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setInt(1, crewData.getCrewRoleId());
-		stmt.setString(2, crewData.getName());
+		stmt.setString(2, crewData.getRole_name());
 		ResultSet rs = stmt.executeQuery();
 		if (!rs.next())
 			throw new NotFoundException("Crew role id is not existed!");

@@ -1,4 +1,4 @@
-package models;
+package models.users;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
