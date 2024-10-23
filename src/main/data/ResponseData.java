@@ -2,12 +2,12 @@ package data;
 
 import constants.ResponseStatus;
 
-public class ResponseData {
+public class ResponseData<T> {
 	private ResponseStatus status;
 	private String message;
-	private Object data;
+	private T data;
 
-	public ResponseData(ResponseStatus status, String message, Object data) {
+	public ResponseData(ResponseStatus status, String message, T data) {
 		this.status = status;
 		this.message = message;
 		this.data = data;
@@ -21,7 +21,7 @@ public class ResponseData {
 		return this.message;
 	}
 
-	public Object getData() {
+	public T getData() {
 		return this.data;
 	}
 }
