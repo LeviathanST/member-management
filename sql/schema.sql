@@ -1,3 +1,7 @@
+CREATE TABLE IF NOT EXISTS generation (
+	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(5) NOT NULL
+);
 CREATE TABLE IF NOT EXISTS user_account (
 	id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
 	username VARCHAR(255) UNIQUE NOT NULL,
@@ -16,11 +20,12 @@ CREATE TABLE IF NOT EXISTS user_profile (
 	sex ENUM ('MALE', 'FEMALE') NOT NULL,
 	student_code VARCHAR(8) NOT NULL,
 	contact_email VARCHAR(255),
-	generation VARCHAR(3) NOT NULL,
+	generation_id VARCHAR(5) NOT NULL,
 	dob DATE NOT NULL,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-	FOREIGN KEY (account_id) REFERENCES user_account(id)
+	FOREIGN KEY (account_id) REFERENCES user_account(id),
+	FOREIGN KEY (generation_id) REFERENCES generation (id)
 );
 
 -- ROLE 
@@ -43,8 +48,7 @@ CREATE TABLE IF NOT EXISTS role_permission (
 );
 CREATE TABLE IF NOT EXISTS user_role (
 	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	account_id CHAR(36) NOT NULL,
-	role_id INTEGER UNSIGNED NOT NULL,
+	account_id CHAR(36) NOT NULL, role_id INTEGER UNSIGNED NOT NULL,
 
 	FOREIGN KEY (account_id) REFERENCES user_account(id),
 	FOREIGN KEY (role_id) REFERENCES role(id)
@@ -80,8 +84,7 @@ CREATE TABLE IF NOT EXISTS user_crew_role (
 	crew_role_id INTEGER UNSIGNED NOT NULL,
 
 	UNIQUE KEY (account_id, crew_role_id),
-	FOREIGN KEY (account_id) REFERENCES user_account(id),
-	FOREIGN KEY (crew_role_id) REFERENCES crew_role(id)
+	FOREIGN KEY (account_id) REFERENCES user_account(id), FOREIGN KEY (crew_role_id) REFERENCES crew_role(id)
 );
 -- + GUILD
 CREATE TABLE IF NOT EXISTS guild (
@@ -119,6 +122,88 @@ CREATE TABLE IF NOT EXISTS user_guild_role (
 	FOREIGN KEY (guild_role_id) REFERENCES guild_role(id)
 );
 -- END permission
+
+-- EVENT
+-- + Crew
+CREATE TABLE IF NOT crew_event (
+	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	crew_id INTEGER UNSIGNED NOT NULL,
+	title VARCHAR(255) NOT NULL,
+	description VARCHAR(2048),
+	generation_id VARCHAR(5) NOT NULL,
+	start_at TIMESTAMP NOT NULL,
+	end_at TIMESTAMP NOT NULL,
+	type VARCHAR(255) NOT NULL,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+	FOREIGN KEY (crew_id) REFERENCES crew(id),
+	FOREIGN KEY (generation_id) REFERENCES generation(id),
+);
+
+
+CREATE TABLE IF NOT EXISTS task_crew (
+	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	crew_event_id INTEGER UNSIGNED NOT NULL,
+	author_id VARCHAR(36) NOT NULL,
+	title VARCHAR(255) NOT NULL,
+	description VARCHAR(2048),
+	start_at TIMESTAMP NOT NULL,
+	end_at TIMESTAMP NOT NULL,
+	update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+	FOREIGN KEY (crew_event_id) REFERENCES crew_event(id),
+	FOREIGN KEY (author_id) REFERENCES user_account(id)
+
+);
+
+CREATE TABLE IF NOT EXISTS user_task_crew (
+	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	crew_task_id INTEGER UNSIGNED,
+	assignee_account_id INTEGER UNSIGNED,
+
+	FOREIGN KEY (assignee_account_id) REFERENCES user_account(id),
+	FOREIGN KEY (crew_task_id) REFERENCES guild_task(id)
+);
+-- + Guild
+CREATE TABLE IF NOT guild_event (
+	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	guild_id INTEGER UNSIGNED NOT NULL,
+	title VARCHAR(255) NOT NULL,
+	description VARCHAR(2048),
+	generation_id VARCHAR(5) NOT NULL,
+	start_at TIMESTAMP NOT NULL,
+	end_at TIMESTAMP NOT NULL,
+	type VARCHAR(255) NOT NULL,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+	FOREIGN KEY (guild_id) REFERENCES guild(id),
+	FOREIGN KEY (generation_id) REFERENCES generation(id)
+);
+
+
+CREATE TABLE IF NOT EXISTS task_guild (
+	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	guild_event_id INTEGER UNSIGNED NOT NULL,
+	author_id VARCHAR(36) NOT NULL,
+	title VARCHAR(255) NOT NULL,
+	description VARCHAR(2048),
+	start_at TIMESTAMP NOT NULL,
+	end_at TIMESTAMP NOT NULL,
+	update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+	FOREIGN KEY (crew_event_id) REFERENCES crew_event(id),
+	FOREIGN KEY (author_id) REFERENCES user_account(id)
+
+);
+
+CREATE TABLE IF NOT EXISTS user_task_guild(
+	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	guild_task_id INTEGER UNSIGNED,
+	assignee_account_id INTEGER UNSIGNED,
+
+	FOREIGN KEY (assignee_account_id) REFERENCES user_account(id),
+	FOREIGN KEY (guild_task_id) REFERENCES guild_task(id)
+);
 
 -- Trigger to check count_mistake
 DELIMITER //
