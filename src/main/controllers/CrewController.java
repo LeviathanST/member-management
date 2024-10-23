@@ -16,6 +16,7 @@ public class CrewController {
             e.printStackTrace();
         }
     }
+
     public static void delete(Connection connection, String userName, String crewName, String crewRole) {
         try {
 
@@ -23,6 +24,7 @@ public class CrewController {
             e.printStackTrace();
         }
     }
+
     public static void update(Connection connection, String userName, String crewName, String crewRole) {
         try {
 
@@ -30,6 +32,7 @@ public class CrewController {
             e.printStackTrace();
         }
     }
+
     public static List<String> getAllCrews(Connection connection) throws SQLException {
         return Crew.getAllNameToList(connection);
     }
