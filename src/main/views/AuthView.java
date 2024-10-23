@@ -2,10 +2,9 @@ package views;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 import org.beryx.textio.TextTerminal;
-import services.AuthService;
 import data.LoginData;
 import data.SignUpData;
-import exceptions.AuthException;
+
 
 public class AuthView {
     protected TextIO textIO = TextIoFactory.getTextIO();
@@ -30,22 +29,19 @@ public class AuthView {
         this.terminal.print("\033[H\033[2J");  // Mã escape ANSI để xóa màn hình
         this.terminal.print("\033[H");         // Đặt con trỏ trở lại vị trí đầu
     }
+
+    public void clearScreen(String mess) {
+        String tmp ="1";
+        tmp += textIO.newStringInputReader().read(mess);
+        this.terminal.print("\033[H\033[2J");  
+        this.terminal.print("\033[H"); 
+    }
     
 
     public void signUpForm(SignUpData signUpData) {
         terminal.getProperties().setPromptColor("green");
         terminal.getProperties().setInputColor("green");
-        int checkUser = 1, checkPass = 1;
-        do {
-            try {
-                signUpData.setUserName(textIO.newStringInputReader().read("Enter your user name : "));
-                if(signUpData.getUsername().contains(" "))
-                    throw new AuthException("User name must not contains white space!");
-                checkUser = 0;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } while (checkUser == 1);
+        signUpData.setUserName(textIO.newStringInputReader().read("Enter your user name : "));
         signUpData.setPassword(textIO.newStringInputReader().read("Enter your password" + 
                                                                          "(must contains at least one character," +  
                                                                          "one digit, one speacial," +  

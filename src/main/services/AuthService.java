@@ -29,6 +29,9 @@ public class AuthService {
 		int round = Integer.parseInt(Optional.ofNullable(System.getenv("ROUND_HASHING")).orElse("4"));
 		String[] errorsPassword = AuthService.validatePassword(data.getPassword());
 
+		if(data.getUsername().contains(" "))
+				throw new IllegalArgumentException("User name must not contain white space");
+		
 		if (errorsPassword.length != 0) {
 			for (String tmp : errorsPassword)
 				throw new InvalidPasswordException(tmp);
@@ -37,7 +40,6 @@ public class AuthService {
 			
 		if (data.getUsername() == null || data.getUsername() == "")
 			throw new IllegalArgumentException("Your username musn't be empty!");
-		data.setUserName(normalizeUsername(data.getUsername()));
 		data.setPassword(hashingPassword(data.getPassword(), round));
 		UserAccount.insert(con, data);
 	}
@@ -111,21 +113,6 @@ public class AuthService {
 
 		return errors.toArray(new String[0]);
 	}
-
-
-	public static String normalizeUsername(String username) {
-        String[] parts = username.toLowerCase().split(" ");
-        StringBuilder normalized = new StringBuilder();
-
-        for (String part : parts) {
-            if (!part.isEmpty()) {
-                normalized.append(Character.toUpperCase(part.charAt(0)))
-                          .append(part.substring(1)).append(" ");
-            }
-        }
-
-        return normalized.toString().trim();
-    }
 
 	public static void Authorization() {
 	}
