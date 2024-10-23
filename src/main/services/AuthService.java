@@ -121,13 +121,28 @@ public class AuthService {
 		return errors.toArray(new String[0]);
 	}
 
+	public static boolean AppAuthorization(Connection con, String accountId,
+			String namePermission) throws SQLException, NotFoundException, Exception {
+		return Authorization(con, accountId, 0, RoleType.Application, namePermission);
+	}
+
+	public static boolean GuildAuthorization(Connection con, String accountId, int guildId,
+			String namePermission) throws SQLException, NotFoundException, Exception {
+		return Authorization(con, accountId, guildId, RoleType.Guild, namePermission);
+	}
+
+	public static boolean CrewAuthorization(Connection con, String accountId, int crewId,
+			String namePermission) throws SQLException, NotFoundException, Exception {
+		return Authorization(con, accountId, crewId, RoleType.Crew, namePermission);
+	}
+
 	/// ID
 	/// + crew_id
 	/// + guild_id
 	/// if using for application let id = 0
 	public static boolean Authorization(Connection con, String accountId, int id, RoleType type,
 			String namePermission)
-			throws CacheException, NotFoundException, SQLException {
+			throws Exception, NotFoundException, SQLException {
 		boolean isAuthorized;
 		try {
 			switch (type) {
@@ -185,7 +200,7 @@ public class AuthService {
 		} catch (NotFoundException e) {
 			throw new NotFoundException(e.getMessage());
 		} catch (Exception e) {
-			throw new CacheException("This permission is already contained in cache!" + e.getMessage());
+			throw new Exception("Error occurs when authorize" + e.getMessage());
 		}
 	}
 }
