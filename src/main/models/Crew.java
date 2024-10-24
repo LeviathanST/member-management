@@ -12,8 +12,6 @@ import java.util.List;
 public class Crew {
 	private String name;
 
-	public Crew() {}
-
 	public Crew(String name) {
 		this.name = name;
 	}
@@ -48,6 +46,7 @@ public class Crew {
 
 		throw new NotFoundException("Crew ID is not existed!");
 	}
+
 	public static List<String> getAllNameToList(Connection con) throws SQLException {
 		List<String> crewNames = new ArrayList<>();
 		String query = "SELECT name FROM crew ";

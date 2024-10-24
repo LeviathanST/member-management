@@ -12,8 +12,6 @@ import java.util.List;
 public class Guild {
 	private String name;
 
-	public Guild() {}
-
 	public Guild(String name) {
 		this.name = name;
 	}
@@ -48,6 +46,7 @@ public class Guild {
 
 		throw new NotFoundException("Guild ID is not existed!");
 	}
+
 	public static List<String> getAllNameToList(Connection con) throws SQLException {
 		List<String> guildNames = new ArrayList<>();
 		String query = "SELECT name FROM guild ";
