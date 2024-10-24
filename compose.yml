@@ -15,7 +15,9 @@ services:
     image: phpmyadmin/phpmyadmin
     environment:
       PMA_HOST: mysql
+      PMA_USER: root 
+      PMA_PASSWORD: ${DB_PASSWORD}
     ports:
-      - ${MYADMIN_PORT}:${MYADMIN_PORT} 
+      - ${MYADMIN_PORT}:80 
     depends_on:
       - mysql
