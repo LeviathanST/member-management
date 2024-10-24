@@ -3,9 +3,12 @@ package utils;
 import java.lang.reflect.Field;
 
 import annotations.EnvVar;
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class EnvLoader {
 	public static <T> T load(Class<T> clazz) throws RuntimeException {
+		Dotenv dotenv = Dotenv.load();
+
 		try {
 			T instance = clazz.getDeclaredConstructor().newInstance();
 			for (Field field : clazz.getDeclaredFields()) {
@@ -16,7 +19,8 @@ public class EnvLoader {
 							field.getName(), clazz.getName()));
 				}
 				String envVarName = annotation.value();
-				String envValue = System.getenv(envVarName);
+				String envValue = System.getenv(envVarName) != null ? System.getenv(envVarName)
+						: dotenv.get(envVarName);
 				if (envValue == null) {
 					throw new RuntimeException(String
 							.format("Value of %s is null",
