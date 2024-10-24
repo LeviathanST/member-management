@@ -20,12 +20,12 @@ CREATE TABLE IF NOT EXISTS user_profile (
 	sex ENUM ('MALE', 'FEMALE') NOT NULL,
 	student_code VARCHAR(8) NOT NULL,
 	contact_email VARCHAR(255),
-	generation_id VARCHAR(5) NOT NULL,
+	generation_id INTEGER UNSIGNED NOT NULL,
 	dob DATE NOT NULL,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 	FOREIGN KEY (account_id) REFERENCES user_account(id),
-	FOREIGN KEY (generation_id) REFERENCES generation (id)
+	FOREIGN KEY (generation_id) REFERENCES generation(id)
 );
 
 -- ROLE 
