@@ -4,28 +4,18 @@ services:
   mysql:
     image: mysql:latest
     environment:
-      MYSQL_ROOT_PASSWORD: admin
-      MYSQL_DATABASE: member-management
-      MYSQL_USER: user
-      MYSQL_PASSWORD: pwd
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD} 
+      MYSQL_DATABASE: ${DB_DATABASE} 
     ports:
-      - "3306:3306"
+      - ${DB_PORT}:${DB_PORT} 
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
-    networks:
-      - mynetwork
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     environment:
       PMA_HOST: mysql
     ports:
-      - "8080:80"
+      - ${MYADMIN_PORT}:${MYADMIN_PORT} 
     depends_on:
       - mysql
-    networks:
-      - mynetwork
-
-networks:
-  mynetwork:
-    driver: bridge
