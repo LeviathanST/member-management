@@ -1,9 +1,9 @@
-package data;
+package dto;
 
 import java.sql.Timestamp; // Correct import for Timestamp
 import constants.CrewEventType;
 
-public class CrewEventData {
+public class CrewEventDTO {
 	private int crewId;
 	private String title;
 	private String description;

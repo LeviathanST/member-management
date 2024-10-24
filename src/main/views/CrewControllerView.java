@@ -1,6 +1,9 @@
 package views;
 
 import controllers.CrewController;
+import dto.CrewDTO;
+import exceptions.NotFoundException;
+import models.users.UserAccount;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 
@@ -60,7 +63,7 @@ public class CrewControllerView {
             textIO.getTextTerminal().println("| Input Crew's Name               |");
             textIO.getTextTerminal().println(border);
 
-            String guildName = textIO.newStringInputReader()
+            String crewName = textIO.newStringInputReader()
                     .withNumberedPossibleValues(crewNames)
                     .read("");
 
@@ -68,10 +71,10 @@ public class CrewControllerView {
             textIO.getTextTerminal().println("| Input Crew's Role               |");
             textIO.getTextTerminal().println(border);
 
-            String guildRole = textIO.newStringInputReader()
+            String crewRole = textIO.newStringInputReader()
                     .withNumberedPossibleValues(crewNames)
                     .read("");
-
+            CrewDTO crewDTO = new CrewDTO(name, crewName, crewRole);
             switch (options) {
                 case "Add Member To Crew":
                     break;

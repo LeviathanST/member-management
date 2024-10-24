@@ -1,15 +1,16 @@
-package data;
+package dto;
 
-public class CrewData {
+public class CrewDTO {
     private String account_id;
+    private String userName;
     private int crew_role_id;
     private String crew_name;
     private String role_name;
 
-    public CrewData(String account_id, String role_name, String crew_name) {
-        this.account_id = account_id;
+    public CrewDTO(String role_name, String crew_name, String userName) {
         this.role_name = role_name;
         this.crew_name = crew_name;
+        this.userName = userName;
     }
 
     public String getAccount_id() {
@@ -30,5 +31,9 @@ public class CrewData {
 
     public String getCrew_name() {
         return this.crew_name;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 }

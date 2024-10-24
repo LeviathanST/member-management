@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import data.CrewEventData;
+import dto.CrewEventDTO;
 
 import java.sql.Connection;
 
@@ -38,15 +38,15 @@ public class CrewEvent {
 	}
 
 	// CRUD Operations
-	public static void insert(Connection con, CrewEventData data) throws SQLException {
+	public void insert(Connection con, CrewEventDTO data) throws SQLException {
 		String query = """
 				    INSERT INTO crew_event (crew_id, title, description, generation_id, start_at, end_at, type_id)
 				    VALUES (?, ?, ?, ?, ?, ?, ?)
 				""";
 
 		try (PreparedStatement stmt = con.prepareStatement(query)) {
-			stmt.setInt(1, data.crewId);
-			stmt.setString(2, data.title);
+			stmt.setInt(1, data.getCrewId());
+			stmt.setString(2, data.getTitle());
 			stmt.setString(3, this.description);
 			stmt.setInt(4, this.generationId);
 			stmt.setTimestamp(5, this.startAt); // Corrected index for startAt

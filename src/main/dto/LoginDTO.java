@@ -1,10 +1,10 @@
-package data;
+package dto;
 
-public class LoginData {
+public class LoginDTO {
 	private String username;
 	private String password;
 
-	public LoginData(String username, String password) {
+	public LoginDTO(String username, String password) {
 		this.username = username;
 		this.password = password;
 	}

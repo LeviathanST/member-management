@@ -12,10 +12,10 @@ import java.util.Optional;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import constants.RoleType;
-import data.ClaimsData;
-import data.LoginData;
-import data.SignUpData;
-import data.TokenPairData;
+import dto.ClaimsDTO;
+import dto.LoginDTO;
+import dto.SignUpDTO;
+import dto.TokenPairDTO;
 import exceptions.*;
 import models.users.UserAccount;
 import models.users.UserCrewRole;
@@ -27,7 +27,7 @@ import models.permissions.Permission;
 import models.roles.Role;
 
 public class AuthService {
-	public static void signUpInternal(Connection con, SignUpData data)
+	public static void signUpInternal(Connection con, SignUpDTO data)
 			throws InvalidPasswordException, AuthException, DataEmptyException, SQLException,
 			SQLIntegrityConstraintViolationException, NotFoundException {
 
@@ -48,7 +48,7 @@ public class AuthService {
 		UserRole.insert(con, account_id, role_id);
 	}
 
-	public static void loginInternal(Connection con, LoginData data)
+	public static void loginInternal(Connection con, LoginDTO data)
 			throws AuthException, TokenException, SQLException, NotFoundException {
 		PreparedStatement stmt = con.prepareStatement(
 				"SELECT id, hashed_password FROM user_account WHERE username = ?");
@@ -74,9 +74,9 @@ public class AuthService {
 				List<Integer> userGuildRoleId = UserGuildRole.getIdByAccountId(con, account_id);
 				List<Integer> userCrewRole = UserCrewRole.getIdByAccountId(con, account_id);
 
-				ClaimsData claimsData = new ClaimsData(account_id, userRoleId, userGuildRoleId,
+				ClaimsDTO claimsData = new ClaimsDTO(account_id, userRoleId, userGuildRoleId,
 						userCrewRole);
-				TokenPairData tokenData = TokenPairData.GenerateNew(claimsData);
+				TokenPairDTO tokenData = TokenPairDTO.GenerateNew(claimsData);
 				TokenService.saveToFile(path, tokenData);
 			}
 		}

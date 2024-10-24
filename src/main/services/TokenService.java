@@ -7,11 +7,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import data.TokenPairData;
+import dto.TokenPairDTO;
 import exceptions.TokenException;
 
 public class TokenService {
-	public static void saveToFile(Path savingFilePath, TokenPairData data) throws TokenException {
+	public static void saveToFile(Path savingFilePath, TokenPairDTO data) throws TokenException {
 		ObjectMapper mapper = new ObjectMapper();
 
 		if (!Files.exists(savingFilePath)) {
@@ -47,7 +47,7 @@ public class TokenService {
 		}
 	}
 
-	public static TokenPairData loadFromFile(Path savingFilePath) throws TokenException {
+	public static TokenPairDTO loadFromFile(Path savingFilePath) throws TokenException {
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
@@ -58,7 +58,7 @@ public class TokenService {
 				throw new TokenException("Please login to get token pair");
 			}
 
-			return new TokenPairData(
+			return new TokenPairDTO(
 					tokenNode.path("accessToken").asText(),
 					tokenNode.path("refreshToken").asText());
 

@@ -1,5 +1,7 @@
 package models.events;
 
+import dto.GuildEventDTO;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -37,15 +39,15 @@ public class GuildEvent {
 	// (omitting for brevity, keep as previously defined)
 
 	// CRUD Operations
-	public void insert(Connection con) throws SQLException {
+	public void insert(Connection con, GuildEventDTO data) throws SQLException {
 		String query = """
 				    INSERT INTO guild_event (guild_id, title, description, generation_id, start_at, end_at, type_id)
 				    VALUES (?, ?, ?, ?, ?, ?, ?)
 				""";
 
 		try (PreparedStatement stmt = con.prepareStatement(query)) {
-			stmt.setInt(1, this.guildId); // Updated variable name
-			stmt.setString(2, this.title);
+			stmt.setInt(1, data.getGuildId()); // Updated variable name
+			stmt.setString(2, data.getTitle());
 			stmt.setString(3, this.description);
 			stmt.setInt(4, this.generationId);
 			stmt.setTimestamp(5, this.startAt); // Corrected index for startAt

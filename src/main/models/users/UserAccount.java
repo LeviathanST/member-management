@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 
-import data.SignUpData;
+import dto.SignUpDTO;
 import exceptions.DataEmptyException;
 import exceptions.NotFoundException;
 
@@ -29,7 +29,7 @@ public class UserAccount {
 		throw new NotFoundException("This username is not existed!");
 	}
 
-	public static void insert(Connection con, SignUpData data)
+	public static void insert(Connection con, SignUpDTO data)
 			throws DataEmptyException, SQLException, SQLIntegrityConstraintViolationException {
 
 		String query = "INSERT INTO user_account (username, hashed_password) VALUES (?, ?)";
