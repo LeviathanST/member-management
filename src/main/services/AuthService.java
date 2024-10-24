@@ -17,10 +17,10 @@ import data.LoginData;
 import data.SignUpData;
 import data.TokenPairData;
 import exceptions.*;
-import models.users.UserAccount;
-import models.users.UserCrewRole;
-import models.users.UserGuildRole;
-import models.users.UserRole;
+import models.UserAccount;
+import models.UserCrewRole;
+import models.UserGuildRole;
+import models.UserRole;
 import models.permissions.CrewPermission;
 import models.permissions.GuildPermission;
 import models.permissions.Permission;
@@ -80,6 +80,7 @@ public class AuthService {
 				TokenService.saveToFile(path, tokenData);
 			}
 		}
+		System.out.println("Login successfully!");
 	}
 
 	private static String hashingPassword(String password, int round) {
@@ -120,28 +121,13 @@ public class AuthService {
 		return errors.toArray(new String[0]);
 	}
 
-	public static boolean AppAuthorization(Connection con, String accountId,
-			String namePermission) throws SQLException, NotFoundException {
-		return Authorization(con, accountId, 0, RoleType.Application, namePermission);
-	}
-
-	public static boolean GuildAuthorization(Connection con, String accountId, int guildId,
-			String namePermission) throws SQLException, NotFoundException {
-		return Authorization(con, accountId, guildId, RoleType.Guild, namePermission);
-	}
-
-	public static boolean CrewAuthorization(Connection con, String accountId, int crewId,
-			String namePermission) throws SQLException, NotFoundException {
-		return Authorization(con, accountId, crewId, RoleType.Crew, namePermission);
-	}
-
 	/// ID
 	/// + crew_id
 	/// + guild_id
 	/// if using for application let id = 0
 	public static boolean Authorization(Connection con, String accountId, int id, RoleType type,
 			String namePermission)
-			throws NotFoundException, SQLException {
+			throws CacheException, NotFoundException, SQLException {
 		boolean isAuthorized;
 		try {
 			switch (type) {
@@ -198,6 +184,8 @@ public class AuthService {
 			throw new SQLException(e.getMessage(), e);
 		} catch (NotFoundException e) {
 			throw new NotFoundException(e.getMessage());
+		} catch (Exception e) {
+			throw new CacheException("This permission is already contained in cache!" + e.getMessage());
 		}
 	}
 }

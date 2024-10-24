@@ -13,7 +13,7 @@ import data.GuildData;
 import exceptions.NotFoundException;
 import data.UserGuildRoleData;
 import models.Guild;
-import models.users.UserAccount;
+import models.UserAccount;
 
 public class GuildRole {
 	private String name;
@@ -89,10 +89,11 @@ public class GuildRole {
 		return list;
 	}
 
+
 	public static void insertGuildMember(Connection con, GuildData data) throws SQLException, NotFoundException {
 		int guildID = Guild.getIdByName(con, data.getGuildName());
-		int guild_role_id = getIdByName(con, guildID, data.getGuildRole());
-		String account_id = UserAccount.getIdByUsername(con, data.getUserName());
+		int guild_role_id = getIdByName(con, guildID,data.getGuildRole());
+		String account_id = UserAccount.getIdByUsername(con,data.getUserName());
 		String query = "INSERT INTO user_guild_role(account_id, guild_role_id) VALUES (?, ?)";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, account_id);
@@ -105,8 +106,8 @@ public class GuildRole {
 	public static void updateGuildMember(Connection con, GuildData data, int newGuildRoleID)
 			throws SQLException, NotFoundException {
 		int guildID = Guild.getIdByName(con, data.getGuildName());
-		int guild_role_id = getIdByName(con, guildID, data.getGuildRole());
-		String account_id = UserAccount.getIdByUsername(con, data.getUserName());
+		int guild_role_id = getIdByName(con, guildID,data.getGuildRole());
+		String account_id = UserAccount.getIdByUsername(con,data.getUserName());
 		String query = "UPDATE user_guild_role SET guild_role_id = ? WHERE account_id = ? AND guild_role_id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setInt(1, newGuildRoleID);
@@ -119,8 +120,8 @@ public class GuildRole {
 
 	public static void deleteCrewMember(Connection con, GuildData data) throws SQLException, NotFoundException {
 		int guildID = Guild.getIdByName(con, data.getGuildName());
-		int guild_role_id = getIdByName(con, guildID, data.getGuildRole());
-		String account_id = UserAccount.getIdByUsername(con, data.getUserName());
+		int guild_role_id = getIdByName(con, guildID,data.getGuildRole());
+		String account_id = UserAccount.getIdByUsername(con,data.getUserName());
 		String query = "DELETE FROM user_guild_role WHERE account_id = ? AND guild_role_id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, account_id);

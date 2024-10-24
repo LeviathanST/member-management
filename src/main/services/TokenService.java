@@ -19,7 +19,7 @@ public class TokenService {
 				Files.createFile(savingFilePath);
 			} catch (Exception e) {
 				throw new TokenException(
-						"Error occurs when create file to saving tokens");
+						"Error occurs when create file to saving tokens: " + e.getMessage(), e);
 			}
 		}
 
@@ -43,7 +43,7 @@ public class TokenService {
 			System.out.println("Your token is updated");
 
 		} catch (Exception e) {
-			throw new TokenException("Error occurs when saving tokens");
+			throw new TokenException("Error occurs when saving tokens: " + e.getMessage(), e);
 		}
 	}
 
@@ -63,7 +63,7 @@ public class TokenService {
 					tokenNode.path("refreshToken").asText());
 
 		} catch (Exception e) {
-			throw new TokenException("Error occurs when loading token");
+			throw new TokenException("Error occurs when loading token: " + e.getMessage(), e);
 		}
 	}
 

@@ -1,6 +1,7 @@
 package views;
 
 import controllers.CrewController;
+import controllers.GuildController;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 
@@ -15,21 +16,20 @@ public class CrewControllerView {
         String title = "Crew Controller";
         textIO.getTextTerminal().println(title);
         String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("Add Member To Crew", "View Member In Crew", "Delete Member From Crew",
-                        "Update Member From Crew", "Back", "Back To Menu")
+                .withNumberedPossibleValues("Add Member To Crew", "View Member In Crew", "Delete Member From Crew","Update Member From Crew","Back","Back To Menu")
                 .read("");
-        switch (options) {
+        switch (options){
             case "Add Member To Crew":
-                viewCRUDMemberToCrew(connection, options);
+                viewCRUDMemberToCrew(connection,options);
                 break;
             case "View Member In Crew":
                 textIO.getTextTerminal().println("View Member In Guild");
                 break;
             case "Delete Member From Crew":
-                viewCRUDMemberToCrew(connection, options);
+                viewCRUDMemberToCrew(connection,options);
                 break;
             case "Update Member From Crew":
-                viewCRUDMemberToCrew(connection, options);
+                viewCRUDMemberToCrew(connection,options);
                 break;
             default:
                 textIO.getTextTerminal().println("Default");
@@ -37,11 +37,10 @@ public class CrewControllerView {
         options = textIO.newStringInputReader().read();
         textIO.dispose();
     }
-
     public static void viewCRUDMemberToCrew(Connection connection, String options) throws SQLException {
-        while (true) {
+        while (true){
             List<String> crewNames = new ArrayList<>();
-            crewNames = (List<String>) CrewController.getAllCrews(connection);
+            crewNames = CrewController.getAllCrews(connection);
             TextIO textIO = TextIoFactory.getTextIO();
             String border = "+---------------------------------------+";
             textIO.getTextTerminal().println(border);
@@ -72,7 +71,7 @@ public class CrewControllerView {
                     .withNumberedPossibleValues(crewNames)
                     .read("");
 
-            switch (options) {
+            switch (options){
                 case "Add Member To Crew":
                     break;
                 case "Delete Member From Crew":
@@ -85,11 +84,12 @@ public class CrewControllerView {
                     .withNumberedPossibleValues("Continue", "Back", "Back To Menu")
                     .read("");
             textIO.getTextTerminal().println(border);
-            if (!continueOrBack.equals("Continue")) {
+            if (!continueOrBack.equals("Continue")){
                 break;
             }
         }
 
     }
+
 
 }
