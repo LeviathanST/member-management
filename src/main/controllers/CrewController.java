@@ -1,8 +1,8 @@
 package controllers;
 
 import constants.ResponseStatus;
-import data.CrewData;
-import data.ResponseData;
+import dto.CrewDTO;
+import dto.ResponseDTO;
 import exceptions.NotFoundException;
 import models.Crew;
 import models.roles.CrewRole;
@@ -13,57 +13,51 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class CrewController {
-    public static ResponseData<Object> add(Connection connection, String userName, String crewName, String crewRole) {
+    public static ResponseDTO<Object> add(Connection connection, CrewDTO crewDTO) throws SQLException {
         try {
-            String account_id = UserAccount.getIdByUsername(connection,userName);
-            CrewData crewData = new CrewData(account_id, crewRole, crewName);
-            CrewRole.insertCrewMember(connection, crewData);
-            return new ResponseData<>(ResponseStatus.OK,
-                    String.format("Add %s to %s crews successfully!", userName, crewName), null);
+            CrewRole.insertCrewMember(connection, crewDTO);
+            return new ResponseDTO<>(ResponseStatus.OK,
+                    String.format("Add %s to %s crews successfully!", crewDTO.getUserName(), crewDTO.getCrew_name()), null);
         } catch (SQLException e) {
-            return new ResponseData<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException e) {
-            return new ResponseData<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
 
-    public static ResponseData<Object> delete(Connection connection, String userName, String crewName, String crewRole) {
+    public static ResponseDTO<Object> delete(Connection connection, CrewDTO crewDTO) throws SQLException {
         try {
-            String account_id = UserAccount.getIdByUsername(connection,userName);
-            CrewData crewData = new CrewData(account_id, crewRole, crewName);
-            CrewRole.deleteCrewMember(connection, crewData);
-            return new ResponseData<>(ResponseStatus.OK,
-                    String.format("Delete %s from %s guild successfully!", userName, crewName), null);
+            CrewRole.deleteCrewMember(connection, crewDTO);
+            return new ResponseDTO<>(ResponseStatus.OK,
+                    String.format("Delete %s from %s guild successfully!", crewDTO.getUserName(), crewDTO.getCrew_name()), null);
         } catch (SQLException e) {
-            return new ResponseData<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException e) {
-            return new ResponseData<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
 
-    public static ResponseData<Object> update(Connection connection, String userName, String crewName, String crewRole) {
+    public static ResponseDTO<Object> update(Connection connection, CrewDTO crewDTO) throws SQLException {
         try {
-            String account_id = UserAccount.getIdByUsername(connection,userName);
-            CrewData crewData = new CrewData(account_id, crewRole, crewName);
-            CrewRole.deleteCrewMember(connection, crewData);
-            return new ResponseData<>(ResponseStatus.OK,
-                    String.format("Update %s successfully!", userName), null);
+            CrewRole.deleteCrewMember(connection, crewDTO);
+            return new ResponseDTO<>(ResponseStatus.OK,
+                    String.format("Update %s successfully!", crewDTO.getUserName()), null);
         } catch (SQLException e) {
-            return new ResponseData<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException e) {
-            return new ResponseData<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
 
-    public static ResponseData<List<String>> getAllCrews(Connection connection) {
+    public static ResponseDTO<List<String>> getAllCrews(Connection connection) {
         try {
             List<String> data = Crew.getAllNameToList(connection);
-            return new ResponseData<>(ResponseStatus.OK, "Get all crews successfully!", data);
+            return new ResponseDTO<>(ResponseStatus.OK, "Get all crews successfully!", data);
         } catch (SQLException e) {
-            return new ResponseData<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
         }
     }

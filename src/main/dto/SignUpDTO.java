@@ -1,10 +1,10 @@
-package data;
+package dto;
 
-public class SignUpData {
+public class SignUpDTO {
 	private String username;
 	private String password;
 
-	public SignUpData(String username, String password) {
+	public SignUpDTO(String username, String password) {
 		this.username = username;
 		this.password = password;
 	}

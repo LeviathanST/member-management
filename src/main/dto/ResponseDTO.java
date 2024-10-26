@@ -1,13 +1,13 @@
-package data;
+package dto;
 
 import constants.ResponseStatus;
 
-public class ResponseData<T> {
+public class ResponseDTO<T> {
 	private ResponseStatus status;
 	private String message;
 	private T data;
 
-	public ResponseData(ResponseStatus status, String message, T data) {
+	public ResponseDTO(ResponseStatus status, String message, T data) {
 		this.status = status;
 		this.message = message;
 		this.data = data;

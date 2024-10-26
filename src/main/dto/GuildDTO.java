@@ -1,11 +1,11 @@
-package data;
+package dto;
 
-public class GuildData {
+public class GuildDTO {
     private String userName;
     private String guildRole;
     private String guildName;
 
-    public GuildData(String userName, String guildRole, String guildName) {
+    public GuildDTO(String userName, String guildRole, String guildName) {
         this.userName = userName;
         this.guildRole = guildRole;
         this.guildName = guildName;

@@ -1,16 +1,16 @@
-package data;
+package dto;
 
 import java.util.List;
 
-public class ClaimsData {
+public class ClaimsDTO {
 	private String accountId;
 	private int userRoleId;
 	private List<Integer> userGuildRoleIds;
 	private List<Integer> userCrewRoleIds;
 
-	public ClaimsData(String accountId, int userRoleId,
-			List<Integer> userGuildRoleIds,
-			List<Integer> userCrewRoleIds) {
+	public ClaimsDTO(String accountId, int userRoleId,
+					 List<Integer> userGuildRoleIds,
+					 List<Integer> userCrewRoleIds) {
 		this.accountId = accountId;
 		this.userRoleId = userRoleId;
 		this.userGuildRoleIds = userGuildRoleIds;

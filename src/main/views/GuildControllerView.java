@@ -1,4 +1,5 @@
 package views;
+import dto.GuildDTO;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 import controllers.GuildController;
@@ -38,7 +39,7 @@ public class GuildControllerView {
     public static void viewCRUDMemberToGuild(Connection connection, String options) throws SQLException {
         while (true){
             List<String> guildNames = new ArrayList<>();
-            guildNames = GuildController.getAllGuilds(connection);
+            guildNames = (List<String>) GuildController.getAllGuilds(connection);
             TextIO textIO = TextIoFactory.getTextIO();
             String border = "+---------------------------------------+";
             textIO.getTextTerminal().println(border);
@@ -68,16 +69,16 @@ public class GuildControllerView {
             String guildRole = textIO.newStringInputReader()
                     .withNumberedPossibleValues(guildNames)
                     .read("");
-
+            GuildDTO guildDTO = new GuildDTO(name, guildName, guildRole);
             switch (options){
                 case "Add Member To Guild":
-                    GuildController.add(connection, name, guildName, guildRole);
+                    GuildController.add(connection, guildDTO);
                     break;
                 case "Delete Member From Guild":
-                    GuildController.delete(connection, name, guildName, guildRole);
+                    GuildController.delete(connection, guildDTO);
                     break;
                 case "Update Member From Guild":
-                    GuildController.update(connection, name, guildName, guildRole);
+                    GuildController.update(connection, guildDTO);
                     break;
             }
             textIO.getTextTerminal().println(border);
