@@ -4,13 +4,13 @@ package data;
 import java.sql.Date;
 import constants.Sex;
 
-public class ProfileData {
+public class ProfileData{
     private String full_name;
     private Sex sex;
     private String student_code;
     private String contact_email;
     private String generation;
-    private Date date_of_birth;
+    private Date date_of_birth;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
     private String userName;
 
     public ProfileData() {}

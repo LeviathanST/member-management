@@ -10,7 +10,7 @@ import exceptions.DataEmptyException;
 import services.ProfileService;
 
 public class ProfileController {
-    public static ResponseData<Object> InputProfileData(Connection con, ProfileData data) {
+    public static ResponseData<Object> CreateOne(Connection con, ProfileData data) {
         try {
 			ProfileService.InsertProfileInternal(con, data);
             return new ResponseData<Object>(ResponseStatus.OK, "Update user profile successfully!", null);
