@@ -10,11 +10,12 @@ import java.util.regex.Pattern;
 import models.users.UserProfile;
 import data.ProfileData;
 import exceptions.DataEmptyException;
+import exceptions.NotFoundException;
 import exceptions.ProfileException;
 
 
 public class ProfileService {
-    public static void InsertProfileInternal(Connection con, ProfileData data)  throws SQLException, DataEmptyException, ProfileException{
+    public static void InsertProfileInternal(Connection con, ProfileData data)  throws SQLException, DataEmptyException, ProfileException, NotFoundException{
         data.setStudentCode((data.getStudentCode().toUpperCase()));
         data.setFullName(normalizeFullname(data.getFullName()));
         if (data.getFullName() == null) 
