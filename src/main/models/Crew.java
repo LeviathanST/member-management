@@ -6,22 +6,53 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Crew {
-	private String name;
+	public static void insert(Connection con, String name)
+			throws SQLException, SQLIntegrityConstraintViolationException {
+		String query = "INSERT INTO crew (name) VALUES (?)";
 
-	public Crew(String name) {
-		this.name = name;
+		try (PreparedStatement stmt = con.prepareStatement(query)) {
+			stmt.setString(1, name);
+			stmt.executeUpdate();
+
+			int rowEffected = stmt.executeUpdate();
+			if (rowEffected == 0) {
+				throw new SQLException(String.format("Insert crew %s is failed", name));
+			}
+		}
 	}
 
-	public String getName() {
-		return this.name;
+	public static void update(Connection con, int crewId, String newName) throws SQLException {
+		String query = "UPDATE crew SET name = ? WHERE id = ?";
+
+		try (PreparedStatement stmt = con.prepareStatement(query)) {
+			stmt.setString(1, newName);
+			stmt.setInt(2, crewId);
+			stmt.executeUpdate();
+
+			int rowEffected = stmt.executeUpdate();
+			if (rowEffected == 0) {
+				throw new SQLException(String.format("Update name crew into %s is failed", newName));
+			}
+		}
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public static void delete(Connection con, int crewId) throws SQLException {
+		String query = "DELETE FROM crew WHERE id = ?";
+
+		try (PreparedStatement stmt = con.prepareStatement(query)) {
+			stmt.setInt(1, crewId);
+			stmt.executeUpdate();
+
+			int rowEffected = stmt.executeUpdate();
+			if (rowEffected == 0) {
+				throw new SQLException("Delete crew is failed");
+			}
+		}
 	}
 
 	public static void getAllName(Connection con) throws SQLException {
