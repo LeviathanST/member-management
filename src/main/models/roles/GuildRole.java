@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import dto.GuildDTO;
+import dto.UserGuildRoleDTO;
 import exceptions.NotFoundException;
 import models.Guild;
 import models.users.UserAccount;
@@ -86,7 +86,7 @@ public class GuildRole {
 		return list;
 	}
 
-	public static void insertGuildMember(Connection con, GuildDTO data) throws SQLException, NotFoundException {
+	public static void insertGuildMember(Connection con, UserGuildRoleDTO data) throws SQLException, NotFoundException {
 		int guildID = Guild.getIdByName(con, data.getGuildName());
 		int guild_role_id = getIdByName(con, guildID, data.getGuildRole());
 		String account_id = UserAccount.getIdByUsername(con, data.getUserName());
@@ -99,7 +99,7 @@ public class GuildRole {
 			throw new SQLException("Insert failure");
 	}
 
-	public static void updateGuildMember(Connection con, GuildDTO data, int newGuildRoleID)
+	public static void updateGuildMember(Connection con, UserGuildRoleDTO data, int newGuildRoleID)
 			throws SQLException, NotFoundException {
 		int guildID = Guild.getIdByName(con, data.getGuildName());
 		int guild_role_id = getIdByName(con, guildID, data.getGuildRole());
@@ -114,7 +114,7 @@ public class GuildRole {
 			throw new SQLException("Update failure");
 	}
 
-	public static void deleteCrewMember(Connection con, GuildDTO data) throws SQLException, NotFoundException {
+	public static void deleteCrewMember(Connection con, UserGuildRoleDTO data) throws SQLException, NotFoundException {
 		int guildID = Guild.getIdByName(con, data.getGuildName());
 		int guild_role_id = getIdByName(con, guildID, data.getGuildRole());
 		String account_id = UserAccount.getIdByUsername(con, data.getUserName());

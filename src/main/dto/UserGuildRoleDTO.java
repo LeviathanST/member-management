@@ -1,28 +1,25 @@
 package dto;
 
 public class UserGuildRoleDTO {
-	private String accountId;
-	private int guildRoleId;
-	private String name;
+    private String userName;
+    private String guildRole;
+    private String guildName;
 
-	public UserGuildRoleDTO(String name, String accountId, int guildRoleId) {
-		this.accountId = accountId;
-		this.guildRoleId = guildRoleId;
-	}
+    public UserGuildRoleDTO(String userName, String guildRole, String guildName) {
+        this.userName = userName;
+        this.guildRole = guildRole;
+        this.guildName = guildName;
+    }
 
-	public String getName() {
-		return this.name;
-	}
+    public String getUserName() {
+        return this.userName;
+    }
 
-	public String getAccountId() {
-		return this.accountId;
-	}
+    public String getGuildRole() {
+        return this.guildRole;
+    }
 
-	public int getGuildRoleId() {
-		return this.guildRoleId;
-	}
-
-	public void setGuildRoleId(int crewRoleId) {
-		this.guildRoleId = crewRoleId;
-	}
+    public String getGuildName() {
+        return this.guildName;
+    }
 }

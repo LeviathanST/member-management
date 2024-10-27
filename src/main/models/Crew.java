@@ -1,6 +1,6 @@
 package models;
 
-import dto.CrewData;
+import dto.CrewDTO;
 import exceptions.NotFoundException;
 
 import java.sql.Connection;
@@ -59,28 +59,28 @@ public class Crew {
 		}
 		return crewNames;
 	}
-	public static void insert (Connection con, CrewData crewData) throws SQLException, NotFoundException {
+	public static void insert (Connection con, CrewDTO crewDTO) throws SQLException, NotFoundException {
 		String query = "INSERT INTO crew (name) VALUES (?)";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, crewData.getName());
+		stmt.setString(1, crewDTO.getName());
 		int rowsAffected = stmt.executeUpdate();
 		if (rowsAffected == 0) {
 			throw new NotFoundException("Insert failed!");
 		}
 	}
-	public static void update(Connection con, CrewData crewData) throws SQLException, NotFoundException {
-		int id = getIdByName(con,crewData.getName());
+	public static void update(Connection con, CrewDTO crewDTO) throws SQLException, NotFoundException {
+		int id = getIdByName(con, crewDTO.getName());
 		String query = "UPDATE crew SET name = ? WHERE id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, crewData.getName());
+		stmt.setString(1, crewDTO.getName());
 		stmt.setInt(2, id);
 		int rowsAffected = stmt.executeUpdate();
 		if (rowsAffected == 0) {
 			throw new NotFoundException("Update failed!");
 		}
 	}
-	public static void delete(Connection con, CrewData crewData) throws SQLException, NotFoundException {
-		int id = getIdByName(con,crewData.getName());
+	public static void delete(Connection con, CrewDTO crewDTO) throws SQLException, NotFoundException {
+		int id = getIdByName(con, crewDTO.getName());
 		String query = "DELETE FROM crew WHERE id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setInt(1, id);

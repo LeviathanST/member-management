@@ -1,6 +1,6 @@
 package controllers;
 
-import dto.GuildDTO;
+import dto.UserGuildRoleDTO;
 import dto.ResponseDTO;
 import exceptions.NotFoundException;
 import models.Guild;
@@ -12,12 +12,12 @@ import java.util.List;
 
 import constants.ResponseStatus;
 
-public class GuildController {
-    public static ResponseDTO<Object> add(Connection connection, GuildDTO guildDTO) {
+public class UserGuildRoleController {
+    public static ResponseDTO<Object> add(Connection connection, UserGuildRoleDTO userGuildRoleDTO) {
         try {
-            GuildRole.insertGuildMember(connection, guildDTO);
+            GuildRole.insertGuildMember(connection, userGuildRoleDTO);
             return new ResponseDTO<>(ResponseStatus.OK,
-                    String.format("Add %s to %s guild successfully!", guildDTO.getUserName(), guildDTO.getGuildName()), null);
+                    String.format("Add %s to %s guild successfully!", userGuildRoleDTO.getUserName(), userGuildRoleDTO.getGuildName()), null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
@@ -26,11 +26,11 @@ public class GuildController {
         }
     }
 
-    public static ResponseDTO<Object> delete(Connection connection, GuildDTO guildDTO ) {
+    public static ResponseDTO<Object> delete(Connection connection, UserGuildRoleDTO userGuildRoleDTO) {
         try {
-            GuildRole.deleteCrewMember(connection, guildDTO);
+            GuildRole.deleteCrewMember(connection, userGuildRoleDTO);
             return new ResponseDTO<>(ResponseStatus.OK,
-                    String.format("Delete %s from %s guild successfully!", guildDTO.getUserName(), guildDTO.getGuildName()), null);
+                    String.format("Delete %s from %s guild successfully!", userGuildRoleDTO.getUserName(), userGuildRoleDTO.getGuildName()), null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
@@ -39,11 +39,11 @@ public class GuildController {
         }
     }
 
-    public static ResponseDTO<Object> update(Connection connection,GuildDTO guildDTO ) {
+    public static ResponseDTO<Object> update(Connection connection, UserGuildRoleDTO userGuildRoleDTO) {
         try {
-            GuildRole.deleteCrewMember(connection, guildDTO);
+            GuildRole.deleteCrewMember(connection, userGuildRoleDTO);
             return new ResponseDTO<>(ResponseStatus.OK,
-                    String.format("Update %s successfully!", guildDTO.getUserName()), null);
+                    String.format("Update %s successfully!", userGuildRoleDTO.getUserName()), null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);

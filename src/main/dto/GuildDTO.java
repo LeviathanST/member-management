@@ -1,25 +1,12 @@
 package dto;
 
 public class GuildDTO {
-    private String userName;
-    private String guildRole;
-    private String guildName;
+    private String name;
 
-    public GuildDTO(String userName, String guildRole, String guildName) {
-        this.userName = userName;
-        this.guildRole = guildRole;
-        this.guildName = guildName;
+    public GuildDTO(String name) {
+        this.name = name;
     }
 
-    public String getUserName() {
-        return this.userName;
-    }
+    public String getName() {return name;}
 
-    public String getGuildRole() {
-        return this.guildRole;
-    }
-
-    public String getGuildName() {
-        return this.guildName;
-    }
 }

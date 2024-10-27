@@ -1,23 +1,22 @@
 package controllers;
 
 import constants.ResponseStatus;
-import dto.CrewDTO;
+import dto.UserCrewRoleDTO;
 import dto.ResponseDTO;
 import exceptions.NotFoundException;
 import models.Crew;
 import models.roles.CrewRole;
-import models.users.UserAccount;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-public class CrewController {
-    public static ResponseDTO<Object> add(Connection connection, CrewDTO crewDTO) throws SQLException {
+public class UserCrewRoleController {
+    public static ResponseDTO<Object> add(Connection connection, UserCrewRoleDTO userCrewRoleDTO) throws SQLException {
         try {
-            CrewRole.insertCrewMember(connection, crewDTO);
+            CrewRole.insertCrewMember(connection, userCrewRoleDTO);
             return new ResponseDTO<>(ResponseStatus.OK,
-                    String.format("Add %s to %s crews successfully!", crewDTO.getUserName(), crewDTO.getCrew_name()), null);
+                    String.format("Add %s to %s crews successfully!", userCrewRoleDTO.getUserName(), userCrewRoleDTO.getCrew_name()), null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
@@ -26,11 +25,11 @@ public class CrewController {
         }
     }
 
-    public static ResponseDTO<Object> delete(Connection connection, CrewDTO crewDTO) throws SQLException {
+    public static ResponseDTO<Object> delete(Connection connection, UserCrewRoleDTO userCrewRoleDTO) throws SQLException {
         try {
-            CrewRole.deleteCrewMember(connection, crewDTO);
+            CrewRole.deleteCrewMember(connection, userCrewRoleDTO);
             return new ResponseDTO<>(ResponseStatus.OK,
-                    String.format("Delete %s from %s guild successfully!", crewDTO.getUserName(), crewDTO.getCrew_name()), null);
+                    String.format("Delete %s from %s guild successfully!", userCrewRoleDTO.getUserName(), userCrewRoleDTO.getCrew_name()), null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
@@ -39,11 +38,11 @@ public class CrewController {
         }
     }
 
-    public static ResponseDTO<Object> update(Connection connection, CrewDTO crewDTO) throws SQLException {
+    public static ResponseDTO<Object> update(Connection connection, UserCrewRoleDTO userCrewRoleDTO) throws SQLException {
         try {
-            CrewRole.deleteCrewMember(connection, crewDTO);
+            CrewRole.deleteCrewMember(connection, userCrewRoleDTO);
             return new ResponseDTO<>(ResponseStatus.OK,
-                    String.format("Update %s successfully!", crewDTO.getUserName()), null);
+                    String.format("Update %s successfully!", userCrewRoleDTO.getUserName()), null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);

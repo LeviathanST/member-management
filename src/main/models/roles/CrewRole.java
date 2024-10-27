@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import dto.CrewDTO;
+import dto.UserCrewRoleDTO;
 import exceptions.NotFoundException;
 import java.sql.ResultSet;
 
@@ -92,10 +92,10 @@ public class CrewRole {
 		return list;
 	}
 
-	public static int getCrewId(Connection con, CrewDTO crewDTO) throws SQLException, NotFoundException {
+	public static int getCrewId(Connection con, UserCrewRoleDTO userCrewRoleDTO) throws SQLException, NotFoundException {
 		String query = "SELECT * FROM crew WHERE name = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, crewDTO.getCrew_name());
+		stmt.setString(1, userCrewRoleDTO.getCrew_name());
 		ResultSet rs = stmt.executeQuery();
 
 		if (!rs.next()) {
@@ -104,19 +104,19 @@ public class CrewRole {
 		return rs.getInt("id");
 	}
 
-	public static int getCrewRoleId(Connection con, CrewDTO crewDTO) throws SQLException, NotFoundException {
-		crewDTO.setCrewRoleId(getCrewId(con, crewDTO));
+	public static int getCrewRoleId(Connection con, UserCrewRoleDTO userCrewRoleDTO) throws SQLException, NotFoundException {
+		userCrewRoleDTO.setCrewRoleId(getCrewId(con, userCrewRoleDTO));
 		String query = "SELECT id FROM crew_role WHERE crew_id = ? AND name  = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, crewDTO.getCrewRoleId());
-		stmt.setString(2, crewDTO.getRole_name());
+		stmt.setInt(1, userCrewRoleDTO.getCrewRoleId());
+		stmt.setString(2, userCrewRoleDTO.getRole_name());
 		ResultSet rs = stmt.executeQuery();
 		if (!rs.next())
 			throw new NotFoundException("Crew role id is not existed!");
 		return rs.getInt("id");
 	}
 
-	public static void insertCrewMember(Connection con, CrewDTO data) throws SQLException, NotFoundException {
+	public static void insertCrewMember(Connection con, UserCrewRoleDTO data) throws SQLException, NotFoundException {
 		int crew_role_id = getCrewRoleId(con, data);
 		String query = "INSERT INTO user_crew_role(account_id, crew_role_id) VALUES (?, ?)";
 		PreparedStatement stmt = con.prepareStatement(query);
@@ -127,7 +127,7 @@ public class CrewRole {
 			throw new SQLException("Insert failured");
 	}
 
-	public static void updateCrewMember(Connection con, CrewDTO data, int newCrewRoleId)
+	public static void updateCrewMember(Connection con, UserCrewRoleDTO data, int newCrewRoleId)
 			throws SQLException, NotFoundException {
 		int crew_role_id = getCrewRoleId(con, data);
 		String query = "UPDATE user_crew_role SET crew_role_id = ? WHERE account_id = ? AND crew_role_id = ?";
@@ -140,11 +140,11 @@ public class CrewRole {
 			throw new SQLException("Update failured");
 	}
 
-	public static void deleteCrewMember(Connection con, CrewDTO crewDTO) throws SQLException, NotFoundException {
+	public static void deleteCrewMember(Connection con, UserCrewRoleDTO userCrewRoleDTO) throws SQLException, NotFoundException {
 		String query = "DELETE FROM user_crew_role WHERE account_id = ? AND crew_role_id = ?";
-		int crew_role_id = getCrewRoleId(con, crewDTO);
+		int crew_role_id = getCrewRoleId(con, userCrewRoleDTO);
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, crewDTO.getAccount_id());
+		stmt.setString(1, userCrewRoleDTO.getAccount_id());
 		stmt.setInt(2, crew_role_id);
 		int row = stmt.executeUpdate();
 		if (row == 0)

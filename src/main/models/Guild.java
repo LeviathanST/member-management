@@ -1,6 +1,6 @@
 package models;
 
-import dto.GuildData;
+import dto.GuildDTO;
 import exceptions.NotFoundException;
 
 import java.sql.Connection;
@@ -59,28 +59,28 @@ public class Guild {
 		}
 		return guildNames;
 	}
-	public static void insert(Connection con, GuildData guildData) throws SQLException, NotFoundException {
+	public static void insert(Connection con, GuildDTO guildDTO) throws SQLException, NotFoundException {
 		String query = "INSERT INTO guild (name) VALUES (?)";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, guildData.getName());
+		stmt.setString(1, guildDTO.getName());
 		int rowsAffected = stmt.executeUpdate();
 		if (rowsAffected == 0){
 			throw new SQLException("Insert failed!");
 		}
 	}
-	public static void update(Connection con, GuildData guildData) throws SQLException, NotFoundException {
-		int id = getIdByName(con,guildData.getName());
+	public static void update(Connection con, GuildDTO guildDTO) throws SQLException, NotFoundException {
+		int id = getIdByName(con, guildDTO.getName());
 		String query = "UPDATE guild SET name = ? WHERE id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, guildData.getName());
+		stmt.setString(1, guildDTO.getName());
 		stmt.setInt(2, id);
 		int rowsAffected = stmt.executeUpdate();
 		if (rowsAffected == 0){
 			throw new SQLException("Update failed!");
 		}
 	}
-	public static void delete(Connection con, GuildData guildData) throws SQLException, NotFoundException {
-		int id = getIdByName(con,guildData.getName());
+	public static void delete(Connection con, GuildDTO guildDTO) throws SQLException, NotFoundException {
+		int id = getIdByName(con, guildDTO.getName());
 		String query = "DELETE FROM guild WHERE id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setInt(1, id);

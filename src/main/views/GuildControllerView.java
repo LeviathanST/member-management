@@ -1,8 +1,8 @@
 package views;
-import dto.GuildDTO;
+import dto.UserGuildRoleDTO;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
-import controllers.GuildController;
+import controllers.UserGuildRoleController;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -39,7 +39,7 @@ public class GuildControllerView {
     public static void viewCRUDMemberToGuild(Connection connection, String options) throws SQLException {
         while (true){
             List<String> guildNames = new ArrayList<>();
-            guildNames = (List<String>) GuildController.getAllGuilds(connection);
+            guildNames = (List<String>) UserGuildRoleController.getAllGuilds(connection);
             TextIO textIO = TextIoFactory.getTextIO();
             String border = "+---------------------------------------+";
             textIO.getTextTerminal().println(border);
@@ -69,16 +69,16 @@ public class GuildControllerView {
             String guildRole = textIO.newStringInputReader()
                     .withNumberedPossibleValues(guildNames)
                     .read("");
-            GuildDTO guildDTO = new GuildDTO(name, guildName, guildRole);
+            UserGuildRoleDTO userGuildRoleDTO = new UserGuildRoleDTO(name, guildName, guildRole);
             switch (options){
                 case "Add Member To Guild":
-                    GuildController.add(connection, guildDTO);
+                    UserGuildRoleController.add(connection, userGuildRoleDTO);
                     break;
                 case "Delete Member From Guild":
-                    GuildController.delete(connection, guildDTO);
+                    UserGuildRoleController.delete(connection, userGuildRoleDTO);
                     break;
                 case "Update Member From Guild":
-                    GuildController.update(connection, guildDTO);
+                    UserGuildRoleController.update(connection, userGuildRoleDTO);
                     break;
             }
             textIO.getTextTerminal().println(border);
