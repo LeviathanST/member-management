@@ -1,38 +1,33 @@
 package views;
-
-import controllers.CrewController;
-import dto.CrewDTO;
-import exceptions.NotFoundException;
-import models.users.UserAccount;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
+import controllers.GuildController;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CrewControllerView {
+public class UserGuildRoleView {
     public static void view(Connection connection) throws SQLException {
         TextIO textIO = TextIoFactory.getTextIO();
-        String title = "Crew Controller";
+        String title = "Guild Controller";
         textIO.getTextTerminal().println(title);
         String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("Add Member To Crew", "View Member In Crew", "Delete Member From Crew",
-                        "Update Member From Crew", "Back", "Back To Menu")
+                .withNumberedPossibleValues("Add Member To Guild", "View Member In Guild", "Delete Member From Guild","Update Member From Guild","Back","Back To Menu")
                 .read("");
-        switch (options) {
-            case "Add Member To Crew":
-                viewCRUDMemberToCrew(connection, options);
+        switch (options){
+            case "Add Member To Guild":
+                viewCRUDMemberToGuild(connection,options);
                 break;
-            case "View Member In Crew":
+            case "View Member In Guild":
                 textIO.getTextTerminal().println("View Member In Guild");
                 break;
-            case "Delete Member From Crew":
-                viewCRUDMemberToCrew(connection, options);
+            case "Delete Member From Guild":
+                viewCRUDMemberToGuild(connection,options);
                 break;
-            case "Update Member From Crew":
-                viewCRUDMemberToCrew(connection, options);
+            case "Update Member From Guild":
+                viewCRUDMemberToGuild(connection,options);
                 break;
             default:
                 textIO.getTextTerminal().println("Default");
@@ -40,11 +35,10 @@ public class CrewControllerView {
         options = textIO.newStringInputReader().read();
         textIO.dispose();
     }
-
-    public static void viewCRUDMemberToCrew(Connection connection, String options) throws SQLException {
-        while (true) {
-            List<String> crewNames = new ArrayList<>();
-            crewNames = (List<String>) CrewController.getAllCrews(connection);
+    public static void viewCRUDMemberToGuild(Connection connection, String options) throws SQLException {
+        while (true){
+            List<String> guildNames = new ArrayList<>();
+            guildNames = (List<String>) GuildController.getAllGuilds(connection);
             TextIO textIO = TextIoFactory.getTextIO();
             String border = "+---------------------------------------+";
             textIO.getTextTerminal().println(border);
@@ -60,27 +54,26 @@ public class CrewControllerView {
                     .read("");
 
             textIO.getTextTerminal().println(border);
-            textIO.getTextTerminal().println("| Input Crew's Name               |");
+            textIO.getTextTerminal().println("| Input Guild's Name               |");
             textIO.getTextTerminal().println(border);
 
-            String crewName = textIO.newStringInputReader()
-                    .withNumberedPossibleValues(crewNames)
+            String guildName = textIO.newStringInputReader()
+                    .withNumberedPossibleValues(guildNames)
                     .read("");
 
             textIO.getTextTerminal().println(border);
-            textIO.getTextTerminal().println("| Input Crew's Role               |");
+            textIO.getTextTerminal().println("| Input Guild's Role               |");
             textIO.getTextTerminal().println(border);
 
-            String crewRole = textIO.newStringInputReader()
-                    .withNumberedPossibleValues(crewNames)
+            String guildRole = textIO.newStringInputReader()
+                    .withNumberedPossibleValues(guildNames)
                     .read("");
-            CrewDTO crewDTO = new CrewDTO(name, crewName, crewRole);
-            switch (options) {
-                case "Add Member To Crew":
+            switch (options){
+                case "Add Member To Guild":
                     break;
-                case "Delete Member From Crew":
+                case "Delete Member From Guild":
                     break;
-                case "Update Member From Crew":
+                case "Update Member From Guild":
                     break;
             }
             textIO.getTextTerminal().println(border);
@@ -88,11 +81,12 @@ public class CrewControllerView {
                     .withNumberedPossibleValues("Continue", "Back", "Back To Menu")
                     .read("");
             textIO.getTextTerminal().println(border);
-            if (!continueOrBack.equals("Continue")) {
+            if (!continueOrBack.equals("Continue")){
                 break;
             }
         }
 
     }
+
 
 }
