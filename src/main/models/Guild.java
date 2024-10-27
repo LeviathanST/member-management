@@ -1,27 +1,55 @@
 package models;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
 import exceptions.NotFoundException;
-import java.sql.ResultSet;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Guild {
-	private String name;
+	public static void insert(Connection con, String name)
+			throws SQLException, SQLIntegrityConstraintViolationException {
+		String query = "INSERT INTO guild (name) VALUES (?)";
 
-	public Guild(String name) {
-		this.name = name;
+		try (PreparedStatement stmt = con.prepareStatement(query)) {
+			stmt.setString(1, name);
+			stmt.executeUpdate();
+
+			int rowEffected = stmt.executeUpdate();
+			if (rowEffected == 0) {
+				throw new SQLException(String.format("Insert guild %s is failed", name));
+			}
+		}
 	}
 
-	public String getName() {
-		return this.name;
+	public static void update(Connection con, int guildId, String newName) throws SQLException {
+		String query = "UPDATE guild SET name = ? WHERE id = ?";
+
+		try (PreparedStatement stmt = con.prepareStatement(query)) {
+			stmt.setString(1, newName);
+			stmt.setInt(2, guildId);
+			stmt.executeUpdate();
+
+			int rowEffected = stmt.executeUpdate();
+			if (rowEffected == 0) {
+				throw new SQLException(String.format("Update name guild into %s is failed", newName));
+			}
+		}
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public static void delete(Connection con, int guildId) throws SQLException {
+		String query = "DELETE FROM guild WHERE id = ?";
+
+		try (PreparedStatement stmt = con.prepareStatement(query)) {
+			stmt.setInt(1, guildId);
+			stmt.executeUpdate();
+
+			int rowEffected = stmt.executeUpdate();
+			if (rowEffected == 0) {
+				throw new SQLException("Delete guild is failed");
+			}
+		}
 	}
 
 	public static void getAllName(Connection con) throws SQLException {
