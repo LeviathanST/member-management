@@ -7,10 +7,11 @@ import constants.ResponseStatus;
 import data.ProfileData;
 import data.ResponseData;
 import exceptions.DataEmptyException;
+import exceptions.NotFoundException;
 import services.ProfileService;
 
 public class ProfileController {
-    public static ResponseData<Object> CreateOne(Connection con, ProfileData data) {
+    public static ResponseData<Object> CreateOne(Connection con, ProfileData data) throws NotFoundException{
         try {
 			ProfileService.InsertProfileInternal(con, data);
             return new ResponseData<Object>(ResponseStatus.OK, "Update user profile successfully!", null);
