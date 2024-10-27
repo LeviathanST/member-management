@@ -46,7 +46,41 @@ public class UserProfile {
 		stmt.setDate(7, data.getDateOfBirth());
 		int rowEffected = stmt.executeUpdate();
 		if (rowEffected == 0) {
-			throw new SQLException("Insert failed!");
+			throw new SQLException("Insert failed : No rows affected.");
 		}
 	}
+
+	public static void update(Connection con, UserProfileDTO data) throws SQLException, NotFoundException {
+		String query = "UPDATE user_profile SET full_name = ?, sex = ?, student_code = ?, contact_email = ?, generation_id = ?, dob = ? WHERE account_id = ?";
+		String account_id = getAccountIdByEmail(con, data.getContactEmail());
+		try (PreparedStatement stmt = con.prepareStatement(query)) {
+			stmt.setString(1, data.getFullName());
+			stmt.setString(2, data.getSex().name());
+			stmt.setString(3, data.getStudentCode());
+			stmt.setString(4, data.getContactEmail());
+			stmt.setInt(5, getGenerationId(con, data.getGeneration()));
+			stmt.setDate(6, data.getDateOfBirth());
+			stmt.setString(7, account_id);
+	
+			int rowEffected = stmt.executeUpdate();
+			if (rowEffected == 0) {
+				throw new SQLException("Update failed: No rows affected.");
+			}
+		}
+	}
+	
+	
+	public static void delete(Connection con, String accountId) throws SQLException, NotFoundException {
+		String query = "DELETE FROM user_profile WHERE account_id = ?";
+		
+		try (PreparedStatement stmt = con.prepareStatement(query)) {
+			stmt.setString(1, accountId);
+	
+			int rowEffected = stmt.executeUpdate();
+			if (rowEffected == 0) {
+				throw new NotFoundException("Delete failed: No rows affected.");
+			}
+		}
+	}
+	
 }
