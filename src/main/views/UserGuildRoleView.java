@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuildControllerView {
+public class UserGuildRoleView {
     public static void view(Connection connection) throws SQLException {
         TextIO textIO = TextIoFactory.getTextIO();
         String title = "Guild Controller";
@@ -30,8 +30,10 @@ public class GuildControllerView {
             case "Update Member From Guild":
                 viewCRUDMemberToGuild(connection,options);
                 break;
-            default:
-                textIO.getTextTerminal().println("Default");
+            case "Back":
+                break;
+            case "Back To Menu":
+                break;
         }
         options = textIO.newStringInputReader().read();
         textIO.dispose();

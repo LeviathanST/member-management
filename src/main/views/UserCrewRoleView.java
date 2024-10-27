@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CrewControllerView {
+public class UserCrewRoleView {
     public static void view(Connection connection) throws SQLException {
         TextIO textIO = TextIoFactory.getTextIO();
         String title = "Crew Controller";
@@ -32,8 +32,10 @@ public class CrewControllerView {
             case "Update Member From Crew":
                 viewCRUDMemberToCrew(connection, options);
                 break;
-            default:
-                textIO.getTextTerminal().println("Default");
+            case "Back":
+                break;
+            case "Back To Menu":
+                break;
         }
         options = textIO.newStringInputReader().read();
         textIO.dispose();
