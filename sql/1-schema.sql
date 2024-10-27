@@ -14,8 +14,7 @@ CREATE TABLE IF NOT EXISTS user_account (
 );
 
 CREATE TABLE IF NOT EXISTS user_profile (
-	id CHAR(36) PRIMARY KEY,
-	account_id CHAR(36) UNIQUE,
+	account_id CHAR(36) PRIMARY KEY,
 	full_name VARCHAR(255) NOT NULL,
 	sex ENUM ('MALE', 'FEMALE') NOT NULL,
 	student_code VARCHAR(8) NOT NULL,
@@ -129,7 +128,7 @@ CREATE TABLE IF NOT EXISTS crew_event (
 	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	crew_id INTEGER UNSIGNED NOT NULL,
 	title VARCHAR(255) NOT NULL,
-	description VARCHAR(2048),
+	description TEXT,
 	generation_id INTEGER UNSIGNED NOT NULL,
 	start_at TIMESTAMP NOT NULL,
 	end_at TIMESTAMP NOT NULL,
@@ -140,36 +139,12 @@ CREATE TABLE IF NOT EXISTS crew_event (
 	FOREIGN KEY (generation_id) REFERENCES generation(id)
 );
 
-
-CREATE TABLE IF NOT EXISTS crew_task(
-	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	crew_event_id INTEGER UNSIGNED NOT NULL,
-	author_id VARCHAR(36) NOT NULL,
-	title VARCHAR(255) NOT NULL,
-	description VARCHAR(2048),
-	start_at TIMESTAMP NOT NULL,
-	end_at TIMESTAMP NOT NULL,
-	update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-	FOREIGN KEY (crew_event_id) REFERENCES crew_event(id),
-	FOREIGN KEY (author_id) REFERENCES user_account(id)
-
-);
-
-CREATE TABLE IF NOT EXISTS user_task_crew (
-	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	crew_task_id INTEGER UNSIGNED,
-	assignee_account_id VARCHAR(36),
-
-	FOREIGN KEY (assignee_account_id) REFERENCES user_account(id),
-	FOREIGN KEY (crew_task_id) REFERENCES crew_task(id)
-);
 -- + Guild
 CREATE TABLE IF NOT EXISTS guild_event (
 	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	guild_id INTEGER UNSIGNED NOT NULL,
 	title VARCHAR(255) NOT NULL,
-	description VARCHAR(2048),
+	description TEXT,
 	generation_id INTEGER UNSIGNED NOT NULL,
 	start_at TIMESTAMP NOT NULL,
 	end_at TIMESTAMP NOT NULL,
@@ -178,31 +153,6 @@ CREATE TABLE IF NOT EXISTS guild_event (
 
 	FOREIGN KEY (guild_id) REFERENCES guild(id),
 	FOREIGN KEY (generation_id) REFERENCES generation(id)
-);
-
-
-CREATE TABLE IF NOT EXISTS guild_task (
-	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	guild_event_id INTEGER UNSIGNED NOT NULL,
-	author_id VARCHAR(36) NOT NULL,
-	title VARCHAR(255) NOT NULL,
-	description VARCHAR(2048),
-	start_at TIMESTAMP NOT NULL,
-	end_at TIMESTAMP NOT NULL,
-	update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-	FOREIGN KEY (guild_event_id) REFERENCES guild_event(id),
-	FOREIGN KEY (author_id) REFERENCES user_account(id)
-
-);
-
-CREATE TABLE IF NOT EXISTS user_task_guild(
-	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	guild_task_id INTEGER UNSIGNED,
-	assignee_account_id VARCHAR(36),
-
-	FOREIGN KEY (assignee_account_id) REFERENCES user_account(id),
-	FOREIGN KEY (guild_task_id) REFERENCES guild_task(id)
 );
 
 -- Trigger to check count_mistake
