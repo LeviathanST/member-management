@@ -33,4 +33,11 @@ public class View {
     public void viewTitle(String data, TextIO textIO) {
         textIO.getTextTerminal().println("| " + data + " |");
     }
+
+    public String AskContinueOrGoBack(){
+        String continueOrBack = textIO.newStringInputReader()
+                .withNumberedPossibleValues("Continue", "Back", "Back To Menu")
+                .read("");
+        return continueOrBack;
+    }
 }

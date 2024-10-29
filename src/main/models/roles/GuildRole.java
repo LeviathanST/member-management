@@ -23,6 +23,9 @@ public class GuildRole {
 		this.con = con;
 	}
 
+	public int getGuild_id() {return guild_id;}
+	public String getName() {return name;}
+
 	/// Find role id by name of a specified guild
 	public static int getIdByName(Connection con, int guild_id, String name) throws SQLException,
 			NotFoundException {

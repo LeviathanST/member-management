@@ -105,16 +105,19 @@ public class GuildService {
 				throw new DataEmptyException("New Guild Name is empty");
 			} else if (newData.getRole().isEmpty()) {
 				throw new DataEmptyException("New Role is empty");
-			} else if (isValidString(newData.getRole()) ) {
+			} else if (!isValidString(newData.getRole()) ) {
 				throw new InvalidDataException("Invalid role");
-			} else if (isValidString(newData.getGuildName())) {
+			} else if (!isValidString(newData.getGuildName())) {
 				throw new InvalidDataException("Invalid guild name");
 			}
+
 			normalizeName(newData.getRole());
 			normalizeName(newData.getGuildName());
+
 			newData.setGuildId(Guild.getIdByName(con,newData.getGuildName()));
 			data.setGuildId(Guild.getIdByName(con,data.getGuildName()));
 			data.setId(GuildRole.getIdByName(con,data.getGuildId(),data.getRole()));
+
 			GuildRole.updateGuildRole(con,newData.getRole(), data.getId(),newData.getGuildId());
 		} catch (SQLIntegrityConstraintViolationException e) {
 
@@ -149,16 +152,18 @@ public class GuildService {
 				throw new DataEmptyException("Role is empty");
 			} else if (data.getGuild().isEmpty()) {
 				throw new DataEmptyException("Guild is empty");
-			} else if (isValidString(data.getUsername())) {
+			} else if (!isValidString(data.getUsername())) {
 				throw new InvalidDataException("Invalid username");
-			} else if (isValidString(data.getRole())) {
+			} else if (!isValidString(data.getRole())) {
 				throw new InvalidDataException("Invalid role");
-			} else if (isValidString(data.getGuild())) {
+			} else if (!isValidString(data.getGuild())) {
 				throw new InvalidDataException("Invalid guild");
 			}
+
 			normalizeName(data.getUsername());
 			normalizeName(data.getRole());
 			normalizeName(data.getGuild());
+
 			int guildId = Guild.getIdByName(con,data.getGuild());
 			data.setGuildRoleId(GuildRole.getIdByName(con,guildId,data.getRole()));
 			data.setAccountId( UserAccount.getIdByUsername(con,data.getUsername()));
@@ -178,30 +183,31 @@ public class GuildService {
 				throw new DataEmptyException("Role is empty");
 			} else if (newData.getGuild().isEmpty()) {
 				throw new DataEmptyException("Guild is empty");
-			} else if (isValidString(newData.getUsername())) {
+			} else if (!isValidString(newData.getUsername())) {
 				throw new InvalidDataException("Invalid username");
-			} else if (isValidString(newData.getRole())) {
+			} else if (!isValidString(newData.getRole())) {
 				throw new InvalidDataException("Invalid role");
-			} else if (isValidString(newData.getGuild())) {
+			} else if (!isValidString(newData.getGuild())) {
 				throw new InvalidDataException("Invalid guild");
 			}
 			normalizeName(newData.getUsername());
 			normalizeName(newData.getRole());
 			normalizeName(newData.getGuild());
 			int guildId = Guild.getIdByName(con,data.getGuild());
-			data.setAccountId( UserAccount.getIdByUsername(con,data.getUsername()));
 
+			newData.setAccountId( UserAccount.getIdByUsername(con,newData.getUsername()));
 			int newGuildId = Guild.getIdByName(con,newData.getGuild());
-			newData.setGuildRoleId(GuildRole.getIdByName(con,guildId,newData.getRole()));
+			newData.setGuildRoleId(GuildRole.getIdByName(con,newGuildId,newData.getRole()));
 
-			UserGuildRole.updateGuildMember(con, data.getAccountId(), guildId,newData.getGuildRoleId());
+			UserGuildRole.updateGuildMember(con, newData.getAccountId(), guildId,newData.getGuildRoleId());
 		} catch (SQLIntegrityConstraintViolationException e) {
 			throw new SQLException(String.format("Disallow null values %s", data.getUsername()));
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when update user in guild: %s", data.getUsername()));
 		}
 	}
-	public static void deleteUserInGuild(Connection con, UserGuildRoleDTO data) throws SQLIntegrityConstraintViolationException, SQLException, NotFoundException {
+	public static void deleteUserInGuild(Connection con, UserGuildRoleDTO data)
+			throws SQLIntegrityConstraintViolationException, SQLException, NotFoundException, DataEmptyException, InvalidDataException {
 		try {
 			data.setAccountId( UserAccount.getIdByUsername(con,data.getUsername()));
 			int guildId = Guild.getIdByName(con,data.getGuild());

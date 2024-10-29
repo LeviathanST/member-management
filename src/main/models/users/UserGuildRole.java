@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.sql.Connection;
 
+import dto.UserGuildRoleDTO;
 import exceptions.NotFoundException;
 
 public class UserGuildRole {
@@ -25,6 +26,26 @@ public class UserGuildRole {
 		while (rs.next()) {
 			list.add(rs.getInt("id"));
 		}
+		return list;
+	}
+	public static List<UserGuildRoleDTO> getAllByGuildId(Connection con, String guild, int guild_id) throws SQLException {
+		String query = """
+					SELECT ua.username as name, gr.name as role
+					FROM user_guild_role ugr
+	    			JOIN user_account ua ON ugr.account_id = ua.account_id
+					JOIN guild_role gr ON gr.id = ugr.guild_role_id
+					WHERE gr.guild_id = ?
+				""";
+		List<UserGuildRoleDTO> list = new ArrayList<>();
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, guild_id);
+
+		ResultSet rs = stmt.executeQuery();
+
+		while (rs.next()) {
+			list.add(new UserGuildRoleDTO(guild, rs.getString("name"), rs.getString("role")));
+		}
+
 		return list;
 	}
 	public static void insertGuildMember(Connection con, String accountId, int guildRoleId)
