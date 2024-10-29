@@ -6,20 +6,23 @@ import exceptions.NotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Guild {
 	public static void insert(Connection con, String name)
-			throws SQLException, SQLIntegrityConstraintViolationException {
+			throws SQLException, SQLIntegrityConstraintViolationException{
 		String query = "INSERT INTO guild (name) VALUES (?)";
-
 		try (PreparedStatement stmt = con.prepareStatement(query)) {
 			stmt.setString(1, name);
-			stmt.executeUpdate();
 
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected == 0) {
 				throw new SQLException(String.format("Insert guild %s is failed", name));
 			}
+		} catch (SQLIntegrityConstraintViolationException e) {
+			throw new SQLIntegrityConstraintViolationException(e);
+		} catch (SQLException e) {
+			throw new SQLException(e);
 		}
 	}
 
@@ -29,7 +32,6 @@ public class Guild {
 		try (PreparedStatement stmt = con.prepareStatement(query)) {
 			stmt.setString(1, newName);
 			stmt.setInt(2, guildId);
-			stmt.executeUpdate();
 
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected == 0) {
@@ -43,7 +45,6 @@ public class Guild {
 
 		try (PreparedStatement stmt = con.prepareStatement(query)) {
 			stmt.setInt(1, guildId);
-			stmt.executeUpdate();
 
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected == 0) {
