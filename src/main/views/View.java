@@ -3,7 +3,6 @@ package views;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 import org.beryx.textio.TextTerminal;
-import java.lang.Thread;
 import java.sql.Connection;
 
 public class View {
@@ -28,11 +27,7 @@ public class View {
         terminal.getProperties().setPromptColor("green");
     }  
 
-    public void waitTime(int time) {
-        try {
-            Thread.sleep(time);
-        } catch (Exception e) {
-           printError(e.getMessage());
-        }
+    public void waitTime(String message) {
+        textIO.newStringInputReader().withMinLength(0).read(message);
     }
 }

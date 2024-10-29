@@ -14,19 +14,17 @@ import dto.UserProfileDTO;
 import exceptions.DataEmptyException;
 import exceptions.NotFoundException;
 import exceptions.UserProfileException;
-import models.users.UserAccount;
 
 public class UserProfileView extends View{
     public UserProfileView(Connection con) {
         super(con);
     }
 
-    public ResponseDTO<Object> insertUserProfile (Connection con, UserProfileDTO user_profile, SignUpDTO sign_up) throws 
+    public ResponseDTO<Object> insertUserProfile (Connection con, UserProfileDTO user_profile, SignUpDTO signUp) throws 
                 DataEmptyException, UserProfileException, NotFoundException, java.text.ParseException, SQLException {
 
-        String account_id = UserAccount.getIdByUsername(con, sign_up.getUsername());
+
         ResponseDTO<Object> response = null;
-        user_profile.setAccountId(account_id);
         textIO.getTextTerminal().println("INSERT YOUR PROFILE");
         user_profile.setFullName(textIO.newStringInputReader().read("Enter your full name : "));
         user_profile.setSex(textIO.newEnumInputReader(Sex.class).read("Enter your sex : "));
@@ -41,14 +39,12 @@ public class UserProfileView extends View{
         java.sql.Date sqlDate = new java.sql.Date(parsedDate.getTime());
         user_profile.setDateOfBirth(sqlDate);
 
-        response = UserProfileController.CreateOne(con, user_profile);
+        response = UserProfileController.createOne(con, user_profile, signUp);
         return response;
     }
 
-    public ResponseDTO<Object> ReadUserProfile (Connection con, UserProfileDTO user_profile, LoginDTO log_in) throws SQLException, NotFoundException {
-        String account_id = UserAccount.getIdByUsername(con, log_in.getUsername());
-        user_profile.setAccountId(account_id);
-        ResponseDTO<Object> response = UserProfileController.ReadOne(con, user_profile);
+    public ResponseDTO<Object> ReadUserProfile (Connection con, UserProfileDTO user_profile, LoginDTO logIn) throws SQLException, NotFoundException {
+        ResponseDTO<Object> response = UserProfileController.readOne(con, user_profile, logIn);
         return response; 
     }
 

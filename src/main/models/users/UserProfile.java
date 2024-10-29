@@ -11,21 +11,9 @@ import dto.UserProfileDTO;
 
 
 public class UserProfile {
-
-    public static int getGenerationId(Connection con, String name) throws SQLException, NotFoundException{
-        String query = """
-                SELECT id FROM generation WHERE name = ?
-                """;
-        PreparedStatement stmt = con.prepareStatement(query);
-        stmt.setString(1, name);
-        ResultSet rs = stmt.executeQuery();
-        if(!rs.next())
-            throw new NotFoundException("Generation id is not existed!");
-        return rs.getInt("id");
-    }
 	
     public static void insert(Connection con, UserProfileDTO data)
-			throws SQLException, NotFoundException{
+			throws SQLException{
 
 		String query = "INSERT INTO user_profile (account_id, full_name, sex, student_code, contact_email, generation_id, dob) VALUES (?, ?, ?, ?, ?, ?, ?)";
  		PreparedStatement stmt = con.prepareStatement(query);
@@ -42,7 +30,7 @@ public class UserProfile {
 		}
 	}
 
-	public static void update(Connection con, UserProfileDTO data) throws SQLException, NotFoundException {
+	public static void update(Connection con, UserProfileDTO data) throws SQLException{
 		String query = "UPDATE user_profile SET full_name = ?, sex = ?, student_code = ?, contact_email = ?, generation_id = ?, dob = ? WHERE account_id = ?";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, data.getFullName());

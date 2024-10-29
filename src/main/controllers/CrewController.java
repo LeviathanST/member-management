@@ -6,7 +6,6 @@ import dto.ResponseDTO;
 import exceptions.NotFoundException;
 import models.Crew;
 import models.roles.CrewRole;
-import models.users.UserAccount;
 
 import java.sql.Connection;
 import java.sql.SQLException;
