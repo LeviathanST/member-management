@@ -67,7 +67,7 @@ public class AuthService {
 			if (!result.verified) {
 				throw new AuthException("Wrong password!");
 			} else {
-				Path path = Paths.get("auth.json");
+				Path path = Paths.get("storage.json");
 				String account_id = rs.getString("id");
 
 				int userRoleId = UserRole.getIdByAccountId(con, account_id);
