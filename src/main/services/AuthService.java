@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import config.AppConfig;
 import constants.RoleType;
 import dto.ClaimsDTO;
 import dto.LoginDTO;
@@ -21,6 +22,7 @@ import models.users.UserAccount;
 import models.users.UserCrewRole;
 import models.users.UserGuildRole;
 import models.users.UserRole;
+import utils.EnvLoader;
 import models.permissions.CrewPermission;
 import models.permissions.GuildPermission;
 import models.permissions.Permission;
@@ -30,8 +32,8 @@ public class AuthService {
 	public static void signUpInternal(Connection con, SignUpDTO data)
 			throws InvalidPasswordException, AuthException, DataEmptyException, SQLException,
 			SQLIntegrityConstraintViolationException, NotFoundException {
-
-		int round = Integer.parseInt(Optional.ofNullable(System.getenv("ROUND_HASHING")).orElse("4"));
+		AppConfig appConfig = EnvLoader.load(AppConfig.class);
+		int round = appConfig.getRoundHashing();
 		String[] errorsPassword = AuthService.validatePassword(data.getPassword());
 
 		if (errorsPassword.length != 0)
