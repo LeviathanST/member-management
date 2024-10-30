@@ -8,6 +8,7 @@ import exceptions.DataEmptyException;
 import exceptions.InvalidDataException;
 import exceptions.NotFoundException;
 import models.Guild;
+import models.permissions.GuildPermission;
 import models.roles.GuildRole;
 import models.users.UserAccount;
 import models.users.UserGuildRole;
@@ -15,7 +16,6 @@ import models.users.UserGuildRole;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.List;
 
 public class GuildService {
 
@@ -219,11 +219,110 @@ public class GuildService {
 		}
 	}
 
+	// TODO: CRUD Guild Permission
+	public static void addGuildPermission(Connection con, String data)
+			throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException {
+		try {
+			if (data.isEmpty()) {
+				throw new DataEmptyException("Guild Permission is empty");
+			}
+			if (!isValidString(data)) {
+				throw new InvalidDataException("Invalid guild permission");
+			}
+
+			normalizeName(data);
+			GuildPermission.insert(data,con);
+		} catch (SQLIntegrityConstraintViolationException e) {
+			throw new SQLIntegrityConstraintViolationException(String.format("Your guild permission is existed: %s", data));
+		} catch (SQLException e) {
+			throw new SQLException(String.format("Error occurs when add guild permission: %s", data));
+		}
+	}
+	public static void updateGuildPermission(Connection con, String data, String newData) throws SQLException, SQLIntegrityConstraintViolationException,NotFoundException, DataEmptyException, InvalidDataException {
+		try {
+			if (newData.isEmpty() ) {
+				throw new DataEmptyException("Guild Permission is empty");
+			}
+			if (!isValidString(newData)) {
+				throw new InvalidDataException("Invalid guild permission");
+			}
+			normalizeName(data);
+			normalizeName(newData);
+			GuildPermission.update( data, newData,con);
+		} catch (SQLIntegrityConstraintViolationException e) {
+
+			throw new SQLException(String.format("Disallow null values guild permission %s", data));
+		} catch (SQLException e) {
+			throw new SQLException(String.format("Error occurs when update guild permission: %s", data));
+		}
+	}
+
+	public static void deleteGuildPermission(Connection con, String data)
+			throws SQLException, SQLIntegrityConstraintViolationException,NotFoundException, DataEmptyException, InvalidDataException {
+		try {
+			GuildPermission.delete(data,con);
+		} catch (SQLIntegrityConstraintViolationException e) {
+
+			throw new SQLException(String.format("Disallow null values guild permission %s", data));
+		} catch (SQLException e) {
+			throw new SQLException(String.format("Error occurs when delete guild permission: %s", data));
+		}
+	}
+	// TODO: CRUD Permission To Guild Role
+	public static void addPermissionToGuildRole(Connection con, GuildRoleDTO guildRole, String permission)
+			throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException {
+		try {
+			int guildId = Guild.getIdByName(con,guildRole.getGuildName());
+			int guildRoleId = GuildRole.getIdByName(con,guildId,guildRole.getRole());
+
+			int permissionId =  GuildPermission.getIdByName(con,permission);
+
+			GuildPermission.addPermissionToGuildRole(con,guildRoleId,permissionId );
+		} catch (SQLIntegrityConstraintViolationException e) {
+			throw new SQLIntegrityConstraintViolationException(String.format("Your permission %s guild role is existed: %s", permission,guildRole.getGuildName()));
+		} catch (SQLException e) {
+			throw new SQLException(String.format("Error occurs when add permission to guild role: %s", guildRole.getGuildName()));
+		}
+	}
+
+	public static void updatePermissionInGuildRole(Connection con, GuildRoleDTO guildRole, String permission,String newPermission) throws SQLException, SQLIntegrityConstraintViolationException,NotFoundException, DataEmptyException, InvalidDataException {
+		try {
+			int guildId = Guild.getIdByName(con,guildRole.getGuildName());
+			int guildRoleId = GuildRole.getIdByName(con,guildId,guildRole.getRole());
+
+			int permissionId =  GuildPermission.getIdByName(con,permission);
+			int newPermissionId =  GuildPermission.getIdByName(con,newPermission);
+
+			GuildPermission.updatePermissionInGuildRole(newPermissionId,permissionId,guildRoleId,con );
+		} catch (SQLIntegrityConstraintViolationException e) {
+
+			throw new SQLException(String.format("Disallow null values permission %s guild role %s",permission,guildRole.getGuildName()));
+		} catch (SQLException e) {
+			throw new SQLException(String.format("Error occurs when update permission guild role: %s", guildRole.getGuildName()));
+		}
+	}
+
+	public static void deletePermissionInGuildRole(Connection con, GuildRoleDTO guildRole, String permission)
+			throws SQLException, SQLIntegrityConstraintViolationException,NotFoundException, DataEmptyException, InvalidDataException {
+		try {
+			int guildId = Guild.getIdByName(con,guildRole.getGuildName());
+			int guildRoleId = GuildRole.getIdByName(con,guildId,guildRole.getRole());
+
+			int permissionId =  GuildPermission.getIdByName(con,permission);
+			GuildPermission.deletePermissionInGuildRole(permissionId,guildRoleId, con);
+		} catch (SQLIntegrityConstraintViolationException e) {
+
+			throw new SQLException(String.format("Disallow null values permission %s guild role %s",permission,guildRole.getGuildName()));
+		} catch (SQLException e) {
+			throw new SQLException(String.format("Error occurs when update permission guild role: %s", guildRole.getGuildName()));
+		}
+	}
+
 	public static boolean isValidString(String input){
 		return input.matches("([A-Za-z]+\\s*)+");
 	}
 
-	public static String normalizeName(String input) {
+	public static void normalizeName(String input) {
 		String[] parts = input.toLowerCase().split(" ");
 		StringBuilder normalized = new StringBuilder();
 		for (String part : parts) {
@@ -233,7 +332,6 @@ public class GuildService {
 						.append(" ");
 			}
 		}
-		return normalized.toString().trim();
 	}
 
 

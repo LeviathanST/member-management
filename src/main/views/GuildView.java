@@ -4,9 +4,6 @@ import dto.GuildDTO;
 import dto.GuildRoleDTO;
 import dto.ResponseDTO;
 import dto.UserGuildRoleDTO;
-import exceptions.DataEmptyException;
-import exceptions.InvalidDataException;
-import exceptions.NotFoundException;
 import kotlin.Pair;
 import models.roles.GuildRole;
 import org.beryx.textio.TextIO;
@@ -14,7 +11,6 @@ import org.beryx.textio.TextIoFactory;
 import controllers.GuildController;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +19,7 @@ public class GuildView extends View {
         super(connection);
     }
 
-    public void view(Connection connection) throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void view(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle("Guilds Tab",textIO);
         String option = textIO.newStringInputReader()
@@ -47,7 +43,7 @@ public class GuildView extends View {
         }
         textIO.dispose();
     }
-    public String getGuildFromList(Connection connection) throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public String getGuildFromList(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
         ResponseDTO<List<String>> listGuilds = GuildController.getAllGuilds(connection);
         viewTitle("Choose Guild", textIO);
@@ -61,7 +57,7 @@ public class GuildView extends View {
         }
         return guildOption;
     }
-    public Pair<String,String> getGuildRoleFromList(Connection connection) throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public Pair<String,String> getGuildRoleFromList(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
         ResponseDTO<List<GuildRole>> response;
         String guildName = getGuildFromList(connection);
@@ -82,7 +78,7 @@ public class GuildView extends View {
         }
         return new Pair<>(guildName, guildRole);
     }
-    public UserGuildRoleDTO getUserGuildRoleFromList(Connection connection) throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public UserGuildRoleDTO getUserGuildRoleFromList(Connection connection)  {
         TextIO textIO = TextIoFactory.getTextIO();
         ResponseDTO<List<UserGuildRoleDTO>> response;
         String guildName = getGuildFromList(connection);
@@ -105,8 +101,22 @@ public class GuildView extends View {
         List<String> parts = List.of(selectedUserRole.split(" - "));
         return new UserGuildRoleDTO(guildName,parts.get(0),parts.get(1));
     }
+    public String getPermissionFromList(Connection connection) {
+        TextIO textIO = TextIoFactory.getTextIO();
+        ResponseDTO<List<String>> listPermission = GuildController.getAllGuildPermissions(connection);
+        viewTitle("Choose Permission", textIO);
+        String permission = textIO.newStringInputReader()
+                .withNumberedPossibleValues(listPermission.getData())
+                .read("");
+        if(listPermission.getStatus() != ResponseStatus.OK) {
+            printError(listPermission.getMessage());
+        } else {
+            textIO.getTextTerminal().println(listPermission.getMessage());
+        }
+        return permission;
+    }
     //TODO: View Guild
-    public void viewGuild(Connection connection) throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewGuild(Connection connection){
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle("Guild",textIO);
         String options = textIO.newStringInputReader()
@@ -131,7 +141,7 @@ public class GuildView extends View {
         }
         textIO.dispose();
     }
-    public ResponseDTO<List<String>> viewListGuilds(Connection connection, String option) throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewListGuilds(Connection connection, String option){
         ResponseDTO<List<String>> response = null;
         response = GuildController.getAllGuilds(connection);
         TextIO textIO = TextIoFactory.getTextIO();
@@ -155,9 +165,8 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        return response;
     }
-    public ResponseDTO<Object> viewCreateGuild(Connection connection, String option) throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewCreateGuild(Connection connection, String option)  {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do  {
@@ -186,10 +195,9 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        return response;
     }
 
-    public ResponseDTO<Object> viewUpdateGuild(Connection connection, String option) throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewUpdateGuild(Connection connection, String option)  {
         ResponseDTO<Object> response ;
         String continueOrBack ;
         do{
@@ -220,9 +228,8 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        return response;
     }
-    public ResponseDTO<Object> viewDeleteGuild(Connection connection, String option) throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewDeleteGuild(Connection connection, String option) {
         ResponseDTO<Object> response;
         String continueOrBack;
         do {
@@ -248,11 +255,10 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        return response;
     }
 
     //TODO: View Guild Role
-    public void viewGuildRole(Connection connection) throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewGuildRole(Connection connection){
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle("Guild Role",textIO);
         String options = textIO.newStringInputReader()
@@ -278,8 +284,7 @@ public class GuildView extends View {
         options = textIO.newStringInputReader().read();
         textIO.dispose();
     }
-    public ResponseDTO<List<GuildRole>> viewListGuildRoles(Connection connection, String option)
-            throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewListGuildRoles(Connection connection, String option) {
         ResponseDTO<List<GuildRole>> response;
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle(option,textIO);
@@ -304,10 +309,8 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        return response;
     }
-    public ResponseDTO<Object> viewAddGuildRole(Connection connection, String option)
-            throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewAddGuildRole(Connection connection, String option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do  {
@@ -337,10 +340,8 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        return response;
     }
-    public ResponseDTO<Object> viewUpdateGuildRole(Connection connection, String option)
-            throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewUpdateGuildRole(Connection connection, String option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do{
@@ -372,10 +373,8 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        return response;
     }
-    public ResponseDTO<Object> viewDeleteGuildRole(Connection connection, String option)
-            throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewDeleteGuildRole(Connection connection, String option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do{
@@ -401,10 +400,9 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        return response;
     }
     //TODO: View User Guild Role
-    public void viewUserGuildRole(Connection connection) throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewUserGuildRole(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle("User Guild Role",textIO);
         String options = textIO.newStringInputReader()
@@ -430,8 +428,7 @@ public class GuildView extends View {
         options = textIO.newStringInputReader().read();
         textIO.dispose();
     }
-    public ResponseDTO<List<UserGuildRoleDTO>> viewListUserGuildRoles(Connection connection, String option)
-            throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewListUserGuildRoles(Connection connection, String option) {
         ResponseDTO<List<UserGuildRoleDTO>> response;
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle(option,textIO);
@@ -461,10 +458,8 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        return response;
     }
-    public ResponseDTO<Object> viewAddUserGuildRole(Connection connection, String option)
-            throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewAddUserGuildRole(Connection connection, String option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do  {
@@ -495,10 +490,8 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        return response;
     }
-    public ResponseDTO<Object> viewUpdateUserGuildRole(Connection connection, String option)
-            throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewUpdateUserGuildRole(Connection connection, String option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do{
@@ -525,10 +518,8 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        return response;
     }
-    public ResponseDTO<Object> viewDeleteUserGuildRole(Connection connection, String option)
-            throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
+    public void viewDeleteUserGuildRole(Connection connection, String option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do{
@@ -553,6 +544,282 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        return response;
+    }
+    //TODO: View Guild Permission
+    public void viewGuildPermission(Connection connection){
+        TextIO textIO = TextIoFactory.getTextIO();
+        viewTitle("Guild Permission",textIO);
+        String options = textIO.newStringInputReader()
+                .withNumberedPossibleValues("View Guild Permission", "CRUD Permission","CRUD Permission To Guild Role","Back")
+                .read("");
+        switch (options){
+            case "View Guild Permission":
+
+                break;
+            case "CRUD Permission":
+                viewCRUDPermission(connection);
+                break;
+            case "CRUD Permission To Guild Role":
+
+                break;
+            case "Back":
+                view(connection);
+                break;
+        }
+        textIO.dispose();
+    }
+    public void viewCRUDPermission(Connection connection){
+        TextIO textIO = TextIoFactory.getTextIO();
+        viewTitle("Permission",textIO);
+        String options = textIO.newStringInputReader()
+                .withNumberedPossibleValues("View Permission", "Add Permission","Update Permission","Delete Permission","Back")
+                .read("");
+        switch (options){
+            case "View Permission":
+                viewPermission(connection,options);
+                break;
+            case "Add Permission":
+                viewAddPermission(connection,options);
+                break;
+            case "Update Permission":
+                viewUpdatePermission(connection,options);
+                break;
+            case "Delete Permission":
+                viewDeletePermission(connection,options);
+                break;
+            case "Back":
+                view(connection);
+                break;
+        }
+        textIO.dispose();
+    }
+    public void viewPermission(Connection connection, String option){
+        ResponseDTO<List<String>> response;
+        TextIO textIO = TextIoFactory.getTextIO();
+        response = GuildController.getAllGuildPermissions(connection);
+        viewTitle(option,textIO);
+        for (String permission : response.getData()){
+            textIO.getTextTerminal().println(permission);
+        }
+        if(response.getStatus() != ResponseStatus.OK) {
+            printError(response.getMessage());
+        } else {
+            textIO.getTextTerminal().println(response.getMessage());
+        }
+        String BackToMenuOrBack = textIO.newStringInputReader()
+                .withNumberedPossibleValues("Back", "Back To Menu")
+                .read("");
+        switch (BackToMenuOrBack) {
+            case "Back":
+                viewCRUDPermission(connection);
+                break;
+            case "Back To Menu":
+                view(connection);
+                break;
+        }
+    }
+    public void viewAddPermission(Connection connection, String option)  {
+        ResponseDTO<Object> response;
+        String continueOrBack ;
+        do  {
+            TextIO textIO = TextIoFactory.getTextIO();
+            viewTitle(option, textIO);
+            viewTitle("Input Permission", textIO);
+            String permission = textIO.newStringInputReader()
+                    .withDefaultValue(null)
+                    .read("");
+            response = GuildController.addGuildPermission(connection,permission);
+            if(response.getStatus() != ResponseStatus.OK) {
+                printError(response.getMessage());
+                waitTime(500);
+            } else {
+                textIO.getTextTerminal().println(response.getMessage());
+                waitTime(500);
+            }
+            continueOrBack = AskContinueOrGoBack();
+        }while (continueOrBack.equals("Continue"));
+        switch (continueOrBack){
+            case "Back":
+                viewCRUDPermission(connection);
+                break;
+            case "Back To Menu":
+                view(connection);
+                break;
+        }
+    }
+
+    public void viewUpdatePermission(Connection connection, String option)  {
+        ResponseDTO<Object> response ;
+        String continueOrBack ;
+        do{
+            TextIO textIO = TextIoFactory.getTextIO();
+            viewTitle(option, textIO);
+            String permissionUpdated = getPermissionFromList(connection);
+            viewTitle("Input New Permission", textIO);
+            String permission = textIO.newStringInputReader()
+                    .withDefaultValue(null)
+                    .read("");
+            response = GuildController.updateGuildPermission(connection,permissionUpdated,permission);
+            if(response.getStatus() != ResponseStatus.OK) {
+                printError(response.getMessage());
+                waitTime(500);
+            } else {
+                textIO.getTextTerminal().println(response.getMessage());
+                waitTime(500);
+            }
+            continueOrBack = AskContinueOrGoBack();
+        } while (continueOrBack.equals("Continue"));
+        switch (continueOrBack){
+            case "Back":
+                viewCRUDPermission(connection);
+                break;
+            case "Back To Menu":
+                view(connection);
+                break;
+        }
+    }
+    public void viewDeletePermission(Connection connection, String option) {
+        ResponseDTO<Object> response;
+        String continueOrBack;
+        do {
+            TextIO textIO = TextIoFactory.getTextIO();
+            viewTitle(option, textIO);
+            String permissionDeleted = getPermissionFromList(connection);
+            response = GuildController.deleteGuildPermission(connection,permissionDeleted);
+            if(response.getStatus() != ResponseStatus.OK) {
+                printError(response.getMessage());
+                waitTime(500);
+            } else {
+                textIO.getTextTerminal().println(response.getMessage());
+                waitTime(500);
+            }
+            continueOrBack = AskContinueOrGoBack();
+        } while (continueOrBack.equals("Continue"));
+        switch (continueOrBack){
+            case "Back":
+                viewGuild(connection);
+                break;
+            case "Back To Menu":
+                view(connection);
+                break;
+        }
+    }
+    // TODO: CRUD Permission To Guild Role
+    public void viewCRUDPermissionToGuildRole(Connection connection){
+        TextIO textIO = TextIoFactory.getTextIO();
+        viewTitle("Permission Of Guild Role",textIO);
+        String options = textIO.newStringInputReader()
+                .withNumberedPossibleValues("View Permission Of Guild Role", "Add Permission To Guild Role","Update Permission In Guild Role","Delete Permission In Guild Role","Back")
+                .read("");
+        switch (options){
+            case "View Permission Of Guild Role":
+                break;
+            case "Add Permission To Guild Role":
+                viewAddPermissionToGuildRole(connection,options);
+                break;
+            case "Update Permission In Guild Role":
+                viewUpdatePermissionInGuildRole(connection,options);
+                break;
+            case "Delete Permission In Guild Role":
+                viewDeletePermissionInGuildRole(connection,options);
+                break;
+            case "Back":
+                view(connection);
+                break;
+        }
+        textIO.dispose();
+    }
+    public void viewAddPermissionToGuildRole(Connection connection, String option)  {
+        ResponseDTO<Object> response;
+        String continueOrBack ;
+        do  {
+            TextIO textIO = TextIoFactory.getTextIO();
+            viewTitle(option, textIO);
+            viewTitle("Choose Guild And Role", textIO);
+            Pair<String,String> guildAndRole = getGuildRoleFromList(connection);
+            viewTitle("Choose Permission", textIO);
+            String permissionAdded = getPermissionFromList(connection);
+            GuildRoleDTO guildRoleDTO = new GuildRoleDTO(guildAndRole.getSecond(),guildAndRole.getFirst());
+            response = GuildController.addPermissionToGuildRole(connection,guildRoleDTO,permissionAdded);
+            if(response.getStatus() != ResponseStatus.OK) {
+                printError(response.getMessage());
+                waitTime(500);
+            } else {
+                textIO.getTextTerminal().println(response.getMessage());
+                waitTime(500);
+            }
+            continueOrBack = AskContinueOrGoBack();
+        }while (continueOrBack.equals("Continue"));
+        switch (continueOrBack){
+            case "Back":
+                viewCRUDPermissionToGuildRole(connection);
+                break;
+            case "Back To Menu":
+                view(connection);
+                break;
+        }
+    }
+
+    public void viewUpdatePermissionInGuildRole(Connection connection, String option)  {
+        ResponseDTO<Object> response ;
+        String continueOrBack ;
+        do{
+            TextIO textIO = TextIoFactory.getTextIO();
+            viewTitle(option, textIO);
+            viewTitle("Choose Guild And Role", textIO);
+            Pair<String,String> guildAndRole = getGuildRoleFromList(connection);
+            viewTitle("Choose Permission Updated", textIO);
+            String permissionUpdated = getPermissionFromList(connection);
+            viewTitle("Choose New Permission", textIO);
+            String newPermission = getPermissionFromList(connection);
+            GuildRoleDTO guildRoleDTO = new GuildRoleDTO(guildAndRole.getSecond(),guildAndRole.getFirst());
+            response = GuildController.updatePermissionInGuildRole(connection,guildRoleDTO,permissionUpdated,newPermission);
+            if(response.getStatus() != ResponseStatus.OK) {
+                printError(response.getMessage());
+                waitTime(500);
+            } else {
+                textIO.getTextTerminal().println(response.getMessage());
+                waitTime(500);
+            }
+            continueOrBack = AskContinueOrGoBack();
+        } while (continueOrBack.equals("Continue"));
+        switch (continueOrBack){
+            case "Back":
+                viewCRUDPermissionToGuildRole(connection);
+                break;
+            case "Back To Menu":
+                view(connection);
+                break;
+        }
+    }
+    public void viewDeletePermissionInGuildRole(Connection connection, String option) {
+        ResponseDTO<Object> response;
+        String continueOrBack;
+        do {
+            TextIO textIO = TextIoFactory.getTextIO();
+            viewTitle(option, textIO);
+            viewTitle("Choose Guild And Role", textIO);
+            Pair<String,String> guildAndRole = getGuildRoleFromList(connection);
+            viewTitle("Choose Permission Deleted", textIO);
+            String permissionDeleted = getPermissionFromList(connection);
+            GuildRoleDTO guildRoleDTO = new GuildRoleDTO(guildAndRole.getSecond(),guildAndRole.getFirst());
+            response = GuildController.deletePermissionInGuildRole(connection,guildRoleDTO,permissionDeleted);
+            if(response.getStatus() != ResponseStatus.OK) {
+                printError(response.getMessage());
+                waitTime(500);
+            } else {
+                textIO.getTextTerminal().println(response.getMessage());
+                waitTime(500);
+            }
+            continueOrBack = AskContinueOrGoBack();
+        } while (continueOrBack.equals("Continue"));
+        switch (continueOrBack){
+            case "Back":
+                viewCRUDPermissionToGuildRole(connection);
+                break;
+            case "Back To Menu":
+                view(connection);
+                break;
+        }
     }
 }

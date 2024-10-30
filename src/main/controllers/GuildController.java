@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import constants.ResponseStatus;
+import models.permissions.GuildPermission;
 import models.roles.GuildRole;
 import models.users.UserGuildRole;
 import services.GuildService;
@@ -188,6 +189,107 @@ public class GuildController {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found Guild ID!", null);
         }
     }
+    // TODO: CRUD Guild Permission
+    public static ResponseDTO<Object> addGuildPermission(Connection connection,String data) {
+        try {
+            GuildService.addGuildPermission(connection, data);
+            return new ResponseDTO<>(ResponseStatus.OK,
+                    String.format("Add guild permission %s to database successfully!", data), null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!" + e, null);
+        } catch (NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+        } catch (DataEmptyException | InvalidDataException e){
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
+        }
+    }
 
+    public static ResponseDTO<Object> deleteGuildPermission(Connection connection, String data ) {
+        try {
+            GuildService.deleteGuildPermission(connection, data);
+            return new ResponseDTO<>(ResponseStatus.OK,
+                    String.format("Delete guild permission %s from database successfully!", data), null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!", null);
+        } catch (NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+        }catch (DataEmptyException | InvalidDataException e){
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+
+    public static ResponseDTO<Object> updateGuildPermission(Connection connection,String data, String newData ) {
+        try {
+            GuildService.updateGuildPermission(connection, data, newData);
+            return new ResponseDTO<>(ResponseStatus.OK,
+                    String.format("Update guild permission %s successfully!", data), null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!", null);
+        } catch (NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+        }catch (DataEmptyException | InvalidDataException e){
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+
+    public static ResponseDTO<List<String>> getAllGuildPermissions(Connection connection) {
+        try {
+            List<String> data = GuildPermission.getAllGuildPermission(connection);
+            return new ResponseDTO<>(ResponseStatus.OK, "Get all guilds successfully!", data);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!", null);
+        } catch (NotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    // TODO: CRUD Permission In Guild Role
+    public static ResponseDTO<Object> addPermissionToGuildRole(Connection connection,GuildRoleDTO guildRole, String permission) {
+        try {
+            GuildService.addPermissionToGuildRole(connection, guildRole,permission);
+            return new ResponseDTO<>(ResponseStatus.OK,
+                    String.format("Add permission %s to guild role %s successfully!", permission,guildRole.getGuildName()), null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!" + e, null);
+        } catch (NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+        } catch (DataEmptyException | InvalidDataException e){
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
+        }
+    }
+
+    public static ResponseDTO<Object> deletePermissionInGuildRole(Connection connection, GuildRoleDTO guildRole, String permission ) {
+        try {
+            GuildService.deletePermissionInGuildRole(connection, guildRole,permission);
+            return new ResponseDTO<>(ResponseStatus.OK,
+                    String.format("Delete permission %s in guild role %s successfully!", permission,guildRole.getGuildName()), null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!", null);
+        } catch (NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+        }catch (DataEmptyException | InvalidDataException e){
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+
+    public static ResponseDTO<Object> updatePermissionInGuildRole(Connection connection, GuildRoleDTO guildRole, String permission, String newPermission ) {
+        try {
+            GuildService.updatePermissionInGuildRole(connection, guildRole, permission, newPermission);
+            return new ResponseDTO<>(ResponseStatus.OK,
+                    String.format("Update permission %s in guild role %s successfully!", permission,guildRole.getGuildName()), null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!", null);
+        } catch (NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+        }catch (DataEmptyException | InvalidDataException e){
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
 
 }

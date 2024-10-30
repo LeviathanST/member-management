@@ -71,9 +71,36 @@ public class GuildPermission {
 
 		return list;
 	}
+	public static List<String> getAllGuildPermission(Connection con)
+			throws SQLException, NotFoundException {
+		String query = "SELECT name FROM guild_permission";
+		List<String> list = new ArrayList<>();
+
+		PreparedStatement stmt = con.prepareStatement(query);
+
+		ResultSet rs = stmt.executeQuery();
+
+		while (rs.next()) {
+			list.add(rs.getString("name"));
+		}
+
+		return list;
+	}
+	public static int getIdByName(Connection con, String permission) throws SQLException, NotFoundException {
+		String query = "SELECT id FROM guild_permission WHERE name = ?";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, permission);
+		ResultSet rs = stmt.executeQuery();
+
+		if (rs.next()) {
+			return rs.getInt("id");
+		}
+
+		throw new NotFoundException("Guild Permission is not existed!");
+	}
 
 
-	public void insert(String name, Connection con) throws SQLException {
+	public static void insert(String name, Connection con) throws SQLException {
 		String query = "INSERT INTO guild_permission (name) VALUES (?)";
 
 		PreparedStatement stmt = con.prepareStatement(query);
@@ -82,25 +109,21 @@ public class GuildPermission {
 		int row = stmt.executeUpdate();
 		if (row == 0)
 			throw new SQLException("A permission is failed when adding!");
-
-		System.out.println("Add a permission successfully!");
 	}
 
-	public void update(String newName, Connection con) throws SQLException {
-		String query = "UPDATE guild_permission SET name = ? where name = ?";
+	public static void update(String name,String newName, Connection con) throws SQLException {
+		String query = "UPDATE guild_permission SET name = ? WHERE name = ?";
 
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, this.name);
+		stmt.setString(1, name);
 		stmt.setString(2, newName);
 
 		int row = stmt.executeUpdate();
 		if (row == 0)
 			throw new SQLException("A permission is failed when update!");
-
-		System.out.println("Update a permission successfully!");
 	}
 
-	public void delete(String name, Connection con) throws SQLException {
+	public static void delete(String name, Connection con) throws SQLException {
 		String query = "DELETE FROM guild_permission WHERE name = ?";
 
 		PreparedStatement stmt = con.prepareStatement(query);
@@ -109,8 +132,40 @@ public class GuildPermission {
 		int row = stmt.executeUpdate();
 		if (row == 0)
 			throw new SQLException("A permission is failed when deleting!");
+	}
+	public static void addPermissionToGuildRole(Connection con, int guildRoleId, int permissionId) throws SQLException {
+		String query = "INSERT INTO guild_role_permission (guild_role_id,guild_permission_id) VALUES (?,?)";
 
-		System.out.println("Delete a permission successfully!");
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, guildRoleId);
+		stmt.setInt(2, permissionId);
+
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("A permission is failed when adding to guild role!");
+	}
+	public static void updatePermissionInGuildRole(int newPermissionID,int permissionID,int guildRoleID, Connection con) throws SQLException {
+		String query = "UPDATE guild_role_permission SET guild_permission_id = ? WHERE guild_permission_id = ? AND guild_role_id = ?";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, newPermissionID);
+		stmt.setInt(2, permissionID);
+		stmt.setInt(3, guildRoleID);
+
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("A guild role permission is failed when update!");
+	}
+	public static void deletePermissionInGuildRole(int permissionID,int guildRoleID, Connection con) throws SQLException {
+		String query = "DELETE FROM guild_role_permission WHERE guild_permission_id = ? AND guild_role_id = ?";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, permissionID);
+		stmt.setInt(2, guildRoleID);
+
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("A guild role permission is failed when deleting!");
 	}
 
 }
