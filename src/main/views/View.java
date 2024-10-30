@@ -40,4 +40,8 @@ public class View {
                 .read("");
         return continueOrBack;
     }
+    public  void clearScreen(TextIO textIO) {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
 }

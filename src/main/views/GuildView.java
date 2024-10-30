@@ -31,12 +31,16 @@ public class GuildView extends View {
                 .read("");
         switch (option){
             case "Guild":
+                clearScreen(textIO);
                 viewGuild(connection);
                 break;
             case "Guild Role":
+                clearScreen(textIO);
                 viewGuildRole(connection);
                 break;
             case "User Guild Role":
+                clearScreen(textIO);
+                viewUserGuildRole(connection);
                 break;
             case "Back":
                 break;
@@ -125,7 +129,6 @@ public class GuildView extends View {
                 view(connection);
                 break;
         }
-        options = textIO.newStringInputReader().read();
         textIO.dispose();
     }
     public ResponseDTO<List<String>> viewListGuilds(Connection connection, String option) throws SQLException, DataEmptyException, NotFoundException, InvalidDataException {
@@ -166,7 +169,6 @@ public class GuildView extends View {
                     .read("");
             GuildDTO guildDTO = new GuildDTO(guildName);
             response = GuildController.addGuild(connection,guildDTO);
-            textIO.getTextTerminal().println(response.getStatus().toString());
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -201,7 +203,6 @@ public class GuildView extends View {
             GuildDTO oldGuildDTO = new GuildDTO(guildUpdated);
             GuildDTO newGuildDTO = new GuildDTO(guildName);
             response = GuildController.updateGuild(connection,oldGuildDTO,newGuildDTO);
-            textIO.getTextTerminal().println(response.getStatus().toString());
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -230,7 +231,6 @@ public class GuildView extends View {
             String guildDeleted = getGuildFromList(connection);
             GuildDTO guildDTO = new GuildDTO(guildDeleted);
             response = GuildController.deleteGuild(connection,guildDTO);
-            textIO.getTextTerminal().println(response.getStatus().toString());
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -320,7 +320,6 @@ public class GuildView extends View {
                     .read("");
             GuildRoleDTO guildRoleDTO = new GuildRoleDTO(guildRole,guild);
             response = GuildController.addGuildRole(connection,guildRoleDTO);
-            textIO.getTextTerminal().println(response.getStatus().toString());
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -332,7 +331,7 @@ public class GuildView extends View {
         }while (continueOrBack.equals("Continue"));
         switch (continueOrBack){
             case "Back":
-                viewGuild(connection);
+                viewGuildRole(connection);
                 break;
             case "Back To Menu":
                 view(connection);
@@ -356,7 +355,6 @@ public class GuildView extends View {
             GuildRoleDTO guildRoleDTO = new GuildRoleDTO(guild.getSecond(),guild.getFirst());
             GuildRoleDTO newGuildRoleDTO = new GuildRoleDTO(newGuildRole,newGuild);
             response = GuildController.updateGuildRole(connection,guildRoleDTO,newGuildRoleDTO);
-            textIO.getTextTerminal().println(response.getStatus().toString());
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -368,7 +366,7 @@ public class GuildView extends View {
         } while (continueOrBack.equals("Continue"));
         switch (continueOrBack){
             case "Back":
-                viewGuild(connection);
+                viewGuildRole(connection);
                 break;
             case "Back To Menu":
                 view(connection);
@@ -386,7 +384,6 @@ public class GuildView extends View {
             Pair<String,String> guild = getGuildRoleFromList(connection);
             GuildRoleDTO guildRoleDTO = new GuildRoleDTO(guild.getSecond(),guild.getFirst());
             response = GuildController.deleteGuildRole(connection,guildRoleDTO);
-            textIO.getTextTerminal().println(response.getStatus().toString());
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -398,7 +395,7 @@ public class GuildView extends View {
         } while (continueOrBack.equals("Continue"));
         switch (continueOrBack){
             case "Back":
-                viewGuild(connection);
+                viewGuildRole(connection);
                 break;
             case "Back To Menu":
                 view(connection);
@@ -458,7 +455,7 @@ public class GuildView extends View {
                 .read("");
         switch (BackToMenuOrBack) {
             case "Back":
-                viewGuildRole(connection);
+                viewUserGuildRole(connection);
                 break;
             case "Back To Menu":
                 view(connection);
@@ -492,7 +489,7 @@ public class GuildView extends View {
         }while (continueOrBack.equals("Continue"));
         switch (continueOrBack){
             case "Back":
-                viewGuild(connection);
+                viewUserGuildRole(connection);
                 break;
             case "Back To Menu":
                 view(connection);
@@ -507,11 +504,10 @@ public class GuildView extends View {
         do{
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
-            Pair<String,String> newGuildRole = getGuildRoleFromList(connection);
             UserGuildRoleDTO oldUserGuildRole = getUserGuildRoleFromList(connection);
+            Pair<String,String> newGuildRole = getGuildRoleFromList(connection);
             UserGuildRoleDTO newUserGuildRole = new UserGuildRoleDTO(newGuildRole.getFirst(),oldUserGuildRole.getUsername(),newGuildRole.getSecond());
             response = GuildController.updateUserGuildRole(connection,oldUserGuildRole,newUserGuildRole);
-            textIO.getTextTerminal().println(response.getStatus().toString());
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -523,7 +519,7 @@ public class GuildView extends View {
         } while (continueOrBack.equals("Continue"));
         switch (continueOrBack){
             case "Back":
-                viewGuild(connection);
+                viewUserGuildRole(connection);
                 break;
             case "Back To Menu":
                 view(connection);
@@ -540,7 +536,6 @@ public class GuildView extends View {
             viewTitle(option, textIO);
             UserGuildRoleDTO userGuildRole = getUserGuildRoleFromList(connection);
             response = GuildController.deleteUserGuildRole(connection,userGuildRole);
-            textIO.getTextTerminal().println(response.getStatus().toString());
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -552,7 +547,7 @@ public class GuildView extends View {
         } while (continueOrBack.equals("Continue"));
         switch (continueOrBack){
             case "Back":
-                viewGuild(connection);
+                viewUserGuildRole(connection);
                 break;
             case "Back To Menu":
                 view(connection);

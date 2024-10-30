@@ -92,7 +92,7 @@ public class GuildService {
 			GuildRole.insertGuildRole(con,data.getRole(), data.getGuildId());
 		} catch (SQLIntegrityConstraintViolationException e) {
 
-			throw new SQLException(String.format("Your guild name is existed: %s", data.getGuildName()));
+			throw new SQLIntegrityConstraintViolationException(String.format("Your guild name is existed: %s", data.getGuildName()));
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when create guild role: %s", data.getGuildName()));
 		}
@@ -121,10 +121,10 @@ public class GuildService {
 			GuildRole.updateGuildRole(con,newData.getRole(), data.getId(),newData.getGuildId());
 		} catch (SQLIntegrityConstraintViolationException e) {
 
-			throw new SQLException(String.format("Disallow null values %s or %s", data.getGuildName(),newData.getGuildName()));
+			throw new SQLIntegrityConstraintViolationException(String.format("Disallow null values %s or %s", data.getGuildName(),newData.getGuildName()));
 		}
 		catch (SQLException e) {
-			throw new SQLException(String.format("Error occurs when update guild role: %s", data.getGuildName()));
+			throw new SQLException(String.format("Error occurs when update guild role: %s" + e, data.getGuildName()));
 		}
 	}
 
@@ -135,7 +135,7 @@ public class GuildService {
 			data.setId(GuildRole.getIdByName(con,data.getGuildId(),data.getRole()));
 			GuildRole.deleteGuildRole(con,data.getId());
 		} catch (SQLIntegrityConstraintViolationException e) {
-			throw new SQLException(String.format("Disallow null values %s ", data.getGuildName()));
+			throw new SQLIntegrityConstraintViolationException(String.format("Disallow null values %s ", data.getGuildName()));
 		}
 		catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when delete guild role: %s", data.getGuildName()));
@@ -220,7 +220,7 @@ public class GuildService {
 	}
 
 	public static boolean isValidString(String input){
-		return input.matches("[A-Za-z]+");
+		return input.matches("([A-Za-z]+\\s*)+");
 	}
 
 	public static String normalizeName(String input) {

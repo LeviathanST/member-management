@@ -32,7 +32,7 @@ public class UserGuildRole {
 		String query = """
 					SELECT ua.username as name, gr.name as role
 					FROM user_guild_role ugr
-	    			JOIN user_account ua ON ugr.account_id = ua.account_id
+	    			JOIN user_account ua ON ugr.account_id = ua.id
 					JOIN guild_role gr ON gr.id = ugr.guild_role_id
 					WHERE gr.guild_id = ?
 				""";

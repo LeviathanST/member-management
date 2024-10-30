@@ -19,6 +19,7 @@ import models.users.UserGuildRole;
 import services.GuildService;
 
 public class GuildController {
+    // TODO: CRUD Guild
     public static ResponseDTO<Object> addGuild(Connection connection, GuildDTO guildDTO) {
         try {
             GuildService.create(connection, guildDTO);
