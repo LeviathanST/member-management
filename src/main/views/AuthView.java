@@ -49,10 +49,10 @@ public class AuthView extends View{
             }
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
-                waitTime("Press enter to continue!");
+                waitTimeByMessage("Press enter to continue!");
             } else {
                 textIO.getTextTerminal().println(response.getMessage());
-                waitTime("Press enter to continue!");
+                waitTimeByMessage("Press enter to continue!");
             }
         } while (response.getStatus() != ResponseStatus.OK);
         clearScreen();
@@ -64,7 +64,7 @@ public class AuthView extends View{
             }
             if(status.getStatus() != ResponseStatus.OK){
                 printError(status.getMessage());
-                waitTime("Press enter to continue!");
+                waitTimeByMessage("Press enter to continue!");
                 clearScreen();
             }
             else textIO.getTextTerminal().println(status.getMessage());
