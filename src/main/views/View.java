@@ -3,7 +3,6 @@ package views;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 import org.beryx.textio.TextTerminal;
-import java.lang.Thread;
 import java.sql.Connection;
 
 public class View {
@@ -32,5 +31,14 @@ public class View {
     }
     public void viewTitle(String data, TextIO textIO) {
         textIO.getTextTerminal().println("| " + data + " |");
+    }
+    
+    public void waitTimeByMessage(String message) {
+        textIO.newStringInputReader().withMinLength(0).read(message);
+    }
+
+    public  void clearScreen() {
+        System.out.print("\033[H\033[2J");  
+        System.out.flush();
     }
 }

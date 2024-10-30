@@ -39,3 +39,5 @@ INSERT INTO role_permission (role_id, permission_id) VALUES (1, 4);
 INSERT INTO role_permission (role_id, permission_id) VALUES (2, 2);
 INSERT INTO role_permission (role_id, permission_id) VALUES (2, 3);
 INSERT INTO role_permission (role_id, permission_id) VALUES (2, 4);
+
+INSERT INTO generation(name) VALUES ('F19');

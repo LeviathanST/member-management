@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.Optional;
-
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import constants.RoleType;
 import dto.ClaimsDTO;
@@ -28,18 +27,25 @@ import models.roles.Role;
 
 public class AuthService {
 	public static void signUpInternal(Connection con, SignUpDTO data)
-			throws InvalidPasswordException, AuthException, DataEmptyException, SQLException,
-			SQLIntegrityConstraintViolationException, NotFoundException {
+			throws AuthException, SQLException, DataEmptyException, NotFoundException {
 
 		int round = Integer.parseInt(Optional.ofNullable(System.getenv("ROUND_HASHING")).orElse("4"));
 		String[] errorsPassword = AuthService.validatePassword(data.getPassword());
+		String errors = "";
+		
+		if (data.getUsername() == null || data.getUsername() == "" || data.getUsername().contains(" "))
+			errors += "Your username musn't be empty or contains space!\n";
 
-		if (errorsPassword.length != 0)
+		if (errorsPassword.length != 0) {
 			for (String tmp : errorsPassword)
-				throw new InvalidPasswordException(tmp);
+				errors += tmp + "\n";
+		}
 
-		if (data.getUsername() == null || data.getUsername() == "")
-			throw new IllegalArgumentException("Your username musn't be empty!");
+		if (UserProfileService.isValidEmail(data.getEmail()) == false)
+			errors += "Invalid email!";
+
+		if(errors != "")
+			throw new AuthException(errors);
 
 		data.setPassword(hashingPassword(data.getPassword(), round));
 		UserAccount.insert(con, data);
