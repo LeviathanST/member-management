@@ -32,7 +32,6 @@ public class View {
     public void viewTitle(String data, TextIO textIO) {
         textIO.getTextTerminal().println("| " + data + " |");
     }
-
     public void waitTimeByMessage(String message) {
         textIO.newStringInputReader().withMinLength(0).read(message);
     }

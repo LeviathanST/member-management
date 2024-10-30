@@ -8,6 +8,9 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import config.AppConfig;
+import utils.EnvLoader;
+
 // TODO: Refresh token
 public class TokenPairDTO {
 	private String accessToken;
@@ -32,8 +35,8 @@ public class TokenPairDTO {
 	}
 
 	public static TokenPairDTO GenerateNew(ClaimsDTO data) {
-		String secretKey = Optional.ofNullable(System.getenv("SECRET_KEY")).orElse("huyngu");
-		Algorithm algo = Algorithm.HMAC384(secretKey);
+		AppConfig appConfig = EnvLoader.load(AppConfig.class);
+		Algorithm algo = Algorithm.HMAC384(appConfig.getSecretKey());
 
 		System.out.println(data.getAccountId());
 
@@ -53,9 +56,9 @@ public class TokenPairDTO {
 	}
 
 	public static DecodedJWT Verify(String accessToken) {
-		String secretKey = Optional.ofNullable(System.getenv("SECRET_KEY")).orElse("huyngu");
+		AppConfig appConfig = EnvLoader.load(AppConfig.class);
 
-		Algorithm algo = Algorithm.HMAC384(secretKey);
+		Algorithm algo = Algorithm.HMAC384(appConfig.getSecretKey());
 		JWTVerifier verifyer = JWT.require(algo).build();
 		DecodedJWT jwt = verifyer.verify(accessToken);
 

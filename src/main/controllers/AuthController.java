@@ -23,7 +23,7 @@ public class AuthController {
 					"Server have some troubles, please comback again!", null);
 		} catch (NotFoundException e) {
 			return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-		} catch (DataEmptyException | AuthException e) {
+		} catch (DataEmptyException | AuthException | IllegalArgumentException e) {
 			return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
 		}
 	}
