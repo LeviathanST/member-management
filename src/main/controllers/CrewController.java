@@ -16,7 +16,7 @@ import java.util.List;
 
 
 public class CrewController {
-    public static ResponseDTO<Object> add(Connection con, CrewDTO crewDTO) throws SQLException {
+    public static ResponseDTO<Object> create(Connection con, CrewDTO crewDTO) throws SQLException {
         try {
             CrewService.create(con, crewDTO);
             return new ResponseDTO<>(ResponseStatus.OK,

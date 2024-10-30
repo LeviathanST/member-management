@@ -86,45 +86,42 @@ public class GuildRole {
 		return list;
 	}
 
-	public static void insertGuildMember(Connection con, GuildDTO data) throws SQLException, NotFoundException {
-		int guildID = Guild.getIdByName(con, data.getGuildName());
-		int guild_role_id = getIdByName(con, guildID, data.getGuildRole());
-		String account_id = UserAccount.getIdByUsername(con, data.getUserName());
-		String query = "INSERT INTO user_guild_role(account_id, guild_role_id) VALUES (?, ?)";
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, account_id);
-		stmt.setInt(2, guild_role_id);
-		int row = stmt.executeUpdate();
-		if (row == 0)
-			throw new SQLException("Insert failure");
-	}
-
-	public static void updateGuildMember(Connection con, GuildDTO data, int newGuildRoleID)
+	public static void insertGuildRole(Connection con, String role, int guildId)
 			throws SQLException, NotFoundException {
-		int guildID = Guild.getIdByName(con, data.getGuildName());
-		int guild_role_id = getIdByName(con, guildID, data.getGuildRole());
-		String account_id = UserAccount.getIdByUsername(con, data.getUserName());
-		String query = "UPDATE user_guild_role SET guild_role_id = ? WHERE account_id = ? AND guild_role_id = ?";
+		String query = "INSERT INTO guild_role (name, guild_id) VALUES (?, ?)";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, newGuildRoleID);
-		stmt.setString(2, account_id);
-		stmt.setInt(3, guild_role_id);
+		stmt.setString(1, role);
+		stmt.setInt(2, guildId);
 		int row = stmt.executeUpdate();
 		if (row == 0)
-			throw new SQLException("Update failure");
+			throw new SQLException("Insert guild role to database is failed!");
 	}
 
-	public static void deleteCrewMember(Connection con, GuildDTO data) throws SQLException, NotFoundException {
-		int guildID = Guild.getIdByName(con, data.getGuildName());
-		int guild_role_id = getIdByName(con, guildID, data.getGuildRole());
-		String account_id = UserAccount.getIdByUsername(con, data.getUserName());
-		String query = "DELETE FROM user_guild_role WHERE account_id = ? AND guild_role_id = ?";
+	public static void updateGuildRole(Connection con, String newRole, int guildRoleId, int newGuildId)
+			throws SQLException, NotFoundException {
+		String query = """
+				UPDATE guild_role
+				SET name = ?, guild_id = ?
+				WHERE id = ?
+				""";
+
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, account_id);
-		stmt.setInt(2, guild_role_id);
+		stmt.setString(1, newRole);
+		stmt.setInt(2, newGuildId);
+		stmt.setInt(3, guildRoleId);
 		int row = stmt.executeUpdate();
 		if (row == 0)
-			throw new SQLException("Delete failure");
+			throw new SQLException("Update guild role from database is failed!");
+	}
+
+	public static void deleteGuildRole(Connection con, int guildRoleId)
+			throws SQLException, NotFoundException {
+		String query = "DELETE FROM guild_role WHERE id = ?";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, guildRoleId);
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("Delete guild role from database is failed!");
 	}
 
 }
