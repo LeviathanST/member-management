@@ -3,7 +3,6 @@ package views;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 import org.beryx.textio.TextTerminal;
-import java.lang.Thread;
 import java.sql.Connection;
 
 public class View {
@@ -34,14 +33,18 @@ public class View {
         textIO.getTextTerminal().println("| " + data + " |");
     }
 
+    public void waitTimeByMessage(String message) {
+        textIO.newStringInputReader().withMinLength(0).read(message);
+    }
+
+    public  void clearScreen() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
     public String AskContinueOrGoBack(){
         String continueOrBack = textIO.newStringInputReader()
                 .withNumberedPossibleValues("Continue", "Back", "Back To Menu")
                 .read("");
         return continueOrBack;
-    }
-    public  void clearScreen(TextIO textIO) {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
     }
 }

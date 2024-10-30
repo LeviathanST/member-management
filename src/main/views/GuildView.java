@@ -31,15 +31,15 @@ public class GuildView extends View {
                 .read("");
         switch (option){
             case "Guild":
-                clearScreen(textIO);
+                clearScreen();
                 viewGuild(connection);
                 break;
             case "Guild Role":
-                clearScreen(textIO);
+                clearScreen();
                 viewGuildRole(connection);
                 break;
             case "User Guild Role":
-                clearScreen(textIO);
+                clearScreen();
                 viewUserGuildRole(connection);
                 break;
             case "Back":
