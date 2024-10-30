@@ -27,4 +27,45 @@ public class UserGuildRole {
 		}
 		return list;
 	}
+	public static void insertGuildMember(Connection con, String accountId, int guildRoleId)
+			throws SQLException, NotFoundException {
+		String query = "INSERT INTO user_guild_role(account_id, guild_role_id) VALUES (?, ?)";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, accountId);
+		stmt.setInt(2, guildRoleId);
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("Insert member to guild is failed!");
+	}
+	public static void updateGuildMember(Connection con, String accountId, int guildId, int newGuildRoleId)
+			throws SQLException, NotFoundException {
+		String query = """
+				UPDATE user_guild_role ugr
+				JOIN guild_role gr ON gr.id = ugr.guild_role_id
+				SET ugr.guild_role_id = ?
+				WHERE ugr.account_id = ? AND gr.guild_id = ?
+				""";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, newGuildRoleId);
+		stmt.setString(2, accountId);
+		stmt.setInt(3, guildId);
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("Update member from guild is failed!");
+	}
+	public static void deleteGuildMember(Connection con, String accountId, int guildId)
+			throws SQLException, NotFoundException {
+		String query = """
+				DELETE FROM user_guild_role ugr
+				JOIN guild_role gr ON gr.id = ugr.guild_role_id
+				WHERE ugr.account_id = ? AND gr.guild_id = ?
+				""";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, accountId);
+		stmt.setInt(2, guildId);
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException(String.format("Delete member from guild is failed!"));
+	}
 }
