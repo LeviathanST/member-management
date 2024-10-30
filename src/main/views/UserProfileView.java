@@ -3,7 +3,7 @@ package views;
 import java.sql.Connection;
 import java.sql.SQLException;
 import constants.Sex;
-import controllers.UserProfileController;
+import controllers.ApplicationController;
 import java.text.SimpleDateFormat;
 import java.lang.Object;
 
@@ -39,12 +39,12 @@ public class UserProfileView extends View{
         java.sql.Date sqlDate = new java.sql.Date(parsedDate.getTime());
         user_profile.setDateOfBirth(sqlDate);
 
-        response = UserProfileController.createOne(con, user_profile, signUp);
+        response = ApplicationController.createOneUserProfile(con, user_profile, signUp);
         return response;
     }
 
     public ResponseDTO<Object> ReadUserProfile (Connection con, UserProfileDTO user_profile, LoginDTO logIn) throws SQLException, NotFoundException {
-        ResponseDTO<Object> response = UserProfileController.readOne(con, user_profile, logIn);
+        ResponseDTO<Object> response = ApplicationController.readOneUserProfile(con, user_profile, logIn);
         return response; 
     }
 

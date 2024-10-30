@@ -13,6 +13,10 @@ public class Permission {
 
 	private Connection con;
 
+	public Permission() {
+		
+	}
+
 	public Permission(int id, String name) {
 		this.id = id;
 		this.name = name;
@@ -20,6 +24,36 @@ public class Permission {
 
 	public String getName() {
 		return this.name;
+	}
+
+	public static List<Permission> getAllPermission(Connection con) throws SQLException {
+		String query = """
+				SELECT * FROM permission
+				""";
+
+		List<Permission> list = new ArrayList<>();
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			list.add(new Permission(rs.getInt("id"), rs.getString("name")));
+		}
+		
+		return list;
+	}
+
+	public static int getIdByName(Connection con, String namePermission) throws SQLException {
+		String query = """
+				SELECT id FROM permission WHERE name = ? 
+				""";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, namePermission);
+		ResultSet rs = stmt.executeQuery();
+		while(!rs.next())
+			throw new SQLException("Permission is not existed!");
+		return rs.getInt("id");
+
 	}
 
 	public static List<Permission> getByAccountId(Connection con, String accountId) throws SQLException {

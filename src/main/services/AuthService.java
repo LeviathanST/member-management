@@ -41,7 +41,7 @@ public class AuthService {
 				errors += tmp + "\n";
 		}
 
-		if (UserProfileService.isValidEmail(data.getEmail()) == false)
+		if (ApplicationService.isValidEmail(data.getEmail()) == false)
 			errors += "Invalid email!";
 
 		if(errors != "")
@@ -126,29 +126,32 @@ public class AuthService {
 		return errors.toArray(new String[0]);
 	}
 
-	public static boolean AppAuthorization(Connection con, String accountId,
-			String namePermission) throws SQLException, NotFoundException {
-		return Authorization(con, accountId, 0, RoleType.Application, namePermission);
+	public static boolean AppAuthorization(Connection con, 
+			String namePermission) throws SQLException, NotFoundException, TokenException {
+		return Authorization(con,  0, RoleType.Application, namePermission);
 	}
 
-	public static boolean GuildAuthorization(Connection con, String accountId, int guildId,
-			String namePermission) throws SQLException, NotFoundException {
-		return Authorization(con, accountId, guildId, RoleType.Guild, namePermission);
+	public static boolean GuildAuthorization(Connection con, int guildId,
+			String namePermission) throws SQLException, NotFoundException, TokenException {
+		return Authorization(con, guildId, RoleType.Guild, namePermission);
 	}
 
-	public static boolean CrewAuthorization(Connection con, String accountId, int crewId,
-			String namePermission) throws SQLException, NotFoundException {
-		return Authorization(con, accountId, crewId, RoleType.Crew, namePermission);
+	public static boolean CrewAuthorization(Connection con, int crewId,
+			String namePermission) throws SQLException, NotFoundException, TokenException {
+		return Authorization(con, crewId, RoleType.Crew, namePermission);
 	}
 
 	/// ID
 	/// + crew_id
 	/// + guild_id
 	/// if using for application let id = 0
-	public static boolean Authorization(Connection con, String accountId, int id, RoleType type,
+	public static boolean Authorization(Connection con, int id, RoleType type,
 			String namePermission)
-			throws NotFoundException, SQLException {
+			throws NotFoundException, SQLException, TokenException {
 		boolean isAuthorized;
+		Path path = (Path)Paths.get("auth.json");
+		String accessToken = TokenService.loadFromFile(path).getAccessToken();
+		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").toString();
 		try {
 			switch (type) {
 				case RoleType.Guild -> {

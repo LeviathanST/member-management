@@ -19,7 +19,7 @@ import exceptions.UserProfileException;
 import constants.ResponseStatus;
 
 
-public class UserProfileService {
+public class ApplicationService {
     public static void insertProfileInternal(Connection con, UserProfileDTO data, SignUpDTO signUp)  
                 throws SQLException, UserProfileException, NotFoundException{
         

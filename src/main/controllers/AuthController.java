@@ -13,6 +13,8 @@ import exceptions.NotFoundException;
 import exceptions.TokenException;
 import services.AuthService;
 
+
+
 public class AuthController {
 	public static ResponseDTO<Object> signUp(Connection con, SignUpDTO data) {
 		try {
@@ -25,11 +27,12 @@ public class AuthController {
 			return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
 		} catch (DataEmptyException | AuthException | IllegalArgumentException e) {
 			return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-		}
+		} 
 	}
 
 	public static ResponseDTO<Object> login(Connection con, LoginDTO data) {
 		try {
+
 			AuthService.loginInternal(con, data);
 			return new ResponseDTO<>(ResponseStatus.OK, "Login successfully!", null);
 		} catch (AuthException e) {
@@ -43,4 +46,7 @@ public class AuthController {
 		}
 
 	}
+
+
+	
 }

@@ -30,7 +30,13 @@ public class View {
         }
     }
     public void viewTitle(String data, TextIO textIO) {
-        textIO.getTextTerminal().println("| " + data + " |");
+        for(int i = 0; i < data.length(); i++)
+            textIO.getTextTerminal().print("-");
+        textIO.getTextTerminal().println();
+        textIO.getTextTerminal().println(data);
+        for(int i = 0; i < data.length(); i++)
+        textIO.getTextTerminal().print("-");
+        textIO.getTextTerminal().println();
     }
     
     public void waitTimeByMessage(String message) {

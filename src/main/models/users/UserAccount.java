@@ -5,12 +5,36 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
-
+import java.util.List;
+import java.util.ArrayList;
 import dto.SignUpDTO;
 import exceptions.DataEmptyException;
 import exceptions.NotFoundException;
 
 public class UserAccount {
+	private String username;
+	
+	public UserAccount(String username) {
+		this.username = username;
+	}
+
+	public String getUsername() {
+		return this.username;
+	}
+
+	public static List<UserAccount> getAllUserAccounts(Connection con) {
+		List<UserAccount> list = new ArrayList<>();
+		String query = """
+				SELECT username FROM user_account
+				""";
+		PreparedStatement stmt = con.prepareStatement(query);
+		ResultSet rs = stmt.executeQuery();
+
+		while (rs.next()) {
+			list.add(new UserAccount(rs.getString("username")));
+		}
+		return list;
+	}
 
 	public static String getIdByUsername(Connection con, String username) throws SQLException, NotFoundException {
 		String query = """

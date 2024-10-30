@@ -23,7 +23,7 @@ public class AuthView extends View{
     public ResponseDTO<Object> Auth_view()
                 throws DataEmptyException, UserProfileException, NotFoundException, ParseException, SQLException {
 
-        ResponseDTO<Object> response = null;
+        ResponseDTO<Object> response = new ResponseDTO<Object>(ResponseStatus.NOT_FOUND, null, null);
         SignUpDTO signUp = new SignUpDTO();
         LoginDTO logIn = new LoginDTO();
         UserProfileDTO userProfile = new UserProfileDTO();
@@ -56,7 +56,7 @@ public class AuthView extends View{
             }
         } while (response.getStatus() != ResponseStatus.OK);
         clearScreen();
-        ResponseDTO<Object> status = null;
+        ResponseDTO<Object> status = new ResponseDTO<Object>(ResponseStatus.OK, "Login successfully", null);
         do {
             if(response.getMessage() == "Sign up successfully!") {
                 UserProfileView userProfileView = new UserProfileView(con);
@@ -68,7 +68,10 @@ public class AuthView extends View{
                 clearScreen();
             }
             else textIO.getTextTerminal().println(status.getMessage());
+            clearScreen();
         } while (status.getStatus() != ResponseStatus.OK);
+        ApplicationView appView = new ApplicationView(con);
+        appView.view();
         return response;
     }
 

@@ -40,4 +40,20 @@ public class UserRole {
 		if (rowEffected == 0)
 			throw new SQLException("Add role failed!");
 	}
+
+	public static void update(Connection con, String account_id, int new_role_id) throws SQLException {
+		String query = """
+				UPDATE user_role
+				SET role_id = ?
+				WHERE account_id = ? 
+				""";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, new_role_id);
+		stmt.setString(2, account_id);
+
+		int rowEffected = stmt.executeUpdate();
+		if (rowEffected == 0)
+			throw new SQLException("Update role failed!");
+	}
 }
