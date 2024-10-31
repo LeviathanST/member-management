@@ -1,13 +1,15 @@
 package services;
 
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.sql.ResultSet;
 
+import exceptions.DataEmptyException;
+import exceptions.InvalidDataException;
+import models.permissions.Permission;
+import models.roles.Role;
 import models.users.UserAccount;
 import models.users.UserProfile;
 import dto.LoginDTO;
@@ -17,6 +19,7 @@ import dto.UserProfileDTO;
 import exceptions.NotFoundException;
 import exceptions.UserProfileException;
 import constants.ResponseStatus;
+import models.users.UserRole;
 
 
 public class ApplicationService {
@@ -63,7 +66,112 @@ public class ApplicationService {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
+    // TODO: Role
+    public static ResponseDTO<List<Role>> getAllRoles(Connection con)
+            throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
+        try {
+            List<Role> listRole = Role.getAll(con);
+            return new ResponseDTO<>(ResponseStatus.OK, "Get all roles successfully!",listRole);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!", null);
+        }
+    }
+    public static void CreateRole(String name,Connection con)
+            throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException{
+        try {
+            Role.createRole(con, name);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new SQLIntegrityConstraintViolationException(String.format("Your role is existed: %s", name));
+        } catch (SQLException e) {
+            throw new SQLException(String.format("Error occurs when create role: %s", name));
+        }
+    }
+    public static void UpdateRole(Connection connection,String userName, String roleName)
+            throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
+        try {
+            Role.updateRole(connection, userName, roleName);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new SQLException(String.format("Disallow null values %s",userName));
+        } catch (SQLException e) {
+            throw new SQLException(String.format("Error occurs when update guild: %s", userName));
+        }
+    }
+    public static void DeleteRole(Connection connection,String nameRole)
+            throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
+        try {
+            Role.deleteRole(connection, nameRole);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new SQLException(String.format("Disallow null values %s",nameRole));
+        } catch (SQLException e) {
+            throw new SQLException(String.format("Error occurs when delete guild: %s", nameRole));
+        }
+    }
+    // TODO: User Role
+    public static void SetUserRole(String userName, String roleName, Connection connection)
+            throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
+        try {
+            String accountId = UserAccount.getIdByUsername(connection, userName);
+            int roleId = Role.getByName(connection, roleName).getId();
+            UserRole.insert(connection, accountId, roleId);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new SQLException(String.format("Your user role is existed: %s", userName));
+        } catch (SQLException e) {
+            throw new SQLException(String.format("Error occurs when delete guild: %s", userName));
+        }
+    }
 
+    public static void UpdateUserRoleDto(String accountId, int roleId, Connection connection)
+            throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException{
+        try {
+            UserRole.update(connection, accountId, roleId);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new SQLException("Disallow null values");
+        } catch (SQLException e) {
+            throw new SQLException("Error occurs when update user role");
+        }
+    }
+    public static void CreatePermissionDto(String name, Connection connection)
+            throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
+        try {
+            Permission.insert(name,connection);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new SQLException("Disallow null values");
+        } catch (SQLException e) {
+            throw new SQLException("Error occurs when update user role");
+        }
+    }
+    public static void AddPermissionDto(int roleId, int permissionId, Connection connection)
+            throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
+        try {
+            Permission.addPermissionToRole(connection,roleId,permissionId);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new SQLException("Permission Role already exists");
+        } catch (SQLException e) {
+            throw new SQLException("Error occurs when update user role");
+        }
+    }
+    public static void UpdatePermissionDto(int roleId, String name,String newName, Connection connection) throws SQLException {
+        try {
+            int permissionId = Permission.getIdByName(connection, name);
+            int newPermissionId = Permission.getIdByName(connection, newName);
+            Permission.updatePermissionToRole(newPermissionId,permissionId,roleId,connection);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new SQLException("Disallow null values");
+        } catch (SQLException e) {
+            throw new SQLException("Error occurs when update user role");
+        }
+    }
+    public static void DeletePermissionDto(int roleId,String name, Connection connection) throws SQLException {
+        try {
+            int permissionId = Permission.getIdByName(connection, name);
+            Permission.deletePermissionRole(permissionId,roleId,connection);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new SQLException("Disallow null values");
+        } catch (SQLException e) {
+            throw new SQLException("Error occurs when update user role");
+        }
+    }
     public static int getMaxGenerationId(Connection con) throws SQLException, NotFoundException{
         String query = """
                 SELECT MAX(id) AS max_id FROM generation
@@ -127,5 +235,7 @@ public class ApplicationService {
 
         return normalized.toString().trim();
     }
+
+
 }
 

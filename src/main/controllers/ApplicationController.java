@@ -2,7 +2,11 @@ package controllers;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
+
+import exceptions.DataEmptyException;
 import exceptions.UserProfileException;
+import models.roles.Role;
 import models.users.UserAccount;
 import constants.ResponseStatus;
 import dto.UserProfileDTO;
@@ -66,6 +70,7 @@ public class ApplicationController {
         } catch (Exception e) {
             // TODO: handle exception
         }
+        return null;
     }
 
     public static ResponseDTO<Object> createOneUserProfile(Connection con, UserProfileDTO data, SignUpDTO signUp) {
@@ -89,6 +94,102 @@ public class ApplicationController {
 		} catch(NotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         } catch(TokenException e) {
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+    public static ResponseDTO<List<Role>> getAllRoles(Connection connection){
+        try {
+            ApplicationService.getAllRoles(connection);
+            return new ResponseDTO<>(ResponseStatus.OK, "Read user profile successfully!", null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        } catch(NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+    public static ResponseDTO<Object> createRole(String data, Connection connection) {
+        try {
+            ApplicationService.CreateRole(data,connection);
+            return new ResponseDTO<>(ResponseStatus.OK, "Read user profile successfully!", null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        } catch(NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+    public static ResponseDTO<Object> deleteRole(String userName,String roleName, Connection connection) {
+        try {
+            ApplicationService.UpdateRole(connection,userName,roleName);
+            return new ResponseDTO<>(ResponseStatus.OK, "Read user profile successfully!", null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        } catch(NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+    public static ResponseDTO<Object> updateRole(String roleName, Connection connection) {
+        try {
+            ApplicationService.DeleteRole(connection,roleName);
+            return new ResponseDTO<>(ResponseStatus.OK, "Read user profile successfully!", null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        } catch(NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+    public static ResponseDTO<Object> SetUserRole(String userName, String roleName, Connection connection) {
+        try {
+            ApplicationService.SetUserRole(userName,roleName,connection);
+            return new ResponseDTO<>(ResponseStatus.OK, "Read user profile successfully!", null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        } catch(NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+    public static ResponseDTO<Object> updateUserRole(String accountId,int roleId, Connection connection) {
+        try {
+            ApplicationService.UpdateUserRoleDto(accountId,roleId,connection);
+            return new ResponseDTO<>(ResponseStatus.OK, "Read user profile successfully!", null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        } catch(NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+    public static ResponseDTO<Object> createPermission(String name,  Connection connection) {
+        try {
+            ApplicationService.CreatePermissionDto(name,connection);
+            return new ResponseDTO<>(ResponseStatus.OK, "Read user profile successfully!", null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        } catch(NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+    public static ResponseDTO<Object> deletePermission(int roleId,String name,  Connection connection) {
+        try {
+            ApplicationService.DeletePermissionDto(roleId,name,connection);
+            return new ResponseDTO<>(ResponseStatus.OK, "Read user profile successfully!", null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        }
+    }
+    public static ResponseDTO<Object> updatePermission(int roleId,String name,String newName, Connection connection) {
+        try {
+            ApplicationService.UpdatePermissionDto(roleId,name,newName,connection);
+            return new ResponseDTO<>(ResponseStatus.OK, "Read user profile successfully!", null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        }
+    }
+    public static ResponseDTO<Object> AddPermissionToRole(int roleId,int permissionId,Connection connection){
+        try {
+            ApplicationService.AddPermissionDto(roleId,permissionId,connection);
+            return new ResponseDTO<>(ResponseStatus.OK, "Read user profile successfully!", null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        } catch (NotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }

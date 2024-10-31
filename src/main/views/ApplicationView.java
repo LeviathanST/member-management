@@ -18,7 +18,7 @@ public class ApplicationView extends View{
         super(con);
     }
 
-    public void view() {
+    public void view() throws SQLException, NotFoundException {
         ResponseDTO<Object> response = null;
         String option;
         do {
