@@ -14,73 +14,76 @@ public class AuthView extends View{
         super(con);
     }
 
-    public ResponseDTO<Object> Auth_view() {
-
-        ResponseDTO<Object> response = new ResponseDTO<Object>(ResponseStatus.NOT_FOUND, null, null);
+    public void Auth_view() {
         SignUpDTO signUp = new SignUpDTO();
         LoginDTO logIn = new LoginDTO();
-        UserProfileDTO userProfile = new UserProfileDTO();
         int choice;
         do {
             clearScreen();
-            choice = textIO.newIntInputReader().read("|-------------WELCOME-------------|\n" +
-                                                         "|1 : Sign up                      |\n" + 
-                                                         "|2: Log in                        |\n" + 
-                                                         "|---------------------------------|\n" + 
-                                                         "Enter your choice : ");
+            choice = textIO.newIntInputReader().read("|------------------WELCOME------------------|\n" + 
+                                                     "|1 : SIGN UP                                |\n" + 
+                                                     "|2 : LOG IN                                 |\n" + 
+                                                     "|-------------------------------------------|\n" + 
+                                                     "Enter your choice : ");
             clearScreen();
             switch (choice) {
                 case 1:
-                    response = SignUpForm(con, signUp);
+                    signUpForm(con, signUp);
+                    waitTimeByMessage("Press enter to continue!");
                     break;
                 case 2:
-                    response = LogInForm(con, logIn);
+                    logInForm(con, logIn);
+                    waitTimeByMessage("Press enter to continue!");
                     break;
                 default:
-                printError("Invalid value.");
                     break;
             }
-            if(response.getStatus() != ResponseStatus.OK) {
-                printError(response.getMessage());
-                waitTimeByMessage("Press enter to continue!");
-            } else {
-                textIO.getTextTerminal().println(response.getMessage());
-                waitTimeByMessage("Press enter to continue!");
-            }
-        } while (response.getStatus() != ResponseStatus.OK);
-        clearScreen();
-        ResponseDTO<Object> status = new ResponseDTO<Object>(ResponseStatus.OK, "Login successfully", null);
-        do {
-            if(response.getMessage() == "Sign up successfully!") {
-                UserProfileView userProfileView = new UserProfileView(con);
-                status = userProfileView.insertUserProfile(con, userProfile, signUp);
-            }
-            if(status.getStatus() != ResponseStatus.OK){
-                printError(status.getMessage());
-                waitTimeByMessage("Press enter to continue!");
-                clearScreen();
-            }
-            else textIO.getTextTerminal().println(status.getMessage());
             clearScreen();
-        } while (status.getStatus() != ResponseStatus.OK);
-        ApplicationView appView = new ApplicationView(con);
-        appView.view();
-        return response;
+            appCrewGuildView(con);
+
+        } while (true);
     }
 
-    public ResponseDTO<Object> SignUpForm(Connection con, SignUpDTO data) {
-        data.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
-        data.setPassword(textIO.newStringInputReader().read("Enter your password : "));
-        data.setEmail(textIO.newStringInputReader().read("Enter your email : "));
-        ResponseDTO<Object> status =  AuthController.signUp(con, data);
-        return status;
+    public void appCrewGuildView(Connection con) {
+        viewTitle("| MENU |", textIO);
+        String option = textIO.newStringInputReader().withNumberedPossibleValues("APPLICATION", "CREW", "GUILD", "BACK").read("");
+        do {
+            switch (option) {
+                case "APPLICATION":
+                    ApplicationView app = new ApplicationView(con);
+                    app.view();
+                    clearScreen();
+                    break;
+                case "BACK":
+                    break;
+                default:
+                    printError("Invalid value!");
+                    break;
+            }
+        } while (!option.equalsIgnoreCase("back"));
     }
 
-    public ResponseDTO<Object> LogInForm(Connection con, LoginDTO data) {
-        data.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
-        data.setPassword(textIO.newStringInputReader().read("Enter your password : "));
-        ResponseDTO<Object> status =  AuthController.login(con, data);
-        return status;
+    public void signUpForm(Connection con, SignUpDTO signUp) {
+        signUp.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
+        signUp.setPassword(textIO.newStringInputReader().read("Enter your password : "));
+        signUp.setEmail(textIO.newStringInputReader().read("Enter your email : "));
+        ResponseDTO<Object> response =  AuthController.signUp(con, signUp);
+        if(response.getStatus() != ResponseStatus.OK) {
+            printError(response.getMessage());
+        } else {
+            textIO.getTextTerminal().println(response.getMessage());
+            UserProfileView profileView = new UserProfileView(con);
+            profileView.addUserProfile(con, signUp);
+        }
+    }
+
+    public void logInForm(Connection con, LoginDTO logIn) {
+        logIn.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
+        logIn.setPassword(textIO.newStringInputReader().read("Enter your password : "));
+        ResponseDTO<Object> response = AuthController.login(con, logIn);
+        if(response.getStatus() != ResponseStatus.OK) {
+            printError(response.getMessage());
+        } else textIO.getTextTerminal().println(response.getMessage());
     }
 }
 
