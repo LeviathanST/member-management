@@ -23,13 +23,13 @@ INSERT INTO crew_permission (name) VALUES ("MakeTask");
 INSERT INTO crew_permission (name) VALUES ("EditTask"); 
 INSERT INTO crew_permission (name) VALUES ("DeleteTask"); 
 
-INSERT INTO permission (name, id) VALUES ("CrudRole"); 
-INSERT INTO permission (name, id) VALUES ("SetUserRole"); 
-INSERT INTO permission (name, id) VALUES ("UpdateUserRole"); 
-INSERT INTO permission (name, id) VALUES ("CrudPermission"); 
-INSERT INTO permission (name, id) VALUES ("AddPermissionToRole"); 
-INSERT INTO permission (name, id) VALUES ("ViewUserInformation"); 
-INSERT INTO permission (name, id) VALUES ("DeleteUserAccount"); 
+INSERT INTO permission (name) VALUES ("CrudRole"); 
+INSERT INTO permission (name) VALUES ("SetUserRole"); 
+INSERT INTO permission (name) VALUES ("UpdateUserRole"); 
+INSERT INTO permission (name) VALUES ("CrudPermission"); 
+INSERT INTO permission (name) VALUES ("AddPermissionToRole"); 
+INSERT INTO permission (name) VALUES ("ViewUserInformation"); 
+INSERT INTO permission (name) VALUES ("DeleteUserAccount"); 
 
 
 
