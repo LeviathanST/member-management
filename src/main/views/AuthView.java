@@ -38,9 +38,6 @@ public class AuthView extends View{
                 default:
                     break;
             }
-            clearScreen();
-            appCrewGuildView(con);
-
         } while (true);
     }
 
@@ -74,6 +71,8 @@ public class AuthView extends View{
             textIO.getTextTerminal().println(response.getMessage());
             UserProfileView profileView = new UserProfileView(con);
             profileView.addUserProfile(con, signUp);
+            clearScreen();
+            appCrewGuildView(con);
         }
     }
 
@@ -83,7 +82,11 @@ public class AuthView extends View{
         ResponseDTO<Object> response = AuthController.login(con, logIn);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
-        } else textIO.getTextTerminal().println(response.getMessage());
+        } else {
+            textIO.getTextTerminal().println(response.getMessage());
+            clearScreen();
+            appCrewGuildView(con);
+        }
     }
 }
 

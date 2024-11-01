@@ -87,5 +87,18 @@ public class UserAccount {
 		int row = stmt.executeUpdate();
 		if(row == 0)
 			throw new SQLException("Update user account failed!");
+
+		// String que = """
+		// 		SELECT count_mistake FROM user_account
+		// 		WHERE id = ?
+		// 		""";
+		// PreparedStatement st = con.prepareStatement(que);
+		// st.setString(1, accountId);
+		// ResultSet rs = st.executeQuery();
+		// if (rs.next()) {
+		// 	System.out.println(rs.getInt("count_mistake"));
+		// } else {
+		// 	System.out.println("No data found for the specified account ID.");
+		// }
 	}
 }

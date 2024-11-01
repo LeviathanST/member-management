@@ -113,6 +113,7 @@ public class ApplicationView extends View{
     }
 
     public void getAllUserProfiles(Connection con) {
+        viewTitle("| GET ALL USER PROFILES |", textIO);
         List<UserProfileDTO> list = new ArrayList<>();
         ResponseDTO<List<UserProfileDTO>> response = ApplicationController.getAllUserProfiles(con);
         list = response.getData();
@@ -128,6 +129,7 @@ public class ApplicationView extends View{
     }
 
     public void updateAccount(Connection con) {
+        viewTitle("| UPDATE ACCOUNT |", textIO);
         String username, password, email;
         username = textIO.newStringInputReader().read("Enter new user name : ");
         password = textIO.newStringInputReader().read("Enter new password : ");
@@ -139,6 +141,7 @@ public class ApplicationView extends View{
     }
 
     public void getAllAccounts(Connection con) {
+        viewTitle("| GET ALL ACCOUNTS |", textIO);
         ResponseDTO<List<UserAccount>> response = ApplicationController.getAllUserAccounts(con);
         List<UserAccount> list = response.getData();
         if(response.getStatus() != ResponseStatus.OK) {
@@ -151,6 +154,7 @@ public class ApplicationView extends View{
     }
 
     public void readProfile(Connection con) {
+        viewTitle("| PROFILE |", textIO);
         UserProfileDTO profile = new UserProfileDTO();
         ResponseDTO<Object> response = new ResponseDTO<Object>(null, null, null);
         response = ApplicationController.readOneUserProfile(con, profile);
@@ -162,7 +166,7 @@ public class ApplicationView extends View{
     }
     
     public void listAllRole(Connection con) {
-        viewTitle("LIST OF ROLE", this.textIO);
+        viewTitle("| LIST OF ROLE |", this.textIO);
         ResponseDTO<List<Role>> response = ApplicationController.getAllRoles(con);
         List<Role> role = response.getData();
         textIO.getTextTerminal().println("There are " + role.size() + " roles.");
@@ -178,7 +182,7 @@ public class ApplicationView extends View{
         String option = textIO.newStringInputReader().withNumberedPossibleValues("CREATE ROLE", "UPDATE ROLE", "DELETE ROLE").read("");
         switch (option) {
             case "CREATE ROLE":
-
+                viewTitle("| CREATE ROLE |", textIO);
                 name = textIO.newStringInputReader().read("Enter role : ");
                 response = ApplicationController.createRole(name, con);
                 if(response.getStatus() != ResponseStatus.OK) {
@@ -187,6 +191,7 @@ public class ApplicationView extends View{
                 break;
 
             case "GET ALL ROLES":
+                viewTitle("| GET ALL ROLES |", textIO);
                 List<Role> list = ApplicationController.getAllRoles(con).getData();
                 textIO.getTextTerminal().println("There are " + list.size() + " roles.");
                 for(Role i : list)
@@ -195,7 +200,7 @@ public class ApplicationView extends View{
         
 
             case "UPDATE ROLE":
-                
+                viewTitle("| UPDATE ROLE |", textIO);
                 String oldName = textIO.newStringInputReader().read("Enter role's name to update : ");
                 String newName = textIO.newStringInputReader().read("Enter new name to role : ");
                 response = ApplicationController.updateRole(oldName, newName, con);
@@ -205,6 +210,7 @@ public class ApplicationView extends View{
                 break;
 
             case "DELETE ROLE":
+                viewTitle("| DELETE ROLE |", textIO);
                 name = textIO.newStringInputReader().read("Enter role's name to delete : ");
                 response = ApplicationController.deleteRole(name, con);
                 if(response.getStatus() != ResponseStatus.OK) {
@@ -236,6 +242,7 @@ public class ApplicationView extends View{
         String option = textIO.newStringInputReader().withNumberedPossibleValues("SET UESR ROLE", "UPDATE UESR ROLE").read("");
         switch (option) {
             case "SET USER ROLE":
+                viewTitle("| SET USER ROLE |", textIO);
                 username = textIO.newStringInputReader().read("Enter user name : ");
                 roleName = textIO.newStringInputReader().read("Enter role name : ");
                 response = ApplicationController.SetUserRole(username, roleName, con);
@@ -246,6 +253,7 @@ public class ApplicationView extends View{
             
 
             case "UPDATE USER ROLE":
+                viewTitle("| UPDATE USER ROLE |", textIO);
                 username = textIO.newStringInputReader().read("Enter user name to updateb :");
                 roleName = textIO.newStringInputReader().read("Enter new role name : ");
                 response = ApplicationController.updateUserRole(username, roleName, con);
@@ -266,6 +274,7 @@ public class ApplicationView extends View{
         String option = textIO.newStringInputReader().withNumberedPossibleValues("CREATE PERMISSION", "GET ALL PERMISSIONS", "UPDATE PERMISSION", "DELETE PERMISSION").read("");
         switch (option) {
             case "CREATE PERMISSION":
+                viewTitle("| CREATE PERMISSION |", textIO);
                 permission = textIO.newStringInputReader().read("Enter permission's name : ");
                 response = ApplicationController.createPermission(permission, con);
                 if(response.getStatus() != ResponseStatus.OK) {
@@ -275,6 +284,7 @@ public class ApplicationView extends View{
         
 
             case "GET ALL PERMISSIONS":
+                viewTitle("| GET ALL PERMISSIONS |", textIO);
                 List<Permission> list = ApplicationController.getAllPermissions(con).getData();
                 textIO.getTextTerminal().println("There are " + list.size() + " roles.");
                 for(Permission i : list)
@@ -282,6 +292,7 @@ public class ApplicationView extends View{
                 break;
 
             case "UPDATE PERMISSION":
+                viewTitle("| UPDATE PERMISSION |", textIO);
                 roleName = textIO.newStringInputReader().read("Enter role's name : ");
                 permission = textIO.newStringInputReader().read("Enter old permission : ");
                 String newPermission = textIO.newStringInputReader().read("Enter new permission : ");
@@ -292,6 +303,7 @@ public class ApplicationView extends View{
                 break;
             
             case "DELETE PERMISSION":
+                viewTitle("| DELETE PERMISSION |", textIO);
                 roleName =textIO.newStringInputReader().read("Enter role : ");
                 permission = textIO.newStringInputReader().read("Enter permission to delete : ");
                 response = ApplicationController.deletePermission(roleName, permission, con);
