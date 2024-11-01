@@ -6,20 +6,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import exceptions.DataEmptyException;
-import exceptions.UserProfileException;
-import dto.TokenPairDTO;
+import dto.*;
+import exceptions.*;
+import models.Generation;
+import services.GuildService;
 import services.TokenService;
 import models.permissions.Permission;
 import models.roles.Role;
 import models.users.UserAccount;
 import constants.ResponseStatus;
-import dto.UserProfileDTO;
-import dto.LoginDTO;
-import dto.ResponseDTO;
-import dto.SignUpDTO;
-import exceptions.NotFoundException;
-import exceptions.TokenException;
 import services.ApplicationService;
 import services.AuthService;
 // TODO:
@@ -289,6 +284,75 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
         } catch (NotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+    // TODO: Guild Event
+    public static ResponseDTO<Object> addEvent(Connection connection, EventDto eventDto, String dateStart, String dateEnd) {
+        try {
+            ApplicationService.insertEvent(connection, eventDto,dateStart,dateEnd);
+            return new ResponseDTO<>(ResponseStatus.OK,
+                    String.format("Add event %s successfully!", eventDto.getTitle()), null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!" + e, null);
+        } catch (NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+        } catch (DataEmptyException | InvalidDataException e){
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
+        }
+    }
+
+    public static ResponseDTO<Object> deleteEvent(Connection connection, int eventId ) {
+        try {
+            ApplicationService.deleteEvent(connection, eventId);
+            return new ResponseDTO<>(ResponseStatus.OK,
+                    String.format("Delete event %s successfully!", eventId), null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!", null);
+        } catch (NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+        }catch (DataEmptyException | InvalidDataException e){
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+
+    public static ResponseDTO<Object> updateGuildEvent(Connection connection, EventDto eventDto, int eventId , String dateStart, String dateEnd) {
+        try {
+            ApplicationService.updateEvent(connection,eventDto,eventId,  dateStart,  dateEnd);
+            return new ResponseDTO<>(ResponseStatus.OK,
+                    "Update event successfully!", null);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!", null);
+        } catch (NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+        }catch (DataEmptyException | InvalidDataException e){
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+    public static ResponseDTO<List<EventDto>> getAllEvent(Connection connection) {
+        try {
+            List<EventDto> data = ApplicationService.getAllEvent(connection);
+            return new ResponseDTO<>(ResponseStatus.OK, "Get all event successfully!", data);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!", null);
+        } catch (NotFoundException e){
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found event!", null);
+        }catch (DataEmptyException | InvalidDataException e){
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+    public static ResponseDTO<List<String>> getAllGeneration(Connection connection){
+        try {
+            List<String> data = Generation.getAllGenerations(connection);
+            return new ResponseDTO<>(ResponseStatus.OK, "Get all generation successfully!", data);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!", null);
+        } catch (NotFoundException e){
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found generation!", null);
         }
     }
 }

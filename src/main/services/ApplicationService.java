@@ -4,22 +4,22 @@ package services;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Optional;
+
+import dto.*;
+import exceptions.*;
+import models.Generation;
+import models.events.Event;
 import models.permissions.Permission;
 import models.roles.Role;
 import models.users.UserAccount;
 import models.users.UserProfile;
-import dto.ResponseDTO;
-import dto.SignUpDTO;
-import dto.UserProfileDTO;
-import exceptions.NotFoundException;
-import exceptions.TokenException;
-import exceptions.UserProfileException;
-import dto.TokenPairDTO;
 import constants.ResponseStatus;
 import models.users.UserRole;
 
@@ -242,6 +242,89 @@ public class ApplicationService extends AuthService{
         list = UserProfile.readAll(con);
         return list;
     }
+
+    // TODO: Event
+    public static void insertEvent(Connection con, EventDto eventDto, String dateStart, String dateEnd)
+            throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException {
+        try {
+            if (eventDto.getTitle().isEmpty()) {
+                throw new DataEmptyException("Title is empty");
+            } else if (eventDto.getDescription().isEmpty()) {
+                throw new DataEmptyException("Description is empty");
+            } else if (eventDto.getType().isEmpty()) {
+                throw new DataEmptyException("Type is empty");
+            } else if (dateStart.isEmpty()) {
+                throw new DataEmptyException("Start date is empty");
+            } else if (dateEnd.isEmpty()) {
+                throw new DataEmptyException("End date is empty");
+            }
+            int generationId = Generation.getIdByName(con,eventDto.getGeneration());
+            Timestamp start = validTimeStamp(dateStart);
+            Timestamp end = validTimeStamp(dateEnd);
+            eventDto = new EventDto(eventDto.getTitle(),eventDto.getDescription(),generationId,start,end,eventDto.getType());
+            Event.insert(con, eventDto);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new SQLException(String.format("Your event is existed: %s", eventDto.getTitle()));
+        } catch (SQLException e) {
+            throw new SQLException(String.format("Error occurs when create event: %s", eventDto.getTitle()));
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void updateEvent(Connection con, EventDto eventDto, int eventId,String dateStart, String dateEnd)
+            throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException {
+        try {
+            if (eventDto.getTitle().isEmpty()) {
+                throw new DataEmptyException("Title is empty");
+            } else if (eventDto.getDescription().isEmpty()) {
+                throw new DataEmptyException("Description is empty");
+            } else if (eventDto.getType().isEmpty()) {
+                throw new DataEmptyException("Type is empty");
+            } else if (dateStart.isEmpty()) {
+                throw new DataEmptyException("Start date is empty");
+            } else if (dateEnd.isEmpty()) {
+                throw new DataEmptyException("End date is empty");
+            }
+            int generationId = Generation.getIdByName(con,eventDto.getGeneration());
+            Timestamp start = validTimeStamp(dateStart);
+            Timestamp end = validTimeStamp(dateEnd);
+            eventDto = new EventDto(eventDto.getTitle(),eventDto.getDescription(),generationId,start,end,eventDto.getType());
+            Event.update(con, eventDto,eventId);
+        } catch (SQLIntegrityConstraintViolationException e) {
+
+            throw new SQLException(String.format("Disallow null values %s", eventDto.getTitle()));
+        } catch (SQLException e) {
+            throw new SQLException(String.format("Error occurs when update event: %s", eventDto.getTitle()));
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void deleteEvent(Connection con, int guildEventId)
+            throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException {
+        try {
+            Event.delete(con, guildEventId);
+        } catch (SQLIntegrityConstraintViolationException e) {
+
+            throw new SQLException(String.format("Disallow null values id %s", guildEventId));
+        } catch (SQLException e) {
+            throw new SQLException(String.format("Error occurs when delete event: %s", guildEventId));
+        }
+    }
+    public static List<EventDto> getAllEvent(Connection connection)
+            throws SQLException, SQLIntegrityConstraintViolationException,NotFoundException, DataEmptyException, InvalidDataException {
+        try {
+            List<EventDto> data = Event.getAllEvent(connection);
+            for (EventDto eventDto : data) {
+                eventDto.setGeneration(eventDto.getGeneration());
+            }
+            return data;
+        } catch (SQLException e) {
+            throw new SQLException("Error occurs when view event");
+        }
+    }
+
     public static int getMaxGenerationId(Connection con) throws SQLException, NotFoundException{
         String query = """
                 SELECT MAX(id) AS max_id FROM generation
@@ -305,7 +388,11 @@ public class ApplicationService extends AuthService{
 
         return normalized.toString().trim();
     }
-
+    public static Timestamp validTimeStamp(String date) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        java.util.Date parsedDate = sdf.parse(date);
+        return new Timestamp(parsedDate.getTime());
+    }
 
 }
 
