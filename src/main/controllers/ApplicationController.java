@@ -71,21 +71,23 @@ public class ApplicationController {
     //Update user profile
     public static ResponseDTO<Object> updateUserProfile(Connection con, UserProfileDTO data) {
         try {
-            boolean author = AuthService.AppAuthorization(con, "EditUserProfile");
-            if(author == true) {
-                ApplicationService.updateUserProfile(con, data);
-                return new ResponseDTO<Object>(ResponseStatus.OK, "Update profile successfully!", data);
-            } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "Update profile failed!", null);
+
+            ApplicationService.updateUserProfile(con, data);
+            return new ResponseDTO<Object>(ResponseStatus.OK, "Update profile successfully!", data);
+
         } catch (Exception e) {
             return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-
+   
     //Get all user profile if role == "President" or role == "Vice president"
     public static ResponseDTO<List<UserProfileDTO>> getAllUserProfiles(Connection con) {
         try {
-            List<UserProfileDTO> list = ApplicationService.getAllUserProfiles(con);
-            return new ResponseDTO<List<UserProfileDTO>>(ResponseStatus.OK, "Get all user profiles successfully!", list);
+            boolean author = AuthService.AppAuthorization(con, "ViewUserInformation");
+            if(author == true) {
+                List<UserProfileDTO> list = ApplicationService.getAllUserProfiles(con);
+                return new ResponseDTO<List<UserProfileDTO>>(ResponseStatus.OK, "Get all user profiles successfully!", list);
+            } else return new ResponseDTO<List<UserProfileDTO>>(ResponseStatus.BAD_REQUEST, "Get all user profiles failed!", null);
         } catch (Exception e) {
            return new ResponseDTO<List<UserProfileDTO>>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
@@ -106,10 +108,23 @@ public class ApplicationController {
 
     public static ResponseDTO<Object> updateUserAccount(Connection con, String username, String password, String email) {
         try {
-            boolean author = AuthService.AppAuthorization(con, "EditUserAccount");
+
+            ApplicationService.updateUserAccount(con, username, password, email);
+            return new ResponseDTO<Object>(ResponseStatus.OK, "Update account successfully", null);
+
+        } catch (SQLException e) {
+			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+		} catch(TokenException e ) {
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+
+    public static ResponseDTO<Object> deleteUserAccount(Connection con, String username) {
+        try {
+            boolean author = AuthService.AppAuthorization(con, "DeleteUserAccount");
             if(author == true) {
-                ApplicationService.updateUserAccount(con, username, password, email);
-                return new ResponseDTO<Object>(ResponseStatus.OK, "Update account successfully", null);
+                ApplicationService.deleteUserAccount(con, username);
+                return new ResponseDTO<Object>(ResponseStatus.OK, "Delete account successfully", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission!", null);
         } catch (SQLException e) {
 			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
@@ -157,7 +172,7 @@ public class ApplicationController {
     }
     public static ResponseDTO<Object> createRole(String data, Connection connection) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "CreateRole");
+            boolean author = AuthService.AppAuthorization(connection, "CrudRole");
             if(author == true) {
                 ApplicationService.CreateRole(data,connection);
                 return new ResponseDTO<>(ResponseStatus.OK, "Create role successfully!", null);
@@ -170,7 +185,7 @@ public class ApplicationController {
     }
     public static ResponseDTO<Object> deleteRole(String roleName, Connection connection) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "DeleteRole");
+            boolean author = AuthService.AppAuthorization(connection, "CrudRole");
             if(author == true) {
                 ApplicationService.DeleteRole(connection, roleName);
                 return new ResponseDTO<>(ResponseStatus.OK, "Delete role successfully!", null);
@@ -183,7 +198,7 @@ public class ApplicationController {
     }
     public static ResponseDTO<Object> updateRole(String oldName, String newName, Connection connection) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "UpdateRole");
+            boolean author = AuthService.AppAuthorization(connection, "CrudRole");
             if(author == true) {
                 ApplicationService.UpdateRole(connection, oldName, newName);
                 return new ResponseDTO<>(ResponseStatus.OK, "Update role successfully!", null);
@@ -230,7 +245,7 @@ public class ApplicationController {
     }
     public static ResponseDTO<Object> createPermission(String name,  Connection connection) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "CreatePermission");
+            boolean author = AuthService.AppAuthorization(connection, "CrudPermission");
             if(author == true) {
                 ApplicationService.CreatePermissionDto(name, connection);
                 return new ResponseDTO<>(ResponseStatus.OK, "Create permission successfully!", null);
@@ -243,7 +258,7 @@ public class ApplicationController {
     }
     public static ResponseDTO<Object> deletePermission(String roleName, String name,  Connection connection) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "DeletePermission");
+            boolean author = AuthService.AppAuthorization(connection, "CrudPermission");
             if(author == true) {
                 ApplicationService.DeletePermissionDto(roleName, name, connection);
                 return new ResponseDTO<>(ResponseStatus.OK, "Delete permission successfully!", null);
@@ -256,7 +271,7 @@ public class ApplicationController {
     }
     public static ResponseDTO<Object> updatePermission(String roleName,String name,String newName, Connection connection) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "UpdatePermission");
+            boolean author = AuthService.AppAuthorization(connection, "CrudPermission");
             if(author == true) {
                 ApplicationService.UpdatePermissionDto(roleName, name, newName, connection);
                 return new ResponseDTO<>(ResponseStatus.OK, "Update permission successfully!", null);

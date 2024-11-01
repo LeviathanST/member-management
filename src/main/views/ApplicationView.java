@@ -25,14 +25,19 @@ public class ApplicationView extends View{
     public void view() {
         String option;
         do {
-            viewTitle("APPLICATION TAB", this.textIO);
+            viewTitle("| APPLICATION TAB |", this.textIO);
             option = textIO.newStringInputReader()
-                .withNumberedPossibleValues("UPDATE ACCOUNT", "READ YOUR PROFILE", "UPDATE YOUR PROFILE", "GET ALL USER PROFILES", "GET ALL USER ACCOUNTS" , "LIST ALL ROLE", "CRUD ROLE", "ADD PERMISSION TO ROLE", "CRUD USER'S ROLE", "PERMISSION MANAGEMENT","BACK")
+                .withNumberedPossibleValues("UPDATE ACCOUNT", "DELETE USER ACCOUNT", "READ YOUR PROFILE", "UPDATE YOUR PROFILE", "GET ALL USER PROFILES", "GET ALL USER ACCOUNTS" , "LIST ALL ROLE", "CRUD ROLE", "ADD PERMISSION TO ROLE", "CRUD USER'S ROLE", "PERMISSION MANAGEMENT","BACK")
                 .read("");
             clearScreen();
             switch (option){
                 case "UPDATE ACCOUNT":
                     updateAccount(con);
+                    waitTimeByMessage("Press enter to continue!");
+                    clearScreen();
+                    break;
+                case "DELETE USER ACCOUNT":
+                    deleteUserAccount(con);
                     waitTimeByMessage("Press enter to continue!");
                     clearScreen();
                     break;
@@ -83,6 +88,14 @@ public class ApplicationView extends View{
                     break;
             }
         } while (!option.equals("Back"));
+    }
+    public void deleteUserAccount(Connection con) {
+        viewTitle("| DELETE USER ACCOUNT |", textIO);
+        String username = textIO.newStringInputReader().read("Enter username to delete : ");
+        ResponseDTO<Object> response = ApplicationController.deleteUserAccount(con, username);
+        if(response.getStatus() != ResponseStatus.OK) {
+            printError(response.getMessage());
+        } else textIO.getTextTerminal().println(response.getMessage());
     }
 
     public void updateProfile(Connection con) {

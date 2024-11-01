@@ -246,15 +246,13 @@ public class ApplicationService extends AuthService{
         password = AuthService.hashingPassword(password, round);
         UserAccount.update(con, username, password, email, accountId);
     }
+    public static void deleteUserAccount(Connection con, String username) throws SQLException, NotFoundException {
+        String accountId = UserAccount.getIdByUsername(con, username);
+        UserAccount.delete(con, accountId);  
+    }
     public static List<UserProfileDTO> getAllUserProfiles(Connection con) throws TokenException, SQLException, NotFoundException {
-        Path path = (Path)Paths.get("auth.json");
-		String accessToken = TokenService.loadFromFile(path).getAccessToken();
-		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
-        Role userRole = Role.getByAccountId(con, accountId);
         List<UserProfileDTO> list =  new ArrayList<>();
-        if(userRole.getName().equalsIgnoreCase("president")) {
-            list = UserProfile.readAll(con);
-        } else throw new NotFoundException("You dont have permission to view users profile!");
+        list = UserProfile.readAll(con);
         return list;
     }
     public static int getMaxGenerationId(Connection con) throws SQLException, NotFoundException{
