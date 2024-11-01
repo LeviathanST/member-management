@@ -70,7 +70,6 @@ public class Role {
 		ResultSet rs = stmt.executeQuery();
 
 		while (rs.next()) {
-			System.out.println("take it!");
 			return new Role(rs.getInt("id"), rs.getString("name"));
 		}
 

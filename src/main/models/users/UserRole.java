@@ -11,7 +11,7 @@ public class UserRole {
 
 	public static int getIdByAccountId(Connection con, String account_id) throws SQLException, NotFoundException {
 		String query = """
-				SELECT id FROM user_role WHERE account_id = ?
+				SELECT role_id FROM user_role WHERE account_id = ?
 				""";
 
 		PreparedStatement stmt = con.prepareStatement(query);
@@ -20,7 +20,7 @@ public class UserRole {
 		ResultSet rs = stmt.executeQuery();
 
 		while (rs.next()) {
-			return rs.getInt("id");
+			return rs.getInt("role_id");
 		}
 
 		throw new NotFoundException("This account not have any user_role in application!");

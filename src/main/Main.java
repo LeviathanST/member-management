@@ -1,5 +1,8 @@
 import java.sql.Connection;
 
+import models.permissions.Permission;
+import models.users.UserAccount;
+import services.AuthService;
 import views.AuthView;
 
 public class Main {

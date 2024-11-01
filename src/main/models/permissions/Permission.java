@@ -72,7 +72,6 @@ public class Permission {
 
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			System.out.println(rs.getString("name"));
 			list.add(new Permission(rs.getInt("id"), rs.getString("name")));
 		}
 

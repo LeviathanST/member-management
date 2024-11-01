@@ -4,13 +4,7 @@ import dto.LoginDTO;
 import dto.ResponseDTO;
 import dto.SignUpDTO;
 import dto.UserProfileDTO;
-import exceptions.DataEmptyException;
-import exceptions.NotFoundException;
-import exceptions.UserProfileException;
-
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.lang.Object;
 import constants.ResponseStatus;
 import controllers.AuthController;
@@ -20,8 +14,7 @@ public class AuthView extends View{
         super(con);
     }
 
-    public ResponseDTO<Object> Auth_view()
-                throws DataEmptyException, UserProfileException, NotFoundException, ParseException, SQLException {
+    public ResponseDTO<Object> Auth_view() {
 
         ResponseDTO<Object> response = new ResponseDTO<Object>(ResponseStatus.NOT_FOUND, null, null);
         SignUpDTO signUp = new SignUpDTO();

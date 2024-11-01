@@ -27,6 +27,17 @@ INSERT INTO permission (name) VALUES ("ViewUserInformation");
 INSERT INTO permission (name) VALUES ("DeleteUserAccount"); 
 INSERT INTO permission (name) VALUES ("EditUserAccount"); 
 INSERT INTO permission (name) VALUES ("EditUserProfile"); 
+INSERT INTO permission (name) VALUES ("CreateRole"); 
+INSERT INTO permission (name) VALUES ("DeleteRole");
+INSERT INTO permission (name) VALUES ("UpdateRole");  
+INSERT INTO permission (name) VALUES ("SetUserRole"); 
+INSERT INTO permission (name) VALUES ("UpdateUserRole"); 
+INSERT INTO permission (name) VALUES ("CreatePermission"); 
+INSERT INTO permission (name) VALUES ("DeletePermission"); 
+INSERT INTO permission (name) VALUES ("UpdatePermission"); 
+INSERT INTO permission (name) VALUES ("AddPermissionToRole"); 
+
+
 
 INSERT INTO role (name) VALUES ("President");
 INSERT INTO role (name) VALUES ("Member");

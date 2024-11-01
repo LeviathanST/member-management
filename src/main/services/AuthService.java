@@ -75,26 +75,27 @@ public class AuthService {
 			} else {
 				Path path = Paths.get("auth.json");
 				String account_id = rs.getString("id");
-
 				int userRoleId = UserRole.getIdByAccountId(con, account_id);
 				List<Integer> userGuildRoleId = UserGuildRole.getIdByAccountId(con, account_id);
 				List<Integer> userCrewRole = UserCrewRole.getIdByAccountId(con, account_id);
+
 
 				ClaimsDTO claimsData = new ClaimsDTO(account_id, userRoleId, userGuildRoleId,
 						userCrewRole);
 				TokenPairDTO tokenData = TokenPairDTO.GenerateNew(claimsData);
 				TokenService.saveToFile(path, tokenData);
 			}
+
 		}
 	}
 
-	private static String hashingPassword(String password, int round) {
+	protected static String hashingPassword(String password, int round) {
 		String bcryptHashing = BCrypt.withDefaults()
 				.hashToString(round, password.toCharArray());
 		return bcryptHashing;
 	}
 
-	private static String[] validatePassword(String password) {
+	protected static String[] validatePassword(String password) {
 		// List to hold validation error messages
 		java.util.List<String> errors = new java.util.ArrayList<>();
 
@@ -151,7 +152,7 @@ public class AuthService {
 		boolean isAuthorized;
 		Path path = (Path)Paths.get("auth.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
-		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").toString();
+		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
 		try {
 			switch (type) {
 				case RoleType.Guild -> {
@@ -191,7 +192,6 @@ public class AuthService {
 				}
 				case RoleType.Application -> {
 					List<Permission> permissions = Permission.getByAccountId(con, accountId);
-
 					isAuthorized = false;
 					for (Permission permission : permissions) {
 						if (permission.getName().equals(namePermission)) {

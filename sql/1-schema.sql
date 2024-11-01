@@ -162,10 +162,12 @@ CREATE TRIGGER before_update_account
 BEFORE UPDATE ON user_account
 FOR EACH ROW
 BEGIN 
-	if NEW.count_mistake <= 0 or NEW.count_mistake > 3 THEN
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = "Mistake counting must be between 0 and 3";
-	END IF;	
+	IF NEW.count_mistake != OLD.count_mistake THEN
+        IF NEW.count_mistake < 0 OR NEW.count_mistake > 3 THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = "Mistake counting must be between 0 and 3!!!";
+        END IF;
+    END IF;
 END;
 //
 
