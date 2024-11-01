@@ -69,6 +69,7 @@ public class AuthView extends View{
             printError(response.getMessage());
         } else {
             textIO.getTextTerminal().println(response.getMessage());
+            clearScreen();
             UserProfileView profileView = new UserProfileView(con);
             profileView.addUserProfile(con, signUp);
             clearScreen();

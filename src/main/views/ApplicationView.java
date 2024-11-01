@@ -169,7 +169,7 @@ public class ApplicationView extends View{
     public void readProfile(Connection con) {
         viewTitle("| PROFILE |", textIO);
         UserProfileDTO profile = new UserProfileDTO();
-        ResponseDTO<Object> response = new ResponseDTO<Object>(null, null, null);
+        ResponseDTO<UserProfileDTO> response = new ResponseDTO<UserProfileDTO>(null, null, null);
         response = ApplicationController.readOneUserProfile(con, profile);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());

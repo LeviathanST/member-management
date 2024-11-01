@@ -53,20 +53,17 @@ public class ApplicationService extends AuthService{
     }
 
 
-    public static ResponseDTO<UserProfileDTO> readUserProfileInternal(Connection con, UserProfileDTO data, String accountId) 
-                             throws SQLException, NotFoundException{
+    public static void readUserProfileInternal(Connection con, UserProfileDTO data) 
+                             throws SQLException, NotFoundException, TokenException{
+        Path path = (Path)Paths.get("auth.json");
+		String accessToken = TokenService.loadFromFile(path).getAccessToken();
+		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
         data.setAccountId(accountId);
-        try {
-            UserProfile.read(con, data);
-            return new ResponseDTO<UserProfileDTO>(ResponseStatus.OK, "Read user profile successfully!", data);
-        } catch (SQLException e) {
-            return new ResponseDTO<UserProfileDTO>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch(NotFoundException e) {
-            return new ResponseDTO<UserProfileDTO>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        }
+        UserProfile.read(con, data);
+        
     }
 
-    public static ResponseDTO<Object> updateUserProfile(Connection con, UserProfileDTO data) 
+    public static void updateUserProfile(Connection con, UserProfileDTO data) 
                              throws SQLException, TokenException, NotFoundException, UserProfileException {
         Path path = (Path)Paths.get("auth.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
@@ -91,23 +88,13 @@ public class ApplicationService extends AuthService{
         
         if(errors != "")
                 throw new UserProfileException(errors);
-        try {
-            UserProfile.update(con, data);
-            return new ResponseDTO<>(ResponseStatus.OK, "Update user profile successfully!", null);
-        } catch (SQLException e) {
-            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } 
+        UserProfile.update(con, data);
     }
     // TODO: Role
-    public static ResponseDTO<List<Role>> getAllRoles(Connection con)
+    public static List<Role> getAllRoles(Connection con)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
-        try {
             List<Role> listRole = Role.getAll(con);
-            return new ResponseDTO<>(ResponseStatus.OK, "Get all roles successfully!",listRole);
-        } catch (SQLException e) {
-            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
-                    "Error occurs when querying, please try again!", null);
-        }
+            return listRole;
     }
     public static void CreateRole(String name,Connection con)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException{

@@ -144,25 +144,21 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         } 
     }
-
-    public static ResponseDTO<Object> readOneUserProfile(Connection con, UserProfileDTO data) {
+    public static ResponseDTO<UserProfileDTO> readOneUserProfile(Connection con, UserProfileDTO data) {
         try {
-            Path path = (Path)Paths.get("auth.json");
-			String accessToken = TokenService.loadFromFile(path).getAccessToken();
-			String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
-			ApplicationService.readUserProfileInternal(con, data, accountId);
-            return new ResponseDTO<>(ResponseStatus.OK, "Read user profile successfully!", null);
+			ApplicationService.readUserProfileInternal(con, data);
+            return new ResponseDTO<UserProfileDTO>(ResponseStatus.OK, "Read user profile successfully!", data);
 		} catch (SQLException e) {
-			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+			return new ResponseDTO<UserProfileDTO>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
 		} catch(NotFoundException e) {
-            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+            return new ResponseDTO<UserProfileDTO>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         } catch(TokenException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
     public static ResponseDTO<List<Role>> getAllRoles(Connection connection){
         try {
-            List<Role> list = ApplicationService.getAllRoles(connection).getData();
+            List<Role> list = ApplicationService.getAllRoles(connection);
             return new ResponseDTO<List<Role>>(ResponseStatus.OK, "Get all roles successfully!", list);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
