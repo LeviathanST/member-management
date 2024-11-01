@@ -23,13 +23,13 @@ INSERT INTO crew_permission (name) VALUES ("MakeTask");
 INSERT INTO crew_permission (name) VALUES ("EditTask"); 
 INSERT INTO crew_permission (name) VALUES ("DeleteTask"); 
 
-INSERT INTO permission (name, id) VALUES ("CrudRole", 5); 
-INSERT INTO permission (name, id) VALUES ("SetUserRole", 6); 
-INSERT INTO permission (name, id) VALUES ("UpdateUserRole", 7); 
-INSERT INTO permission (name, id) VALUES ("CrudPermission", 8); 
-INSERT INTO permission (name, id) VALUES ("AddPermissionToRole", 9); 
-INSERT INTO permission (name, id) VALUES ("ViewUserInformation", 10); 
-INSERT INTO permission (name, id) VALUES ("DeleteUserAccount", 11); 
+INSERT INTO permission (name, id) VALUES ("CrudRole"); 
+INSERT INTO permission (name, id) VALUES ("SetUserRole"); 
+INSERT INTO permission (name, id) VALUES ("UpdateUserRole"); 
+INSERT INTO permission (name, id) VALUES ("CrudPermission"); 
+INSERT INTO permission (name, id) VALUES ("AddPermissionToRole"); 
+INSERT INTO permission (name, id) VALUES ("ViewUserInformation"); 
+INSERT INTO permission (name, id) VALUES ("DeleteUserAccount"); 
 
 
 
@@ -43,17 +43,6 @@ INSERT INTO role_permission (role_id, permission_id) VALUES (1, 4);
 INSERT INTO role_permission (role_id, permission_id) VALUES (1, 5);
 INSERT INTO role_permission (role_id, permission_id) VALUES (1, 6);
 INSERT INTO role_permission (role_id, permission_id) VALUES (1, 7);
-INSERT INTO role_permission (role_id, permission_id) VALUES (1, 8);
-INSERT INTO role_permission (role_id, permission_id) VALUES (1, 9);
-INSERT INTO role_permission (role_id, permission_id) VALUES (1, 10);
-INSERT INTO role_permission (role_id, permission_id) VALUES (1, 11);
-
-
-
-INSERT INTO role_permission (role_id, permission_id) VALUES (2, 2);
-INSERT INTO role_permission (role_id, permission_id) VALUES (2, 3);
-INSERT INTO role_permission (role_id, permission_id) VALUES (2, 4);
-INSERT INTO role_permission (role_id, permission_id) VALUES (2, 10);
 
 
 INSERT INTO generation(name) VALUES ('F19');
