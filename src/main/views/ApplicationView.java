@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import constants.ResponseStatus;
 import controllers.ApplicationController;
+import dto.EventDto;
 import dto.ResponseDTO;
 import dto.UserProfileDTO;
 import constants.Sex;
@@ -27,7 +28,7 @@ public class ApplicationView extends View{
         do {
             viewTitle("| APPLICATION TAB |", this.textIO);
             option = textIO.newStringInputReader()
-                .withNumberedPossibleValues("UPDATE ACCOUNT", "DELETE USER ACCOUNT", "READ YOUR PROFILE", "UPDATE YOUR PROFILE", "GET ALL USER PROFILES", "GET ALL USER ACCOUNTS" , "LIST ALL ROLE", "CRUD ROLE", "ADD PERMISSION TO ROLE", "CRUD USER'S ROLE", "PERMISSION MANAGEMENT","BACK")
+                .withNumberedPossibleValues("UPDATE ACCOUNT", "DELETE USER ACCOUNT", "YOUR PROFILE", "GET ALL USER PROFILES/ ACCOUNTS", "LIST ALL ROLE", "CRUD ROLE", "ADD PERMISSION TO ROLE", "CRUD USER'S ROLE", "PERMISSION MANAGEMENT", "EVENTS", "BACK")
                 .read("");
             clearScreen();
             switch (option){
@@ -41,23 +42,13 @@ public class ApplicationView extends View{
                     waitTimeByMessage("Press enter to continue!");
                     clearScreen();
                     break;
-                case "READ YOUR PROFILE":
-                    readProfile(con);
+                case "YOUR PROFILE":
+                    profileView(con);
                     waitTimeByMessage("Press enter to continue!");
                     clearScreen();
                     break;
-                case "UPDATE YOUR PROFILE":
-                    updateProfile(con);
-                    waitTimeByMessage("Press enter to continue!");
-                    clearScreen();
-                    break;
-                case "GET ALL USER PROFILES":
-                    getAllUserProfiles(con);
-                    waitTimeByMessage("Press enter to continue!");
-                    clearScreen();
-                    break;
-                case "GET ALL USER ACCOUNTS":
-                    getAllAccounts(con);
+                case "GET ALL USER PROFILES/ ACCOUNTS":
+                    getAllProfileAccounts(con);
                     waitTimeByMessage("Press enter to continue!");
                     clearScreen();
                     break;
@@ -83,11 +74,144 @@ public class ApplicationView extends View{
                     break;
                 case "PERMISSION MANAGEMENT":
                     crudPermission(con);
+                    waitTimeByMessage("Press enter to continue");
+                    clearScreen();
+                    break;
+                case "EVENTS":
+                    event(con);
+                    waitTimeByMessage("Press enter to continue");
+                    clearScreen();
                     break;
                 case "BACK":
                     break;
             }
         } while (!option.equals("Back"));
+    }
+
+    public void event(Connection con) {
+        viewTitle("| EVENTS |", textIO);
+        String option = textIO.newStringInputReader().withNumberedPossibleValues("SHOW ALL EVENTS", "CREATE EVENT", "UPDATE EVENT", "DELETE EVENT").read();
+        switch (option) {
+            case "SHOW ALL EVENTS":
+                showAllEvents(con);
+                break;
+        
+            case "CREATE EVENT":
+                createEvent(con);
+                break;
+
+            case "UPDATE EVENT":
+                updateEvent(con);
+                break;
+
+            case "DELETE EVENT":
+                deleteEvent(con);
+                break;
+            default:
+                printError("Invalid value.");
+                break;
+        }
+    }
+
+    public void createEvent(Connection con) {
+        String title = textIO.newStringInputReader().read("Enter title's event : ");
+        String description = textIO.newStringInputReader().read("Enter description's event : ");
+        String type = textIO.newStringInputReader().read("Enter type's event : ");
+        String generation = textIO.newStringInputReader().read("Enter generation : ");
+        String start = textIO.newStringInputReader().read("Enter date start (dd/MM/yyyy) : ");
+        String end = textIO.newStringInputReader().read("Enter date start (dd/MM/yyyy) : ");
+        EventDto event = new EventDto(generation, title, description, type);
+        ResponseDTO<Object> response1 = ApplicationController.addEvent(con, event, start, end);
+        if(response1.getStatus() != ResponseStatus.OK) {
+            printError(response1.getMessage());
+        } else textIO.getTextTerminal().println(response1.getMessage());
+    }
+
+    public List<EventDto> showAllEvents(Connection con) {
+        ResponseDTO<List<EventDto>> response = ApplicationController.getAllEvent(con);
+        if(response.getStatus() != ResponseStatus.OK) {
+            printError(response.getMessage());
+        } else {
+            for(EventDto i : response.getData()) {
+                textIO.getTextTerminal().println("ID: " + i.getId());
+                textIO.getTextTerminal().println("Title: " + i.getTitle());
+                textIO.getTextTerminal().println("Description: " + i.getDescription());
+                textIO.getTextTerminal().println("Generatio : " + i.getGeneration());
+                textIO.getTextTerminal().println("Start At: " + i.getStartAt());
+                textIO.getTextTerminal().println("End At: " + i.getEndAt());
+                textIO.getTextTerminal().println("Type: " + i.getType());
+                textIO.getTextTerminal().println();
+            }
+        }
+        return response.getData();
+    }
+
+    public void updateEvent(Connection con) {
+        List<EventDto> list = showAllEvents(con);
+        int id = textIO.newIntInputReader().read("Enter id to update : ");
+        if(id <= 0 || id > list.size()) {
+            printError("Invalid value.");
+        } else {
+            String title = textIO.newStringInputReader().read("Enter new title's event : ");
+            String description = textIO.newStringInputReader().read("Enter new description's event : ");
+            String type = textIO.newStringInputReader().read("Enter new type's event : ");
+            String generation = textIO.newStringInputReader().read("Enter generation : ");
+            String start = textIO.newStringInputReader().read("Enter new date start (dd/MM/yyyy) : ");
+            String end = textIO.newStringInputReader().read("Enter new date start (dd/MM/yyyy) : ");
+            EventDto event = new EventDto(generation, title, description, type);
+            ResponseDTO<Object> response = ApplicationController.updateEvent(con, event, id, start, end);
+            if(response.getStatus() != ResponseStatus.OK) {
+                printError(response.getMessage());
+            } 
+        }
+    }
+
+    public void deleteEvent(Connection con) {
+        List<EventDto> list = showAllEvents(con);
+        int id = textIO.newIntInputReader().read("Enter id to update : ");
+        if(id <= 0 || id > list.size()) {
+            printError("Invalid value.");
+        } else {
+            ResponseDTO<Object> response = ApplicationController.deleteEvent(con, id);
+            if(response.getStatus() != ResponseStatus.OK) {
+                printError(response.getMessage());
+            } 
+        }
+    }
+
+    public void getAllProfileAccounts(Connection con) {
+        viewTitle("| GET ALL PROFILES/ ACCOUNTS |", textIO);
+        String option = textIO.newStringInputReader().withNumberedPossibleValues("GET ALL PROFILES", "GET ALL ACCOUNTS").read("");
+        switch (option) {
+            case "GET ALL PROFILES":
+                getAllUserProfiles(con);
+                break;
+            case "GET ALL ACCOUNTS":
+                getAllAccounts(con);
+                break;
+            default:
+                printError("Invalid value.");
+                break;
+        }
+    }
+
+    public void profileView(Connection con) {
+        viewTitle("| PROFILE |", textIO);
+        String option = textIO.newStringInputReader().withNumberedPossibleValues("SHOW YOUR PROFILE", "UPDATE YOUR PROFILE").read("");
+        clearScreen();
+        switch (option) {
+            case "SHOW YOUR PROFILE":
+                viewTitle("| YOUR PROFILE |", textIO);
+                readProfile(con);
+                break;
+            case "UPDATE YOUR PROFILE":
+                viewTitle("| UPDATE YOUR PROFILE |", textIO);
+                updateProfile(con);
+                break;
+            default:
+                printError("Invalid value.");
+                break;
+        }
     }
     public void deleteUserAccount(Connection con) {
         viewTitle("| DELETE USER ACCOUNT |", textIO);
@@ -134,9 +258,13 @@ public class ApplicationView extends View{
             printError(response.getMessage());
         } else {
             for(UserProfileDTO i : list) {
-                textIO.getTextTerminal().printf("UserProfile{full_name='%s', sex=%s, student_code='%s', contact_email='%s', generation_id=%d, date_of_birth=%s}\n",
-                i.getFullName(), i.getSex().name(), i.getStudentCode(), i.getContactEmail(), i.getGenerationId(), i.getDateOfBirth());
-                textIO.getTextTerminal().println();
+                textIO.getTextTerminal().println("Account ID: " + i.getAccountId());
+                textIO.getTextTerminal().println("Full Name: " + i.getFullName());
+                textIO.getTextTerminal().println("Sex: " + i.getSex());
+                textIO.getTextTerminal().println("Student Code: " + i.getStudentCode());
+                textIO.getTextTerminal().println("Contact Email: " + i.getContactEmail());
+                textIO.getTextTerminal().println("Generation ID: " + i.getGenerationId());
+                textIO.getTextTerminal().println("Date of Birth: " + i.getDateOfBirth());
             }
         }
     }
@@ -174,8 +302,13 @@ public class ApplicationView extends View{
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else textIO.getTextTerminal().println(response.getMessage());
-        textIO.getTextTerminal().printf("UserProfile{full_name='%s', sex=%s, student_code='%s', contact_email='%s', generation_id=%d, date_of_birth=%s}\n",
-         profile.getFullName(), profile.getSex().name(), profile.getStudentCode(), profile.getContactEmail(), profile.getGenerationId(), profile.getDateOfBirth());
+        textIO.getTextTerminal().println("Account ID: " + profile.getAccountId());
+        textIO.getTextTerminal().println("Full Name: " + profile.getFullName());
+        textIO.getTextTerminal().println("Sex: " + profile.getSex());
+        textIO.getTextTerminal().println("Student Code: " + profile.getStudentCode());
+        textIO.getTextTerminal().println("Contact Email: " + profile.getContactEmail());
+        textIO.getTextTerminal().println("Generation ID: " + profile.getGenerationId());
+        textIO.getTextTerminal().println("Date of Birth: " + profile.getDateOfBirth());
     }
     
     public void listAllRole(Connection con) {

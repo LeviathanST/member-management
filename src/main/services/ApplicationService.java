@@ -7,6 +7,7 @@ import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,18 +23,25 @@ import models.users.UserAccount;
 import models.users.UserProfile;
 import constants.ResponseStatus;
 import models.users.UserRole;
+import java.util.Date;
 
 
 public class ApplicationService extends AuthService{
-    public static void insertProfileInternal(Connection con, UserProfileDTO data, SignUpDTO signUp)  
-                throws SQLException, UserProfileException, NotFoundException{
+    public static void insertProfileInternal(Connection con, UserProfileDTO data, SignUpDTO signUp, String date)  
+                throws SQLException, UserProfileException, NotFoundException, ParseException, TokenException{
         
-        String errors = "";
         String accountId = UserAccount.getIdByUsername(con, signUp.getUsername());
         data.setAccountId(accountId);
         data.setStudentCode((data.getStudentCode().toUpperCase()));
         data.setGenerationId(getMaxGenerationId(con));
         data.setFullName(normalizeFullname(data.getFullName()));
+        String errors = "";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        dateFormat.setLenient(false); 
+        long millis = dateFormat.parse(date).getTime(); 
+        java.sql.Date sqlDate = new java.sql.Date(millis);
+        data.setDateOfBirth(sqlDate);
+
         if (data.getFullName() == null || isValidFullName(data.getFullName()) == false) 
                 errors += "Full name is empty or contains special character!\n";
         if (data.getSex() == null)
@@ -45,7 +53,9 @@ public class ApplicationService extends AuthService{
         if (isValidEmail(data.getContactEmail()) == false)
                 errors += "Invalid email!\n";
         if (isValidStudentCode(data.getStudentCode()) == false || data.getStudentCode() == null)
-                errors += "Invalid student code!";
+                errors += "Invalid student code!\n";
+        if(isAgeBetween18And22(data.getDateOfBirth()) == false) 
+                    errors += "Invalid date!";
         
         if(errors != "")
                 throw new UserProfileException(errors);
@@ -99,6 +109,7 @@ public class ApplicationService extends AuthService{
     public static void CreateRole(String name,Connection con)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException{
         try {
+            name = normalizedRolePermission(name);
             Role.createRole(con, name);
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new SQLIntegrityConstraintViolationException(String.format("Your role is existed: %s", name));
@@ -155,6 +166,7 @@ public class ApplicationService extends AuthService{
     public static void CreatePermissionDto(String name, Connection connection)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
         try {
+            name = normalizedRolePermission(name);
             Permission.insert(name,connection);
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new SQLException("Disallow null values");
@@ -165,6 +177,7 @@ public class ApplicationService extends AuthService{
     public static void AddPermissionDto(String roleName, String permissionName, Connection connection)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
         try {
+            permissionName = normalizedRolePermission(permissionName);
             Role role = Role.getByName(connection, permissionName);
             int permissionId = Permission.getIdByName(connection, permissionName);
             Permission.addPermissionToRole(connection,role.getId(),permissionId);
@@ -323,6 +336,35 @@ public class ApplicationService extends AuthService{
         } catch (SQLException e) {
             throw new SQLException("Error occurs when view event");
         }
+    }
+
+    public static boolean isAgeBetween18And22(Date birthDate) {
+        Calendar today = Calendar.getInstance();
+        Calendar birthDateCalendar = Calendar.getInstance();
+        birthDateCalendar.setTime(birthDate);
+
+        int age = today.get(Calendar.YEAR) - birthDateCalendar.get(Calendar.YEAR);
+
+        if (today.get(Calendar.DAY_OF_YEAR) < birthDateCalendar.get(Calendar.DAY_OF_YEAR)) {
+            age--;
+        }
+
+        return age >= 18 && age <= 22;
+    }
+
+    public static String normalizedRolePermission(String data) {
+        String[] words = data.trim().toLowerCase().split("\\s+");
+        StringBuilder normalizedString = new StringBuilder();
+
+        // Ghi hoa chữ cái đầu của mỗi từ và ghép chúng lại
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                normalizedString.append(Character.toUpperCase(word.charAt(0)))
+                                .append(word.substring(1));
+            }
+        }
+
+        return normalizedString.toString();
     }
 
     public static int getMaxGenerationId(Connection con) throws SQLException, NotFoundException{

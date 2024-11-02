@@ -88,7 +88,6 @@ public class Permission {
 		if (row == 0)
 			throw new SQLException("A permission is failed when adding!");
 
-		System.out.println("Add a permission successfully!");
 	}
 
 	public void update(String newName, Connection con) throws SQLException {
@@ -102,7 +101,6 @@ public class Permission {
 		if (row == 0)
 			throw new SQLException("A permission is failed when update!");
 
-		System.out.println("Update a permission successfully!");
 	}
 
 	public static void delete(String name, Connection con) throws SQLException {
@@ -115,7 +113,6 @@ public class Permission {
 		if (row == 0)
 			throw new SQLException("A permission is failed when deleting!");
 
-		System.out.println("Delete a permission successfully!");
 	}
 	public static void addPermissionToRole(Connection con, int roleID, int permissionId) throws SQLException {
 		String query = "INSERT INTO role_permission (role_id,permission_id) VALUES (?,?)";

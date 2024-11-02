@@ -30,6 +30,7 @@ INSERT INTO permission (name) VALUES ("CrudPermission");
 INSERT INTO permission (name) VALUES ("AddPermissionToRole"); 
 INSERT INTO permission (name) VALUES ("ViewUserInformation"); 
 INSERT INTO permission (name) VALUES ("DeleteUserAccount"); 
+INSERT INTO permission (name) VALUES ("CrudEvent"); 
 
 
 
@@ -43,6 +44,7 @@ INSERT INTO role_permission (role_id, permission_id) VALUES (1, 4);
 INSERT INTO role_permission (role_id, permission_id) VALUES (1, 5);
 INSERT INTO role_permission (role_id, permission_id) VALUES (1, 6);
 INSERT INTO role_permission (role_id, permission_id) VALUES (1, 7);
+INSERT INTO role_permission (role_id, permission_id) VALUES (1, 8);
 
 
 INSERT INTO generation(name) VALUES ('F19');

@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.List;
 
 import dto.*;
@@ -128,16 +129,18 @@ public class ApplicationController {
         }
     }
 
-    public static ResponseDTO<Object> createOneUserProfile(Connection con, UserProfileDTO data, SignUpDTO signUp) {
+    public static ResponseDTO<Object> createOneUserProfile(Connection con, UserProfileDTO data, SignUpDTO signUp, String date) {
         try {
 			
-			ApplicationService.insertProfileInternal(con, data, signUp);
+			ApplicationService.insertProfileInternal(con, data, signUp, date);
             return new ResponseDTO<>(ResponseStatus.OK, "Create user profile successfully!", null);
 		} catch (SQLException e) {
 			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-		} catch(UserProfileException | NotFoundException e ) {
+		} catch(UserProfileException | NotFoundException |TokenException e ) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        } 
+        } catch (ParseException e ) {
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, "Invalid date", null);
+        }
     }
     public static ResponseDTO<UserProfileDTO> readOneUserProfile(Connection con, UserProfileDTO data) {
         try {
@@ -289,13 +292,17 @@ public class ApplicationController {
     // TODO: Guild Event
     public static ResponseDTO<Object> addEvent(Connection connection, EventDto eventDto, String dateStart, String dateEnd) {
         try {
-            ApplicationService.insertEvent(connection, eventDto,dateStart,dateEnd);
+            boolean author = AuthService.AppAuthorization(connection, "CrudEvent");
+            if(author == true) {
+                ApplicationService.insertEvent(connection, eventDto,dateStart,dateEnd);
             return new ResponseDTO<>(ResponseStatus.OK,
                     String.format("Add event %s successfully!", eventDto.getTitle()), null);
+            } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to create event", null);
+
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!" + e, null);
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         } catch (DataEmptyException | InvalidDataException e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
@@ -304,28 +311,35 @@ public class ApplicationController {
 
     public static ResponseDTO<Object> deleteEvent(Connection connection, int eventId ) {
         try {
-            ApplicationService.deleteEvent(connection, eventId);
-            return new ResponseDTO<>(ResponseStatus.OK,
-                    String.format("Delete event %s successfully!", eventId), null);
+            boolean author = AuthService.AppAuthorization(connection, "CrudEvent");
+            if(author == true) {
+                ApplicationService.deleteEvent(connection, eventId);
+                return new ResponseDTO<>(ResponseStatus.OK,
+                        String.format("Delete event %s successfully!", eventId), null);
+            } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to delete event", null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | TokenException e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        }
+        } 
     }
 
-    public static ResponseDTO<Object> updateGuildEvent(Connection connection, EventDto eventDto, int eventId , String dateStart, String dateEnd) {
+    public static ResponseDTO<Object> updateEvent(Connection connection, EventDto eventDto, int eventId , String dateStart, String dateEnd) {
         try {
-            ApplicationService.updateEvent(connection,eventDto,eventId,  dateStart,  dateEnd);
-            return new ResponseDTO<>(ResponseStatus.OK,
+            boolean author = AuthService.AppAuthorization(connection, "CrudEvent");
+            if(author == true) {
+                ApplicationService.updateEvent(connection,eventDto,eventId,  dateStart,  dateEnd);
+                return new ResponseDTO<>(ResponseStatus.OK,
                     "Update event successfully!", null);
+            } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to update event", null);
+
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }catch (DataEmptyException | InvalidDataException e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);

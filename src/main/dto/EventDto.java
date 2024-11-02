@@ -10,7 +10,6 @@ public class EventDto {
 	private Timestamp startAt;
 	private Timestamp endAt;
 	private String type;
-
 	private String generation;
 
 	// Constructor

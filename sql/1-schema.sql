@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS guild_event (
 	FOREIGN KEY (guild_id) REFERENCES guild(id),
 	FOREIGN KEY (generation_id) REFERENCES generation(id)
 );
---+ Application
+-- Application
 CREATE TABLE IF NOT EXISTS event (
     id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
