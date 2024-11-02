@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS guild_role (
 	name VARCHAR(255) NOT NULL,
 	guild_id INTEGER UNSIGNED NOT NULL,
 
-	UNIQUE KEY (name, guild_id),
+    UNIQUE KEY (name, guild_id),
 	FOREIGN KEY (guild_id) REFERENCES guild(id)
 );
 CREATE TABLE IF NOT EXISTS guild_role_permission (
@@ -117,7 +117,6 @@ CREATE TABLE IF NOT EXISTS user_guild_role (
 	account_id CHAR(36) NOT NULL,
 	guild_role_id INTEGER UNSIGNED NOT NULL,
 
-	UNIQUE KEY (account_id, guild_role_id),
 	FOREIGN KEY (account_id) REFERENCES user_account(id),
 	FOREIGN KEY (guild_role_id) REFERENCES guild_role(id)
 );

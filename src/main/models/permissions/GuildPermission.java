@@ -1,6 +1,7 @@
 package models.permissions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import exceptions.NotFoundException;
@@ -55,10 +56,11 @@ public class GuildPermission {
 		return list;
 	}
 
-	public static List<GuildPermission> getAllByGuildRoleId(Connection con, int guildRoleId)
+	public static List<String> getAllByGuildRoleId(Connection con, int guildRoleId)
 			throws SQLException, NotFoundException {
-		String query = "SELECT id, name FROM guild_role_permission WHERE guild_role_id = ?";
-		List<GuildPermission> list = new ArrayList<>();
+		List<String> list = new ArrayList<>();
+
+		String query = "SELECT  guild_permission_id FROM guild_role_permission WHERE guild_role_id = ?";
 
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setInt(1, guildRoleId);
@@ -66,7 +68,7 @@ public class GuildPermission {
 		ResultSet rs = stmt.executeQuery();
 
 		while (rs.next()) {
-			list.add(new GuildPermission(rs.getInt("id"), rs.getString("name")));
+			list.add(getNameById(con,rs.getInt("guild_permission_id")) );
 		}
 
 		return list;
@@ -98,6 +100,18 @@ public class GuildPermission {
 
 		throw new NotFoundException("Guild Permission is not existed!");
 	}
+	public static String getNameById(Connection con, int id) throws SQLException, NotFoundException {
+		String query = "SELECT name FROM guild_permission WHERE id = ?";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, id);
+		ResultSet rs = stmt.executeQuery();
+
+		if (rs.next()) {
+			return rs.getString("name");
+		}
+
+		throw new NotFoundException("Guild Permission is not existed!");
+	}
 
 
 	public static void insert(String name, Connection con) throws SQLException {
@@ -115,8 +129,8 @@ public class GuildPermission {
 		String query = "UPDATE guild_permission SET name = ? WHERE name = ?";
 
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, name);
-		stmt.setString(2, newName);
+		stmt.setString(1, newName);
+		stmt.setString(2, name);
 
 		int row = stmt.executeUpdate();
 		if (row == 0)

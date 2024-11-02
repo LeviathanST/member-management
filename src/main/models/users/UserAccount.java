@@ -9,6 +9,8 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import dto.SignUpDTO;
 import exceptions.DataEmptyException;
 import exceptions.NotFoundException;
+import org.beryx.textio.TextIO;
+import org.beryx.textio.TextIoFactory;
 
 public class UserAccount {
 
@@ -22,11 +24,10 @@ public class UserAccount {
 
 		ResultSet rs = stmt.executeQuery();
 
-		while (rs.next()) {
+		if (rs.next()) {
 			return rs.getString("id");
 		}
-
-		throw new NotFoundException("This username is not existed!");
+		throw new NotFoundException("User not found");
 	}
 
 	public static void insert(Connection con, SignUpDTO data)

@@ -52,6 +52,18 @@ public class Guild {
 			}
 		}
 	}
+	public static String getNameByID(Connection con, int id) throws SQLException, NotFoundException {
+		String query = "SELECT name FROM guild WHERE id = ?";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, id);
+		ResultSet rs = stmt.executeQuery();
+
+		if (rs.next()) {
+			return rs.getString("name");
+		}
+
+		throw new NotFoundException("Guild is not existed!");
+	}
 
 	public static void getAllName(Connection con) throws SQLException {
 		String query = "SELECT name FROM guild ";

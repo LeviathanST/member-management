@@ -9,6 +9,8 @@ import java.sql.Connection;
 
 import dto.UserGuildRoleDTO;
 import exceptions.NotFoundException;
+import org.beryx.textio.TextIO;
+import org.beryx.textio.TextIoFactory;
 
 public class UserGuildRole {
 	public static List<Integer> getIdByAccountId(Connection con, String account_id)
@@ -28,7 +30,7 @@ public class UserGuildRole {
 		}
 		return list;
 	}
-	public static List<UserGuildRoleDTO> getAllByGuildId(Connection con, String guild, int guild_id) throws SQLException {
+	public static List<UserGuildRoleDTO> getAllByGuildId(Connection con, String guild, int guild_id) throws SQLException, NotFoundException,NullPointerException {
 		String query = """
 					SELECT ua.username as name, gr.name as role
 					FROM user_guild_role ugr
@@ -41,9 +43,14 @@ public class UserGuildRole {
 		stmt.setInt(1, guild_id);
 
 		ResultSet rs = stmt.executeQuery();
-
-		while (rs.next()) {
+		if (rs.next()) {
 			list.add(new UserGuildRoleDTO(guild, rs.getString("name"), rs.getString("role")));
+			while (rs.next()) {
+				list.add(new UserGuildRoleDTO(guild, rs.getString("name"), rs.getString("role")));
+			}
+		}
+		else {
+			throw new NullPointerException("Null Data");
 		}
 
 		return list;
@@ -60,8 +67,12 @@ public class UserGuildRole {
 	}
 	public static void updateGuildMember(Connection con, String accountId, int guildId, int newGuildRoleId)
 			throws SQLException, NotFoundException {
+		TextIO textIO = TextIoFactory.getTextIO();
+		textIO.getTextTerminal().println(accountId);
+		textIO.getTextTerminal().println(String.valueOf(guildId));
+		textIO.getTextTerminal().println(String.valueOf(newGuildRoleId));
 		String query = """
-				UPDATE user_guild_role ugr
+				UPDATE user_guild_role as ugr
 				JOIN guild_role gr ON gr.id = ugr.guild_role_id
 				SET ugr.guild_role_id = ?
 				WHERE ugr.account_id = ? AND gr.guild_id = ?
@@ -78,9 +89,10 @@ public class UserGuildRole {
 	public static void deleteGuildMember(Connection con, String accountId, int guildId)
 			throws SQLException, NotFoundException {
 		String query = """
-				DELETE FROM user_guild_role ugr
-				JOIN guild_role gr ON gr.id = ugr.guild_role_id
-				WHERE ugr.account_id = ? AND gr.guild_id = ?
+					DELETE ugr
+					FROM user_guild_role ugr
+					JOIN guild_role gr ON gr.id = ugr.guild_role_id
+					WHERE ugr.account_id = ? AND gr.guild_id = ?;
 				""";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, accountId);
