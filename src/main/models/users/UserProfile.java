@@ -82,6 +82,27 @@ public class UserProfile {
 		
 	}
 
+	public static void read(Connection con, UserProfileDTO user_profile, String username) throws SQLException, NotFoundException {
+		String query = """
+						SELECT account_id, full_name, sex, student_code, contact_email,
+						generation_id, dob FROM user_profile WHERE account_id = ?
+					""";
+		String accountId = UserAccount.getIdByUsername(con, username);
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, accountId);
+		ResultSet rs = stmt.executeQuery();
+		if(!rs.next())
+			throw new NotFoundException("User profile is not existed.");
+        user_profile.setAccountId(rs.getString("account_id"));
+		user_profile.setFullName(rs.getString("full_name"));
+		user_profile.setSex(Sex.valueOf(rs.getString("sex")));
+		user_profile.setStudentCode(rs.getString("student_code"));
+		user_profile.setContactEmail(rs.getString("contact_email"));
+		user_profile.setGenerationId(rs.getInt("generation_id"));
+		user_profile.setDateOfBirth(rs.getDate("dob"));
+		
+	}
+
 	public static List<UserProfileDTO> readAll(Connection con) throws SQLException {
 		String query = """
 						SELECT account_id, full_name, sex, student_code, contact_email,

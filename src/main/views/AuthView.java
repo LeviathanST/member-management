@@ -3,20 +3,20 @@ package views;
 import dto.LoginDTO;
 import dto.ResponseDTO;
 import dto.SignUpDTO;
-import dto.UserProfileDTO;
 import java.sql.Connection;
 import java.lang.Object;
 import constants.ResponseStatus;
 import controllers.AuthController;
 
 public class AuthView extends View{
+    private SignUpDTO signUp = new SignUpDTO();
+    private LoginDTO logIn = new LoginDTO();
+
     public AuthView(Connection con) {
         super(con);
     }
 
     public void Auth_view() {
-        SignUpDTO signUp = new SignUpDTO();
-        LoginDTO logIn = new LoginDTO();
         int choice;
         do {
             clearScreen();
@@ -60,6 +60,25 @@ public class AuthView extends View{
         } while (!option.equalsIgnoreCase("back"));
     }
 
+    public void appCrewGuildView(Connection con, String username) {
+        viewTitle("| MENU |", textIO);
+        String option = textIO.newStringInputReader().withNumberedPossibleValues("APPLICATION", "CREW", "GUILD", "BACK").read("");
+        do {
+            switch (option) {
+                case "APPLICATION":
+                    ApplicationView app = new ApplicationView(con);
+                    app.view(username);
+                    clearScreen();
+                    break;
+                case "BACK":
+                    break;
+                default:
+                    printError("Invalid value!");
+                    break;
+            }
+        } while (!option.equalsIgnoreCase("back"));
+    }
+
     public void signUpForm(Connection con, SignUpDTO signUp) {
         signUp.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
         signUp.setPassword(textIO.newStringInputReader().read("Enter your password : "));
@@ -73,7 +92,7 @@ public class AuthView extends View{
             UserProfileView profileView = new UserProfileView(con);
             profileView.addUserProfile(con, signUp);
             clearScreen();
-            appCrewGuildView(con);
+            appCrewGuildView(con, signUp.getUsername());
         }
     }
 
