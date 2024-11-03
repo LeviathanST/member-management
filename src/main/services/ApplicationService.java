@@ -21,9 +21,8 @@ import models.permissions.Permission;
 import models.roles.Role;
 import models.users.UserAccount;
 import models.users.UserProfile;
-import constants.ResponseStatus;
 import models.users.UserRole;
-import java.util.Date;
+import java.sql.Date;
 
 
 public class ApplicationService extends AuthService{
@@ -36,11 +35,6 @@ public class ApplicationService extends AuthService{
         data.setGenerationId(getMaxGenerationId(con));
         data.setFullName(normalizeFullname(data.getFullName()));
         String errors = "";
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        dateFormat.setLenient(false); 
-        long millis = dateFormat.parse(date).getTime(); 
-        java.sql.Date sqlDate = new java.sql.Date(millis);
-        data.setDateOfBirth(sqlDate);
 
         if (data.getFullName() == null || isValidFullName(data.getFullName()) == false) 
                 errors += "Full name is empty or contains special character!\n";
@@ -54,8 +48,20 @@ public class ApplicationService extends AuthService{
                 errors += "Invalid email!\n";
         if (isValidStudentCode(data.getStudentCode()) == false || data.getStudentCode() == null)
                 errors += "Invalid student code!\n";
-        if(isAgeBetween18And22(data.getDateOfBirth()) == false) 
-                    errors += "Invalid date!";
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        dateFormat.setLenient(false);
+        try {
+            long millis = dateFormat.parse(date).getTime();
+            Date sqlDate = new Date(millis);
+            data.setDateOfBirth(sqlDate);
+        
+            if (!isAgeBetween18And22(data.getDateOfBirth())) {
+                errors += "Invalid date!\n";
+            }
+        } catch (ParseException e) {
+            errors += "Invalid date!\n";
+        }
         
         if(errors != "")
                 throw new UserProfileException(errors);
@@ -73,15 +79,6 @@ public class ApplicationService extends AuthService{
         
     }
 
-    public static void readUserProfileInternal(Connection con, UserProfileDTO data, String username) 
-                             throws SQLException, NotFoundException, TokenException{
-        Path path = (Path)Paths.get("auth.json");
-		String accessToken = TokenService.loadFromFile(path).getAccessToken();
-		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
-        data.setAccountId(accountId);
-        UserProfile.read(con, data, username);
-        
-    }
 
     public static void updateUserProfile(Connection con, UserProfileDTO data) 
                              throws SQLException, TokenException, NotFoundException, UserProfileException {

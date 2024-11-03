@@ -154,18 +154,7 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<UserProfileDTO> readOneUserProfile(Connection con, UserProfileDTO data, String username) {
-        try {
-			ApplicationService.readUserProfileInternal(con, data, username);
-            return new ResponseDTO<UserProfileDTO>(ResponseStatus.OK, "Read user profile successfully!", data);
-		} catch (SQLException e) {
-			return new ResponseDTO<UserProfileDTO>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-		} catch(NotFoundException e) {
-            return new ResponseDTO<UserProfileDTO>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        } catch(TokenException e) {
-            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        }
-    }
+
     public static ResponseDTO<List<Role>> getAllRoles(Connection connection){
         try {
             List<Role> list = ApplicationService.getAllRoles(connection);

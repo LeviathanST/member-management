@@ -24,66 +24,6 @@ public class ApplicationView extends View{
         super(con);
     }
 
-    public void view(String username) {
-        String option;
-        do {
-            viewTitle("| APPLICATION TAB |", this.textIO);
-            option = textIO.newStringInputReader()
-                .withNumberedPossibleValues("UPDATE ACCOUNT", "DELETE USER ACCOUNT", "YOUR PROFILE", "GET ALL USER PROFILES/ ACCOUNTS", "CRUD ROLE", "ADD PERMISSION TO ROLE", "CRUD USER'S ROLE", "PERMISSION MANAGEMENT", "EVENTS", "BACK")
-                .read("");
-            clearScreen();
-            switch (option){
-                case "UPDATE ACCOUNT":
-                    updateAccount(con);
-                    waitTimeByMessage("Press enter to continue!");
-                    clearScreen();
-                    break;
-                case "DELETE USER ACCOUNT":
-                    deleteUserAccount(con);
-                    waitTimeByMessage("Press enter to continue!");
-                    clearScreen();
-                    break;
-                case "YOUR PROFILE":
-                    profileView(con);
-                    waitTimeByMessage("Press enter to continue!");
-                    clearScreen();
-                    break;
-                case "GET ALL USER PROFILES/ ACCOUNTS":
-                    getAllProfileAccounts(con);
-                    waitTimeByMessage("Press enter to continue!");
-                    clearScreen();
-                    break;
-                case "CRUD ROLE":
-                    crudRoleView(con);
-                    waitTimeByMessage("Press enter to continue!");
-                    clearScreen();
-                    break;
-                case "ADD PERMISSION TO ROLE":
-                    addPermissionToRoleView(con);
-                    waitTimeByMessage("Press enter to continue!");
-                    clearScreen();
-                    break;
-                case "CRUD USER'S ROLE":
-                    crudUserRole(con);
-                    waitTimeByMessage("Press enter to continue");
-                    clearScreen();
-                    break;
-                case "PERMISSION MANAGEMENT":
-                    crudPermission(con);
-                    waitTimeByMessage("Press enter to continue");
-                    clearScreen();
-                    break;
-                case "EVENTS":
-                    event(con);
-                    waitTimeByMessage("Press enter to continue");
-                    clearScreen();
-                    break;
-                case "BACK":
-                    break;
-            }
-        } while (!option.equals("Back"));
-    }
-
     public void view( ) {
         String option;
         do {
@@ -139,6 +79,8 @@ public class ApplicationView extends View{
                     clearScreen();
                     break;
                 case "BACK":
+                    AuthView menu = new AuthView(con);
+                    menu.appCrewGuildView(con);
                     break;
             }
         } while (!option.equals("Back"));
@@ -355,23 +297,6 @@ public class ApplicationView extends View{
         UserProfileDTO profile = new UserProfileDTO();
         ResponseDTO<UserProfileDTO> response = new ResponseDTO<UserProfileDTO>(null, null, null);
         response = ApplicationController.readOneUserProfile(con, profile);
-        if(response.getStatus() != ResponseStatus.OK) {
-            printError(response.getMessage());
-        } else textIO.getTextTerminal().println(response.getMessage());
-        textIO.getTextTerminal().println("Account ID: " + profile.getAccountId());
-        textIO.getTextTerminal().println("Full Name: " + profile.getFullName());
-        textIO.getTextTerminal().println("Sex: " + profile.getSex());
-        textIO.getTextTerminal().println("Student Code: " + profile.getStudentCode());
-        textIO.getTextTerminal().println("Contact Email: " + profile.getContactEmail());
-        textIO.getTextTerminal().println("Generation ID: " + profile.getGenerationId());
-        textIO.getTextTerminal().println("Date of Birth: " + profile.getDateOfBirth());
-    }
-
-    public void readProfile(Connection con, String username) {
-        viewTitle("| PROFILE |", textIO);
-        UserProfileDTO profile = new UserProfileDTO();
-        ResponseDTO<UserProfileDTO> response = new ResponseDTO<UserProfileDTO>(null, null, null);
-        response = ApplicationController.readOneUserProfile(con, profile, username);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else textIO.getTextTerminal().println(response.getMessage());
