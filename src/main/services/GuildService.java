@@ -44,7 +44,7 @@ public class GuildService {
 			if (!isValidString(data.getName())) {
 				throw new InvalidDataException("Invalid guild name");
 			}
-			checkPermissions = checkPermission(con, "CRUDGuild");
+			checkPermissions = AuthService.AppAuthorization(con,getAccountIDUser(),"CRUDGuild");
 			if (checkPermissions) {
 				data.setName(normalizeName(data.getName()));
 				Guild.insert(con, data.getName());
@@ -75,7 +75,7 @@ public class GuildService {
 			}
 			newData = new GuildDTO(Guild.getIdByName(con,data.getName()), newData.getName());
 
-			if (checkPermission(con,"CRUDGuild")) {
+			if (AuthService.AppAuthorization(con,getAccountIDUser(),"CRUDGuild")) {
 				Guild.update(con, newData.getId(), newData.getName());
 			}
 
@@ -93,7 +93,7 @@ public class GuildService {
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException {
 		try {
 			data = new GuildDTO(Guild.getIdByName(con,data.getName()), data.getName());
-			if (checkPermission(con,"CRUDGuild")) {
+			if (AuthService.AppAuthorization(con,getAccountIDUser(),"CRUDGuild")) {
 				Guild.delete(con, data.getId());
 			}
 		} catch (SQLIntegrityConstraintViolationException e) {
