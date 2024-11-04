@@ -23,7 +23,7 @@ public class GuildView extends View {
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle("Guilds Tab",textIO);
         String option = textIO.newStringInputReader()
-                .withNumberedPossibleValues("Guild", "Guild Role", "User Guild Role","Guild Event","Back")
+                .withNumberedPossibleValues("Guild", "Guild Role", "User Guild Role","Guild Event","Search","Back")
                 .read("");
         switch (option){
             case "Guild":
@@ -41,6 +41,10 @@ public class GuildView extends View {
             case "Guild Event":
                 clearScreen();
                 viewGuildEvent(connection);
+                break;
+            case "Search":
+                clearScreen();
+                viewSearch(connection,option);
                 break;
             case "Back":
                 break;
@@ -191,26 +195,28 @@ public class GuildView extends View {
         listMember = GuildController.getMemberInGuild(connection,guildName);
         if(listMember.getStatus() != ResponseStatus.OK) {
             printError(listMember.getMessage());
-        } else {
+        }
+        else {
             textIO.getTextTerminal().println(listMember.getMessage());
+            viewTitle(option,textIO);
+            String username = textIO.newStringInputReader()
+                    .withNumberedPossibleValues(listMember.getData())
+                    .read("");
+            userprofile = GuildController.getUserProfile(connection,username);
+            textIO.getTextTerminal().println("Full Name: " + userprofile.getData().getFullName());
+            textIO.getTextTerminal().println("Sex: " + userprofile.getData().getSex());
+            textIO.getTextTerminal().println("Student Code: " + userprofile.getData().getStudentCode());
+            textIO.getTextTerminal().println("Contact Mail " + userprofile.getData().getContactEmail());
+            textIO.getTextTerminal().println("Date Of Birth " + userprofile.getData().getDateOfBirth());
+            textIO.getTextTerminal().println("Generation: " + userprofile.getData().getGenerationName());
+            textIO.getTextTerminal().println("---------------------------------------------------");
+            if(userprofile.getStatus() != ResponseStatus.OK) {
+                printError(userprofile.getMessage());
+            } else {
+                textIO.getTextTerminal().println(userprofile.getMessage());
+            }
         }
-        viewTitle(option,textIO);
-        String username = textIO.newStringInputReader()
-                .withNumberedPossibleValues(listMember.getData())
-                .read("");
-        userprofile = GuildController.getUserProfile(connection,username);
-        textIO.getTextTerminal().println("Full Name: " + userprofile.getData().getFullName());
-        textIO.getTextTerminal().println("Sex: " + userprofile.getData().getSex());
-        textIO.getTextTerminal().println("Student Code: " + userprofile.getData().getStudentCode());
-        textIO.getTextTerminal().println("Contact Mail " + userprofile.getData().getContactEmail());
-        textIO.getTextTerminal().println("Date Of Birth " + userprofile.getData().getDateOfBirth());
-        textIO.getTextTerminal().println("Generation: " + userprofile.getData().getGenerationName());
-        textIO.getTextTerminal().println("---------------------------------------------------");
-        if(userprofile.getStatus() != ResponseStatus.OK) {
-            printError(userprofile.getMessage());
-        } else {
-            textIO.getTextTerminal().println(userprofile.getMessage());
-        }
+
         String BackToMenuOrBack = textIO.newStringInputReader()
                 .withNumberedPossibleValues("Back", "Back To Menu")
                 .read("");
@@ -946,16 +952,17 @@ public class GuildView extends View {
             printError(response.getMessage());
         } else {
             textIO.getTextTerminal().println(response.getMessage());
+            for (GuildEventDto guildEvent : response.getData()){
+                textIO.getTextTerminal().println("Crew: " + guildEvent.getGuildName());
+                textIO.getTextTerminal().println("Title: " + guildEvent.getTitle());
+                textIO.getTextTerminal().println("Description: " + guildEvent.getDescription());
+                textIO.getTextTerminal().println("Start " + guildEvent.getStartAt().toString());
+                textIO.getTextTerminal().println("End " + guildEvent.getEndAt().toString());
+                textIO.getTextTerminal().println("Type: " + guildEvent.getType());
+                textIO.getTextTerminal().println("---------------------------------------------------");
+            }
         }
-        for (GuildEventDto guildEvent : response.getData()){
-            textIO.getTextTerminal().println("Crew: " + guildEvent.getGuildName());
-            textIO.getTextTerminal().println("Title: " + guildEvent.getTitle());
-            textIO.getTextTerminal().println("Description: " + guildEvent.getDescription());
-            textIO.getTextTerminal().println("Start " + guildEvent.getStartAt().toString());
-            textIO.getTextTerminal().println("End " + guildEvent.getEndAt().toString());
-            textIO.getTextTerminal().println("Type: " + guildEvent.getType());
-            textIO.getTextTerminal().println("---------------------------------------------------");
-        }
+
         String BackToMenuOrBack = textIO.newStringInputReader()
                 .withNumberedPossibleValues("Back", "Back To Menu")
                 .read("");
@@ -1075,6 +1082,53 @@ public class GuildView extends View {
             continueOrBack = AskContinueOrGoBack();
         } while (continueOrBack.equals("Continue"));
         switch (continueOrBack){
+            case "Back":
+                viewGuildEvent(connection);
+                break;
+            case "Back To Menu":
+                view(connection);
+                break;
+        }
+    }
+    public void viewSearch(Connection connection, String option) {
+        ResponseDTO<List<UserProfileDTO>> response;
+        TextIO textIO = TextIoFactory.getTextIO();
+        String username = textIO.newStringInputReader()
+                .withDefaultValue(null)
+                .read("Input Username: ");
+        response = GuildController.getUserNameFromSearch(connection,username);
+        viewTitle(option,textIO);
+        if(response.getStatus() != ResponseStatus.OK) {
+            printError(response.getMessage());
+        } else {
+            textIO.getTextTerminal().println(response.getMessage());
+            List<String> listUser = new ArrayList<>();
+            for (UserProfileDTO userProfileDTO : response.getData()){
+                listUser.add(userProfileDTO.getUserName() + " - " + userProfileDTO.getFullName() + " - " + userProfileDTO.getGenerationName());
+
+            }
+            String userOption = textIO.newStringInputReader()
+                    .withNumberedPossibleValues(listUser)
+                    .read("");
+            String[] list = userOption.split(" - ");
+            for (UserProfileDTO userProfileDTO : response.getData()){
+                if (list[0].equals(userProfileDTO.getUserName())){
+                    textIO.getTextTerminal().println("Full Name: " + userProfileDTO.getFullName());
+                    textIO.getTextTerminal().println("Sex: " + userProfileDTO.getSex());
+                    textIO.getTextTerminal().println("Student Code: " + userProfileDTO.getStudentCode());
+                    textIO.getTextTerminal().println("Contact Mail " + userProfileDTO.getContactEmail());
+                    textIO.getTextTerminal().println("Date Of Birth " + userProfileDTO.getDateOfBirth());
+                    textIO.getTextTerminal().println("Generation: " + userProfileDTO.getGenerationName());
+                    textIO.getTextTerminal().println("---------------------------------------------------");
+                }
+
+            }
+        }
+
+        String BackToMenuOrBack = textIO.newStringInputReader()
+                .withNumberedPossibleValues("Back", "Back To Menu")
+                .read("");
+        switch (BackToMenuOrBack) {
             case "Back":
                 viewGuildEvent(connection);
                 break;

@@ -431,5 +431,20 @@ public class GuildController {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found generation!", null);
         }
     }
+    public static ResponseDTO<List<UserProfileDTO>> getUserNameFromSearch(Connection connection, String username) {
+        try {
+            List<UserProfileDTO> data = GuildService.Search(connection,username);
+            return new ResponseDTO<>(ResponseStatus.OK, "Get all user successfully!", data);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!", null);
+        } catch (NotFoundException | DataEmptyException e){
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found username!", null);
+        } catch (TokenException e) {
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"You don't have permission", null);
+        } catch (InvalidDataException e) {
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST,"Not found username!", null);
+        }
+    }
 
 }
