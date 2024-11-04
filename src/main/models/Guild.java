@@ -3,6 +3,8 @@ package models;
 import java.sql.*;
 
 import exceptions.NotFoundException;
+import models.permissions.GuildPermission;
+import models.users.UserAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,6 +88,54 @@ public class Guild {
 		}
 
 		throw new NotFoundException("Guild ID is not existed!");
+	}
+	public static List<String> getAllGuildByAccountId(Connection con, String accountId)
+			throws SQLException {
+
+		String query = """
+				SELECT g.name as name
+				FROM guild g
+				JOIN guild_role gr ON gr.guild_id = g.id
+				JOIN user_guild_role ugr ON ugr.guild_role_id = gr.id
+				WHERE ugr.account_id = ?
+				""";
+
+		List<String> list = new ArrayList<>();
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, accountId);
+
+		ResultSet rs = stmt.executeQuery();
+
+		while (rs.next()) {
+			list.add(rs.getString("name"));
+		}
+
+		return list;
+	}
+	public static List<String> getMemberInGuild(Connection con, int guildId)
+            throws SQLException, NotFoundException {
+
+		String query = """
+				SELECT ugr.account_id as account_id
+				FROM guild g
+				JOIN guild_role gr ON gr.guild_id = g.id
+				JOIN user_guild_role ugr ON ugr.guild_role_id = gr.id
+				WHERE g.id = ?
+				""";
+
+		List<String> list = new ArrayList<>();
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, guildId);
+
+		ResultSet rs = stmt.executeQuery();
+
+		while (rs.next()) {
+			list.add(UserAccount.getNameById(con,rs.getString("account_id")));
+		}
+
+		return list;
 	}
 
 	public static List<String> getAllNameToList(Connection con) throws SQLException {

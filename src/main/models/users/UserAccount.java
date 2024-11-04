@@ -30,6 +30,22 @@ public class UserAccount {
 		throw new NotFoundException("User not found");
 	}
 
+	public static String getNameById(Connection con, String accountId) throws SQLException, NotFoundException {
+		String query = """
+				SELECT username FROM user_account WHERE id = ?
+				""";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, accountId);
+
+		ResultSet rs = stmt.executeQuery();
+
+		if (rs.next()) {
+			return rs.getString("username");
+		}
+		throw new NotFoundException("User not found");
+	}
+
 	public static void insert(Connection con, SignUpDTO data)
 			throws DataEmptyException, SQLException, SQLIntegrityConstraintViolationException {
 

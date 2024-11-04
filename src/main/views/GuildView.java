@@ -2,6 +2,7 @@ package views;
 import constants.ResponseStatus;
 import dto.*;
 import kotlin.Pair;
+import models.Guild;
 import models.permissions.GuildPermission;
 import models.roles.GuildRole;
 import org.beryx.textio.TextIO;
@@ -183,17 +184,32 @@ public class GuildView extends View {
         textIO.dispose();
     }
     public void viewListGuilds(Connection connection, String option){
-        ResponseDTO<List<String>> response = null;
-        response = GuildController.getAllGuilds(connection);
+        ResponseDTO<List<String>> listMember ;
+        ResponseDTO<UserProfileDTO> userprofile;
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle(option,textIO);
-        for (String guild : response.getData()){
-            textIO.getTextTerminal().println(guild);
-        }
-        if(response.getStatus() != ResponseStatus.OK) {
-            printError(response.getMessage());
+        String guildName = getGuildFromList(connection);
+        listMember = GuildController.getMemberInGuild(connection,guildName);
+        if(listMember.getStatus() != ResponseStatus.OK) {
+            printError(listMember.getMessage());
         } else {
-            textIO.getTextTerminal().println(response.getMessage());
+            textIO.getTextTerminal().println(listMember.getMessage());
+        }
+        viewTitle(option,textIO);
+        String username = textIO.newStringInputReader()
+                .withNumberedPossibleValues(listMember.getData())
+                .read("");
+        userprofile = GuildController.getUserProfile(connection,username);
+        textIO.getTextTerminal().println("Full Name: " + userprofile.getData().getFullName());
+        textIO.getTextTerminal().println("Sex: " + userprofile.getData().getSex());
+        textIO.getTextTerminal().println("Student Code: " + userprofile.getData().getStudentCode());
+        textIO.getTextTerminal().println("Contact Mail " + userprofile.getData().getContactEmail());
+        textIO.getTextTerminal().println("Date Of Birth " + userprofile.getData().getDateOfBirth());
+        textIO.getTextTerminal().println("Generation: " + userprofile.getData().getGenerationName());
+        textIO.getTextTerminal().println("---------------------------------------------------");
+        if(userprofile.getStatus() != ResponseStatus.OK) {
+            printError(userprofile.getMessage());
+        } else {
+            textIO.getTextTerminal().println(userprofile.getMessage());
         }
         String BackToMenuOrBack = textIO.newStringInputReader()
                 .withNumberedPossibleValues("Back", "Back To Menu")
@@ -571,6 +587,10 @@ public class GuildView extends View {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
             UserGuildRoleDTO userGuildRole = getUserGuildRoleFromList(connection);
+            if (userGuildRole == null){
+                continueOrBack = AskContinueOrGoBack();
+                break;
+            }
             response = GuildController.deleteUserGuildRole(connection,userGuildRole);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
