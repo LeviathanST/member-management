@@ -62,7 +62,7 @@ public class UserProfile {
 			throw new NotFoundException("Delete failed: No rows affected.");
 		}
 	}
-	public static List<UserProfileDTO> search(Connection con, String username) throws SQLException, NotFoundException {
+	public static List<UserProfileDTO> findByUsername(Connection con, String username) throws SQLException, NotFoundException {
 		String query = """
 			SELECT *
    			FROM user_profile

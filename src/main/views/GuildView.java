@@ -1071,7 +1071,8 @@ public class GuildView extends View {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
             int guildEventId = getGuildEventIDFromList(connection);
-            response = GuildController.deleteGuildEvent(connection,guildEventId);
+            String guildName = getGuildFromList(connection);
+            response = GuildController.deleteGuildEvent(connection,guildEventId,guildName);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -1096,7 +1097,7 @@ public class GuildView extends View {
         String username = textIO.newStringInputReader()
                 .withDefaultValue(null)
                 .read("Input Username: ");
-        response = GuildController.getUserNameFromSearch(connection,username);
+        response = GuildController.findByUsername(connection,username);
         viewTitle(option,textIO);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());

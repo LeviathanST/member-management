@@ -1,7 +1,6 @@
 package services;
 
 
-import constants.ResponseStatus;
 import dto.*;
 import exceptions.DataEmptyException;
 import exceptions.InvalidDataException;
@@ -10,14 +9,11 @@ import exceptions.TokenException;
 import models.Generation;
 import models.Guild;
 import models.events.GuildEvent;
-import models.permissions.CrewPermission;
 import models.permissions.GuildPermission;
 import models.roles.GuildRole;
 import models.users.UserAccount;
 import models.users.UserGuildRole;
 import models.users.UserProfile;
-import org.beryx.textio.TextIO;
-import org.beryx.textio.TextIoFactory;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -110,7 +106,7 @@ public class GuildService {
 		try {
 			int guildId = Guild.getIdByName(con, guild);
 			List<String> listUsername = new ArrayList<>();
-			if (checkPermission(con,"ViewGuild")) {
+			if (checkPermission(con,"ViewGuild",guild)) {
 				listUsername = Guild.getMemberInGuild(con, guildId);
 			}
 			return listUsername;
@@ -129,9 +125,7 @@ public class GuildService {
 			String accountId = UserAccount.getIdByUsername(con, username);
 			UserProfileDTO userProfile = new UserProfileDTO();
 			userProfile.setAccountId(accountId);
-			if (checkPermission(con,"ViewGuild")) {
-				UserProfile.read(con,userProfile);
-			}
+			UserProfile.read(con,userProfile);
 			userProfile.setGenerationName(Generation.getNameById(con,userProfile.getGenerationId()));
 			return userProfile;
 		} catch (SQLIntegrityConstraintViolationException e) {
@@ -139,8 +133,6 @@ public class GuildService {
 			throw new SQLException(String.format("Disallow null values id %s", username));
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when delete guild: %s", username));
-		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
 		}
 	}
 
@@ -160,7 +152,7 @@ public class GuildService {
 			}
 			data.setRole(normalizeName(data.getRole()));
 			data.setGuildId(Guild.getIdByName(con,data.getGuildName()));
-			if (checkPermission(con,"CRUDGuildRole")) {
+			if (checkPermission(con,"CRUDGuildRole",data.getGuildName())) {
 				GuildRole.insertGuildRole(con,data.getRole(), data.getGuildId());
 			}
 		} catch (SQLIntegrityConstraintViolationException e) {
@@ -187,7 +179,7 @@ public class GuildService {
 
 			data.setGuildId(Guild.getIdByName(con,data.getGuildName()));
 			data.setId(GuildRole.getIdByName(con,data.getGuildId(),data.getRole()));
-			if (checkPermission(con,"CRUDGuildRole")){
+			if (checkPermission(con,"CRUDGuildRole",data.getGuildName())){
 				GuildRole.updateGuildRole(con,newData.getRole(), data.getId());
 			}
 
@@ -207,7 +199,7 @@ public class GuildService {
 		try {
 			data.setGuildId(Guild.getIdByName(con,data.getGuildName()));
 			data.setId(GuildRole.getIdByName(con,data.getGuildId(),data.getRole()));
-			if (checkPermission(con,"CRUDGuildRole")){
+			if (checkPermission(con,"CRUDGuildRole",data.getGuildName())){
 				GuildRole.deleteGuildRole(con,data.getId());
 			}
 
@@ -246,7 +238,7 @@ public class GuildService {
 			int guildId = Guild.getIdByName(con,data.getGuild());
 			data.setGuildRoleId(GuildRole.getIdByName(con,guildId,data.getRole()));
 			data.setAccountId( UserAccount.getIdByUsername(con,data.getUsername()));
-			if (checkPermission(con,"CRUDUserGuildRole")){
+			if (checkPermission(con,"CRUDUserGuildRole",data.getGuild())){
 				UserGuildRole.insertGuildMember(con, data.getAccountId(), data.getGuildRoleId());
 
 			}
@@ -282,7 +274,7 @@ public class GuildService {
 			newData.setAccountId( UserAccount.getIdByUsername(con,newData.getUsername()));
 			int newGuildId = Guild.getIdByName(con,newData.getGuild());
 			newData.setGuildRoleId(GuildRole.getIdByName(con,newGuildId,newData.getRole()));
-			if (checkPermission(con,"CRUDUserGuildRole")){
+			if (checkPermission(con,"CRUDUserGuildRole",data.getGuild())){
 				UserGuildRole.updateGuildMember(con, newData.getAccountId(), guildId,newData.getGuildRoleId());
 
 			}
@@ -299,7 +291,7 @@ public class GuildService {
 		try {
 			data.setAccountId( UserAccount.getIdByUsername(con,data.getUsername()));
 			int guildId = Guild.getIdByName(con,data.getGuild());
-			if (checkPermission(con,"CRUDUserGuildRole")){
+			if (checkPermission(con,"CRUDUserGuildRole",data.getGuild())){
 				UserGuildRole.deleteGuildMember(con,data.getAccountId(),guildId);
 			}
 
@@ -315,7 +307,7 @@ public class GuildService {
 		try {
 			int guildId = Guild.getIdByName(connection,guild);
 			List<UserGuildRoleDTO> data = new ArrayList<>();
-			if (checkPermission(connection,"ViewUserGuildRole")){
+			if (checkPermission(connection,"ViewUserGuildRole",guild)){
 				data = UserGuildRole.getAllByGuildId(connection,guild,guildId);
 			}
             if (data.isEmpty()) {
@@ -346,7 +338,7 @@ public class GuildService {
 
 			data = normalizePermission(data);
 
-			if (checkPermission(con,"CRUDGuildPermission")){
+			if (checkPermission(con,"CRUDGuildPermission",null)){
 				GuildPermission.insert(data,con);
 			}
 		} catch (SQLIntegrityConstraintViolationException e) {
@@ -367,7 +359,7 @@ public class GuildService {
 			}
 			data = normalizePermission(data);
 			newData = normalizePermission(newData);
-			if (checkPermission(con,"CRUDGuildPermission")){
+			if (checkPermission(con,"CRUDGuildPermission",null)){
 				GuildPermission.update( data, newData,con);
 			}
 		} catch (SQLIntegrityConstraintViolationException e) {
@@ -383,7 +375,7 @@ public class GuildService {
 	public static void deleteGuildPermission(Connection con, String data)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException {
 		try {
-			if (checkPermission(con,"CRUDGuildPermission")){
+			if (checkPermission(con,"CRUDGuildPermission",null)){
 				GuildPermission.delete(data,con);
 			}
 		} catch (SQLIntegrityConstraintViolationException e) {
@@ -402,7 +394,7 @@ public class GuildService {
 			int guildId = Guild.getIdByName(con,guildRole.getGuildName());
 			int guildRoleId = GuildRole.getIdByName(con,guildId,guildRole.getRole());
 			int permissionId =  GuildPermission.getIdByName(con,permission);
-			if (checkPermission(con,"CRUDGuildRolePermission")){
+			if (checkPermission(con,"CRUDGuildRolePermission",guildRole.getGuildName())){
 				GuildPermission.addPermissionToGuildRole(con,guildRoleId,permissionId );
 			}
 		} catch (SQLIntegrityConstraintViolationException e) {
@@ -421,7 +413,7 @@ public class GuildService {
 
 			int permissionId =  GuildPermission.getIdByName(con,permission);
 			int newPermissionId =  GuildPermission.getIdByName(con,newPermission);
-			if (checkPermission(con,"CRUDGuildRolePermission")){
+			if (checkPermission(con,"CRUDGuildRolePermission",guildRole.getGuildName())){
 				GuildPermission.updatePermissionInGuildRole(newPermissionId,permissionId,guildRoleId,con );
 			}
 		} catch (SQLIntegrityConstraintViolationException e) {
@@ -440,7 +432,7 @@ public class GuildService {
 			int guildRoleId = GuildRole.getIdByName(con,guildId,guildRole.getRole());
 
 			int permissionId =  GuildPermission.getIdByName(con,permission);
-			if (checkPermission(con,"CRUDGuildRolePermission")){
+			if (checkPermission(con,"CRUDGuildRolePermission",guildRole.getGuildName())){
 				GuildPermission.deletePermissionInGuildRole(permissionId,guildRoleId, con);
 			}
 		} catch (SQLIntegrityConstraintViolationException e) {
@@ -461,7 +453,7 @@ public class GuildService {
 			int guildId = Guild.getIdByName(connection,guild);
 			String accountId = UserAccount.getIdByUsername(connection,userName);
 			List<GuildPermission> data = new ArrayList<>();
-			if (checkPermission(connection,"ViewGuildRolePermission")){
+			if (checkPermission(connection,"ViewGuildRolePermission",guild)){
 				data = GuildPermission.getAllByAccountIdAndGuildId(connection,accountId,guildId);
 			}
 			return data;
@@ -494,7 +486,7 @@ public class GuildService {
 			Timestamp start = validTimeStamp(dateStart);
 			Timestamp end = validTimeStamp(dateEnd);
 			guildEvent = new GuildEventDto(guildId,guildEvent.getTitle(),guildEvent.getDescription(),generationId,start,end,guildEvent.getType());
-			if (checkPermission(con,"CRUDGuildEvent")){
+			if (checkPermission(con,"CRUDGuildEvent",guildEvent.getGuildName())){
 				GuildEvent.insert(con, guildEvent);
 			}
 		} catch (SQLIntegrityConstraintViolationException e) {
@@ -527,7 +519,7 @@ public class GuildService {
 			Timestamp start = validTimeStamp(dateStart);
 			Timestamp end = validTimeStamp(dateEnd);
 			guildEvent = new GuildEventDto(guildId,guildEvent.getTitle(),guildEvent.getDescription(),generationId,start,end,guildEvent.getType());
-			if (checkPermission(con,"CRUDGuildEvent")){
+			if (checkPermission(con,"CRUDGuildEvent",guildEvent.getGuildName())){
 				GuildEvent.update(con, guildEvent,guildEventId);
 			}
 
@@ -543,10 +535,10 @@ public class GuildService {
         }
     }
 
-	public static void deleteGuildEvent(Connection con, int guildEventId)
+	public static void deleteGuildEvent(Connection con, int guildEventId, String guild)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException {
 		try {
-			if (checkPermission(con,"CRUDGuildEvent")){
+			if (checkPermission(con,"CRUDGuildEvent",guild)){
 				GuildEvent.delete(con, guildEventId);
 			}
 		} catch (SQLIntegrityConstraintViolationException e) {
@@ -562,9 +554,7 @@ public class GuildService {
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException {
 		try {
 			List<GuildEventDto> data = new ArrayList<>();
-			if (checkPermission(connection,"CRUDGuildEvent")){
-				data = GuildEvent.getAllGuildEvent(connection);
-			}
+			data = GuildEvent.getAllGuildEvent(connection);
 			for (GuildEventDto guildEventDto : data) {
 				guildEventDto.setGuildName(guildEventDto.getGuildName());
 				guildEventDto.setGeneration(guildEventDto.getGeneration());
@@ -572,16 +562,14 @@ public class GuildService {
 			return data;
 		} catch (SQLException e) {
 			throw new SQLException("Error occurs when view guild event");
-		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+		}
     }
 	// TODO: Search
-	public static List<UserProfileDTO> Search(Connection connection, String username)
+	public static List<UserProfileDTO> findByUsername(Connection connection, String username)
 			throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException {
 		try {
 			List<UserProfileDTO> data = new ArrayList<>();
-			data = UserProfile.search(connection, username);
+			data = UserProfile.findByUsername(connection, username);
 			for (UserProfileDTO userProfileDTO : data) {
 				userProfileDTO.setGenerationName(Generation.getNameById(connection,userProfileDTO.getGenerationId()));
 			}
@@ -644,14 +632,24 @@ public class GuildService {
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
 		return accountId;
 	}
-	public static boolean checkPermission(Connection connection, String permission) throws SQLException, TokenException, NotFoundException {
+	public static boolean checkPermission(Connection connection, String permission, String guildChose) throws SQLException, TokenException, NotFoundException {
 		try {
 			boolean  check = false;
 			List<String> listGuild =  Guild.getAllGuildByAccountId(connection,getAccountIDUser());
 			for (String guild : listGuild) {
-				check = AuthService.GuildAuthorization(connection,getAccountIDUser(),Guild.getIdByName(connection,guild),permission);
-				if (check) {
-					return check;
+				if (guild.equals(guildChose)) {
+					check = AuthService.GuildAuthorization(connection,getAccountIDUser(),Guild.getIdByName(connection,guild),permission);
+					if (check) {
+						return check;
+					}
+				}
+			}
+			if (guildChose == null){
+				List<String> listRole = UserGuildRole.getRoleByAccountId(connection,getAccountIDUser());
+				for (String role : listRole) {
+					if (role.equals("Leader")){
+						return true;
+					}
 				}
 			}
 			return check;

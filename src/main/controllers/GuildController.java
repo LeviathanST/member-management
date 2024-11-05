@@ -10,18 +10,11 @@ import models.Guild;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import constants.ResponseStatus;
 import models.permissions.GuildPermission;
 import models.roles.GuildRole;
-import models.users.UserGuildRole;
-import models.users.UserProfile;
-import org.beryx.textio.TextIO;
-import org.beryx.textio.TextIoFactory;
 import services.GuildService;
 
 public class GuildController {
@@ -375,9 +368,9 @@ public class GuildController {
         }
     }
 
-    public static ResponseDTO<Object> deleteGuildEvent(Connection connection, int guildEventId ) {
+    public static ResponseDTO<Object> deleteGuildEvent(Connection connection, int guildEventId,String guild ) {
         try {
-            GuildService.deleteGuildEvent(connection, guildEventId);
+            GuildService.deleteGuildEvent(connection, guildEventId, guild);
             return new ResponseDTO<>(ResponseStatus.OK,
                     String.format("Delete guild event %s successfully!", guildEventId), null);
         } catch (SQLException e) {
@@ -431,9 +424,9 @@ public class GuildController {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found generation!", null);
         }
     }
-    public static ResponseDTO<List<UserProfileDTO>> getUserNameFromSearch(Connection connection, String username) {
+    public static ResponseDTO<List<UserProfileDTO>> findByUsername(Connection connection, String username) {
         try {
-            List<UserProfileDTO> data = GuildService.Search(connection,username);
+            List<UserProfileDTO> data = GuildService.findByUsername(connection,username);
             return new ResponseDTO<>(ResponseStatus.OK, "Get all user successfully!", data);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
