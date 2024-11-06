@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS crew_permission (
 );
 CREATE TABLE IF NOT EXISTS crew_role (
 	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	name VARCHAR(255) UNIQUE NOT NULL,
+	name VARCHAR(255) NOT NULL,
 	crew_id INTEGER UNSIGNED NOT NULL,
 
 	UNIQUE KEY (name, crew_id),
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS crew_role_permission (
 
 	PRIMARY KEY (crew_role_id, crew_permission_id),
 	FOREIGN KEY (crew_role_id) REFERENCES crew_role(id),
-	FOREIGN KEY (crew_permissioN_id) REFERENCES crew_permission(id)
+	FOREIGN KEY (crew_permission_id) REFERENCES crew_permission(id)
 );
 CREATE TABLE IF NOT EXISTS user_crew_role (
 	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
@@ -96,10 +96,10 @@ CREATE TABLE IF NOT EXISTS guild_permission (
 );
 CREATE TABLE IF NOT EXISTS guild_role (
 	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	name VARCHAR(255) UNIQUE NOT NULL,
+	name VARCHAR(255) NOT NULL,
 	guild_id INTEGER UNSIGNED NOT NULL,
 
-	UNIQUE KEY (name, guild_id),
+    UNIQUE KEY (name, guild_id),
 	FOREIGN KEY (guild_id) REFERENCES guild(id)
 );
 CREATE TABLE IF NOT EXISTS guild_role_permission (
@@ -116,7 +116,6 @@ CREATE TABLE IF NOT EXISTS user_guild_role (
 	account_id CHAR(36) NOT NULL,
 	guild_role_id INTEGER UNSIGNED NOT NULL,
 
-	UNIQUE KEY (account_id, guild_role_id),
 	FOREIGN KEY (account_id) REFERENCES user_account(id),
 	FOREIGN KEY (guild_role_id) REFERENCES guild_role(id)
 );

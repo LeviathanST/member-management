@@ -12,16 +12,36 @@ public class GuildEventDto {
 	private Timestamp endAt;
 	private String type;
 
+	private String guildName;;
+	private String generation;
+
 	// Constructor
-	public GuildEventDto(int id, int guildId, String title, String description, int generationId, Timestamp startAt,
+	public GuildEventDto(int guildId, String title, String description, int generationId, Timestamp startAt,
 			Timestamp endAt, String type) {
-		this.id = id;
 		this.guildId = guildId;
 		this.title = title;
 		this.description = description;
 		this.generationId = generationId;
 		this.startAt = startAt;
 		this.endAt = endAt;
+		this.type = type;
+	}
+	public GuildEventDto( int id,String guildName, String title, String description, int generationId, Timestamp startAt,
+						 Timestamp endAt, String type) {
+		this.id = id;
+		this.guildName = guildName;
+		this.title = title;
+		this.description = description;
+		this.generationId = generationId;
+		this.startAt = startAt;
+		this.endAt = endAt;
+		this.type = type;
+	}
+	public GuildEventDto(String guildName, String generation,String title, String description, String type) {
+		this.guildName = guildName;
+		this.generation = generation;
+		this.title = title;
+		this.description = description;
 		this.type = type;
 	}
 
@@ -56,4 +76,10 @@ public class GuildEventDto {
 	public String getType() {
 		return type;
 	}
+
+	public String getGuildName() {return guildName;}
+	public void setGuildName(String guildName) {this.guildName = guildName;}
+
+	public String getGeneration() {return generation;}
+	public void setGeneration(String generation) {this.generation = generation;}
 }

@@ -38,13 +38,18 @@ public class View {
         textIO.getTextTerminal().print("-");
         textIO.getTextTerminal().println();
     }
-    
     public void waitTimeByMessage(String message) {
         textIO.newStringInputReader().withMinLength(0).read(message);
     }
 
     public  void clearScreen() {
-        System.out.print("\033[H\033[2J");  
+        System.out.print("\033[H\033[2J");
         System.out.flush();
+    }
+    public String AskContinueOrGoBack(){
+        String continueOrBack = textIO.newStringInputReader()
+                .withNumberedPossibleValues("Continue", "Back", "Back To Menu")
+                .read("");
+        return continueOrBack;
     }
 }

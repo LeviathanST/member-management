@@ -14,7 +14,15 @@ public class GuildRoleDTO {
 
     public String getGuildName() {return guildName;}
 
+    public void setGuildName(String guildName) {
+        this.guildName = guildName;
+    }
+
     public String getRole() {return role;}
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     public int getGuildId() {return guildId;}
     public void setGuildId(int guildId) {this.guildId = guildId;}

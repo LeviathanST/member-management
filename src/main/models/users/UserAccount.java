@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import dto.SignUpDTO;
 import exceptions.DataEmptyException;
 import exceptions.NotFoundException;
+import org.beryx.textio.TextIO;
+import org.beryx.textio.TextIoFactory;
 
 public class UserAccount {
 	private String username;
@@ -46,11 +48,26 @@ public class UserAccount {
 
 		ResultSet rs = stmt.executeQuery();
 
-		while (rs.next()) {
+		if (rs.next()) {
 			return rs.getString("id");
 		}
+		throw new NotFoundException("User not found");
+	}
 
-		throw new NotFoundException("This username is not existed!");
+	public static String getNameById(Connection con, String accountId) throws SQLException, NotFoundException {
+		String query = """
+				SELECT username FROM user_account WHERE id = ?
+				""";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, accountId);
+
+		ResultSet rs = stmt.executeQuery();
+
+		if (rs.next()) {
+			return rs.getString("username");
+		}
+		throw new NotFoundException("User not found");
 	}
 
 	public static void insert(Connection con, SignUpDTO data)

@@ -12,6 +12,7 @@ public class UserProfileDTO{
     private int generation_id;
     private Date date_of_birth;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
+
     public UserProfileDTO() {}
 
     public UserProfileDTO(String account_id, String full_name, Sex sex,

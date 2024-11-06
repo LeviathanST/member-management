@@ -1,9 +1,19 @@
 INSERT INTO guild (name) VALUES ('Media');
 INSERT INTO guild (name) VALUES ('Technical');
 
-INSERT INTO guild_permission (name) VALUES ('View');
-INSERT INTO guild_permission (name) VALUES ('Edit');
-INSERT INTO guild_permission (name) VALUES ('Delete');
+INSERT INTO guild_permission (name) VALUES ('ViewGuild');
+INSERT INTO guild_permission (name) VALUES ('CRUDGuild');
+INSERT INTO guild_permission (name) VALUES ('ViewGuildRole');
+INSERT INTO guild_permission (name) VALUES ('CRUDGuildRole');
+INSERT INTO guild_permission (name) VALUES ('ViewUserGuildRole');
+INSERT INTO guild_permission (name) VALUES ('CRUDUserGuildRole');
+INSERT INTO guild_permission (name) VALUES ('ViewGuildPermission');
+INSERT INTO guild_permission (name) VALUES ('CRUDGuildPermission');
+INSERT INTO guild_permission (name) VALUES ('ViewGuildRolePermission');
+INSERT INTO guild_permission (name) VALUES ('CRUDGuildRolePermission');
+INSERT INTO guild_permission (name) VALUES ('ViewGuildEvent');
+INSERT INTO guild_permission (name) VALUES ('CRUDGuildEvent');
+
 
 INSERT INTO guild_role (name, guild_id) VALUES ('Member', 1);
 INSERT INTO guild_role (name, guild_id) VALUES ('Leader', 1);
