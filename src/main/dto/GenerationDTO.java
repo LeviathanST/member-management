@@ -1,23 +1,16 @@
 package dto;
 
-public class GuildDTO {
+public class GenerationDTO {
     private int id;
     private String name;
 
-    public GuildDTO(int id, String name) {
+    public GenerationDTO(int id, String name) {
         this.id = id;
         this.name = name;
     }
-
-    public GuildDTO(String name) {
+    public GenerationDTO(String name) {
         this.name = name;
     }
-
     public int getId() {return id;}
-
     public String getName() {return name;}
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.sql.Connection;
 
+import dto.UserGuildRoleDTO;
 import exceptions.NotFoundException;
 
 public class UserGuildRole {
@@ -27,6 +28,55 @@ public class UserGuildRole {
 		}
 		return list;
 	}
+	public static List<UserGuildRoleDTO> getAllByGuildId(Connection con, String guild, int guild_id) throws SQLException, NotFoundException,NullPointerException {
+		String query = """
+					SELECT ua.username as name, gr.name as role
+					FROM user_guild_role ugr
+	    			JOIN user_account ua ON ugr.account_id = ua.id
+					JOIN guild_role gr ON gr.id = ugr.guild_role_id
+					WHERE gr.guild_id = ?
+				""";
+		List<UserGuildRoleDTO> list = new ArrayList<>();
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, guild_id);
+
+		ResultSet rs = stmt.executeQuery();
+		if (rs.next()) {
+			list.add(new UserGuildRoleDTO(guild, rs.getString("name"), rs.getString("role")));
+			while (rs.next()) {
+				list.add(new UserGuildRoleDTO(guild, rs.getString("name"), rs.getString("role")));
+			}
+		}
+		else {
+			throw new NullPointerException("Null Data");
+		}
+
+		return list;
+	}
+	public static List<String> getRoleByAccountId(Connection con, String accountId) throws SQLException, NotFoundException,NullPointerException {
+		String query = """
+					SELECT gr.name as role
+					FROM user_guild_role ugr
+	    			JOIN guild_role gr ON gr.id = ugr.guild_role_id
+					WHERE ugr.account_id = ?
+				""";
+		List<String> list = new ArrayList<>();
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, accountId);
+
+		ResultSet rs = stmt.executeQuery();
+		if (rs.next()) {
+			list.add(rs.getString("role"));
+			while (rs.next()) {
+				list.add(rs.getString("role"));
+			}
+		}
+		else {
+			throw new NullPointerException("Null Data");
+		}
+
+		return list;
+	}
 	public static void insertGuildMember(Connection con, String accountId, int guildRoleId)
 			throws SQLException, NotFoundException {
 		String query = "INSERT INTO user_guild_role(account_id, guild_role_id) VALUES (?, ?)";
@@ -40,7 +90,7 @@ public class UserGuildRole {
 	public static void updateGuildMember(Connection con, String accountId, int guildId, int newGuildRoleId)
 			throws SQLException, NotFoundException {
 		String query = """
-				UPDATE user_guild_role ugr
+				UPDATE user_guild_role as ugr
 				JOIN guild_role gr ON gr.id = ugr.guild_role_id
 				SET ugr.guild_role_id = ?
 				WHERE ugr.account_id = ? AND gr.guild_id = ?
@@ -57,9 +107,10 @@ public class UserGuildRole {
 	public static void deleteGuildMember(Connection con, String accountId, int guildId)
 			throws SQLException, NotFoundException {
 		String query = """
-				DELETE FROM user_guild_role ugr
-				JOIN guild_role gr ON gr.id = ugr.guild_role_id
-				WHERE ugr.account_id = ? AND gr.guild_id = ?
+					DELETE ugr
+					FROM user_guild_role ugr
+					JOIN guild_role gr ON gr.id = ugr.guild_role_id
+					WHERE ugr.account_id = ? AND gr.guild_id = ?;
 				""";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, accountId);

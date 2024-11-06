@@ -16,6 +16,10 @@ public class UserGuildRoleDTO {
 
 	public String getUsername() {return this.username;}
 
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
 	public String getRole() { return this.role; }
 
 	public String getGuild() {return this.guild;}

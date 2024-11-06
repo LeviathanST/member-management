@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import constants.Sex;
 import exceptions.NotFoundException;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
 import dto.UserProfileDTO;
 
 
@@ -58,6 +61,31 @@ public class UserProfile {
 		if (rowEffected == 0) {
 			throw new NotFoundException("Delete failed: No rows affected.");
 		}
+	}
+	public static List<UserProfileDTO> findByUsername(Connection con, String username) throws SQLException, NotFoundException {
+		String query = """
+			SELECT *
+   			FROM user_profile
+   			WHERE username LIKE ?;
+		""";
+		List<UserProfileDTO> result = new ArrayList<>();
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, username);
+		UserProfileDTO dto = new UserProfileDTO();
+		ResultSet rs = stmt.executeQuery();
+		if(!rs.next())
+			throw new NotFoundException("User profile is not existed");
+		while(rs.next()) {
+			dto.setAccountId(rs.getString("account_id"));
+			dto.setFullName(rs.getString("full_name"));
+			dto.setSex(Sex.valueOf(rs.getString("sex")));
+			dto.setStudentCode(rs.getString("student_code"));
+			dto.setContactEmail(rs.getString("contact_email"));
+			dto.setGenerationId(rs.getInt("generation_id"));
+			dto.setDateOfBirth(rs.getDate("dob"));
+			result.add(dto);
+		}
+		return result;
 	}
 
 	public static void read(Connection con, UserProfileDTO user_profile) throws SQLException, NotFoundException {

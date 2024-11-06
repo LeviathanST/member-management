@@ -1,9 +1,17 @@
 package models.events;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import dto.CrewEventDto;
+import dto.GuildEventDto;
+import exceptions.NotFoundException;
+import models.Crew;
+import models.Guild;
+
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CrewEvent {
 	public void insert(Connection con, CrewEventDto data) throws SQLException {

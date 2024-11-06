@@ -23,6 +23,9 @@ public class GuildRole {
 		this.con = con;
 	}
 
+	public int getGuild_id() {return guild_id;}
+	public String getName() {return name;}
+
 	/// Find role id by name of a specified guild
 	public static int getIdByName(Connection con, int guild_id, String name) throws SQLException,
 			NotFoundException {
@@ -97,18 +100,17 @@ public class GuildRole {
 			throw new SQLException("Insert guild role to database is failed!");
 	}
 
-	public static void updateGuildRole(Connection con, String newRole, int guildRoleId, int newGuildId)
+	public static void updateGuildRole(Connection con, String newRole, int guildRoleId)
 			throws SQLException, NotFoundException {
 		String query = """
 				UPDATE guild_role
-				SET name = ?, guild_id = ?
+				SET name = ?
 				WHERE id = ?
 				""";
 
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, newRole);
-		stmt.setInt(2, newGuildId);
-		stmt.setInt(3, guildRoleId);
+		stmt.setInt(2, guildRoleId);
 		int row = stmt.executeUpdate();
 		if (row == 0)
 			throw new SQLException("Update guild role from database is failed!");
