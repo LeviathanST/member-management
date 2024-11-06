@@ -13,6 +13,10 @@ public class Permission {
 
 	private Connection con;
 
+	public Permission() {
+		
+	}
+
 	public Permission(int id, String name) {
 		this.id = id;
 		this.name = name;
@@ -20,6 +24,36 @@ public class Permission {
 
 	public String getName() {
 		return this.name;
+	}
+
+	public static List<Permission> getAllPermission(Connection con) throws SQLException {
+		String query = """
+				SELECT * FROM permission
+				""";
+
+		List<Permission> list = new ArrayList<>();
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			list.add(new Permission(rs.getInt("id"), rs.getString("name")));
+		}
+		
+		return list;
+	}
+
+	public static int getIdByName(Connection con, String namePermission) throws SQLException {
+		String query = """
+				SELECT id FROM permission WHERE name = ? 
+				""";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, namePermission);
+		ResultSet rs = stmt.executeQuery();
+		while(!rs.next())
+			throw new SQLException("Permission is not existed!");
+		return rs.getInt("id");
+
 	}
 
 	public static List<Permission> getByAccountId(Connection con, String accountId) throws SQLException {
@@ -38,30 +72,28 @@ public class Permission {
 
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			System.out.println(rs.getString("name"));
 			list.add(new Permission(rs.getInt("id"), rs.getString("name")));
 		}
 
 		return list;
 	}
 
-	public void insert(String name) throws SQLException {
+	public static void insert(String name, Connection con) throws SQLException {
 		String query = "INSERT INTO permission (name) VALUES (?)";
 
-		PreparedStatement stmt = this.con.prepareStatement(query);
+		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, name);
 
 		int row = stmt.executeUpdate();
 		if (row == 0)
 			throw new SQLException("A permission is failed when adding!");
 
-		System.out.println("Add a permission successfully!");
 	}
 
-	public void update(String newName) throws SQLException {
+	public void update(String newName, Connection con) throws SQLException {
 		String query = "UPDATE permission SET name = ? where name = ?";
 
-		PreparedStatement stmt = this.con.prepareStatement(query);
+		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, this.name);
 		stmt.setString(2, newName);
 
@@ -69,10 +101,9 @@ public class Permission {
 		if (row == 0)
 			throw new SQLException("A permission is failed when update!");
 
-		System.out.println("Update a permission successfully!");
 	}
 
-	public void delete(String name) throws SQLException {
+	public static void delete(String name, Connection con) throws SQLException {
 		String query = "DELETE FROM permission WHERE name = ?";
 
 		PreparedStatement stmt = con.prepareStatement(query);
@@ -82,6 +113,39 @@ public class Permission {
 		if (row == 0)
 			throw new SQLException("A permission is failed when deleting!");
 
-		System.out.println("Delete a permission successfully!");
+	}
+	public static void addPermissionToRole(Connection con, int roleID, int permissionId) throws SQLException {
+		String query = "INSERT INTO role_permission (role_id,permission_id) VALUES (?,?)";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, roleID);
+		stmt.setInt(2, permissionId);
+
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("A permission is failed when adding to guild role!");
+	}
+	public static void updatePermissionToRole(int newPermissionID,int permissionID,int roleID, Connection con) throws SQLException {
+		String query = "UPDATE role_permission SET permission_id = ? WHERE permission_id = ? AND role_id = ?";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, newPermissionID);
+		stmt.setInt(2, permissionID);
+		stmt.setInt(3, roleID);
+
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("A guild role permission is failed when update!");
+	}
+	public static void deletePermissionRole(int permissionID,int roleID, Connection con) throws SQLException {
+		String query = "DELETE FROM role_permission WHERE permission_id = ? AND role_id = ?";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, permissionID);
+		stmt.setInt(2, roleID);
+
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("A guild role permission is failed when deleting!");
 	}
 }

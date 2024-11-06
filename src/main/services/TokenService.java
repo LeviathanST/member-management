@@ -40,7 +40,6 @@ public class TokenService {
 			((ObjectNode) tokenNode).put("refreshToken", data.getRefreshToken());
 
 			mapper.writerWithDefaultPrettyPrinter().writeValue(savingFilePath.toFile(), rootNode);
-			System.out.println("Your token is updated");
 
 		} catch (Exception e) {
 			throw new TokenException("Error occurs when saving tokens");

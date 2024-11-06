@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import exceptions.NotFoundException;
+import models.permissions.Permission;
 
 public class Role {
 	private int id;
@@ -34,7 +35,6 @@ public class Role {
 		ResultSet rs = stmt.executeQuery();
 
 		while (rs.next()) {
-			System.out.println(rs.getString("name"));
 			list.add(new Role(rs.getInt("id"), rs.getString("name")));
 		}
 
@@ -70,10 +70,60 @@ public class Role {
 		ResultSet rs = stmt.executeQuery();
 
 		while (rs.next()) {
-			System.out.println("take it!");
 			return new Role(rs.getInt("id"), rs.getString("name"));
 		}
 
 		throw new NotFoundException("This account is not have any role in application!");
+	}
+
+	public static void createRole(Connection con, String nameRole) throws SQLException{
+		String query = """
+				INSERT INTO role (name) VALUES (?)
+				""";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, nameRole);
+		int row = stmt.executeUpdate();
+		if(row == 0)
+			throw new SQLException("Create role failed : now row is affected!");
+	}
+
+	public static void updateRole(Connection con, String nameRole, String newNameRole) throws SQLException{
+		String query = """
+				UPDATE role
+				SET name = ?
+				WHERE name = ?
+				""";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, newNameRole);
+		stmt.setString(2, nameRole);
+		int row = stmt.executeUpdate();
+		if(row == 0)
+			throw new SQLException("Update role failed : now row is affected!");
+	}
+
+	public static void deleteRole(Connection con, String nameRole) throws SQLException{
+		String query = """
+				DELETE FROM role
+				WHERE name = ?
+				""";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, nameRole);
+		int row = stmt.executeUpdate();
+		if(row == 0)
+			throw new SQLException("Delete role failed : now row is affected!");
+	}
+
+	public static void addPermissionRole(Connection con, String namePermission, String nameRole) throws SQLException, NotFoundException {
+		Role role = getByName(con, nameRole);
+		int permissionId = Permission.getIdByName(con, namePermission);
+		String query = """
+				INSERT INTO role_permission(role_id, permission_id) VALUES (?, ?)
+				""";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, role.getId());
+		stmt.setInt(2, permissionId);
+		int row = stmt.executeUpdate();
+		if(row == 0)
+			throw new SQLException("Add permission to role is failed : no row is affeccted!");
 	}
 }

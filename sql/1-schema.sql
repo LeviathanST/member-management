@@ -46,8 +46,7 @@ CREATE TABLE IF NOT EXISTS role_permission (
 	FOREIGN KEY (role_id) REFERENCES role(id)
 );
 CREATE TABLE IF NOT EXISTS user_role (
-	id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	account_id CHAR(36) NOT NULL,
+	account_id CHAR(36) NOT NULL PRIMARY KEY,
 	role_id INTEGER UNSIGNED NOT NULL,
 
 	FOREIGN KEY (account_id) REFERENCES user_account(id),
@@ -154,7 +153,19 @@ CREATE TABLE IF NOT EXISTS guild_event (
 	FOREIGN KEY (guild_id) REFERENCES guild(id),
 	FOREIGN KEY (generation_id) REFERENCES generation(id)
 );
+-- Application
+CREATE TABLE IF NOT EXISTS event (
+    id INTEGER UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    generation_id INTEGER UNSIGNED NOT NULL,
+    start_at TIMESTAMP NOT NULL,
+    end_at TIMESTAMP NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+    FOREIGN KEY (generation_id) REFERENCES generation(id)
+);
 -- Trigger to check count_mistake
 DELIMITER //
 
@@ -162,10 +173,12 @@ CREATE TRIGGER before_update_account
 BEFORE UPDATE ON user_account
 FOR EACH ROW
 BEGIN 
-	if NEW.count_mistake <= 0 or NEW.count_mistake > 3 THEN
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = "Mistake counting must be between 0 and 3";
-	END IF;	
+	IF NEW.count_mistake != OLD.count_mistake THEN
+        IF NEW.count_mistake < 0 OR NEW.count_mistake > 3 THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = "Mistake counting must be between 0 and 3!!!";
+        END IF;
+    END IF;
 END;
 //
 

@@ -11,8 +11,7 @@ public class UserProfileDTO{
     private String contact_email;
     private int generation_id;
     private Date date_of_birth;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-    private String userName;
-    private String generationName;
+
 
     public UserProfileDTO() {}
 
@@ -84,15 +83,6 @@ public class UserProfileDTO{
         this.date_of_birth = date_of_birth;
     }
 
-    public String getUserName() {
-        return this.userName;
-    }
-
-    public String getGenerationName() {return this.generationName;}
-
-    public void setGenerationName(String generationName) {
-        this.generationName = generationName;
-    }
 }
 
 

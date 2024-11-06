@@ -3,6 +3,8 @@ package models.users;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import constants.Sex;
 import exceptions.NotFoundException;
@@ -106,6 +108,31 @@ public class UserProfile {
 		user_profile.setGenerationId(rs.getInt("generation_id"));
 		user_profile.setDateOfBirth(rs.getDate("dob"));
 		
+	}
+
+	public static List<UserProfileDTO> readAll(Connection con) throws SQLException {
+		String query = """
+						SELECT account_id, full_name, sex, student_code, contact_email,
+						generation_id, dob FROM user_profile
+					""";
+		PreparedStatement stmt = con.prepareStatement(query);
+		ResultSet rs = stmt.executeQuery();
+		
+		List<UserProfileDTO> list = new ArrayList<>();
+		while (rs.next()) {
+			UserProfileDTO userProfile = new UserProfileDTO();
+			userProfile.setAccountId(rs.getString("account_id"));
+			userProfile.setFullName(rs.getString("full_name"));
+			userProfile.setSex(Sex.valueOf(rs.getString("sex")));
+			userProfile.setStudentCode(rs.getString("student_code"));
+			userProfile.setContactEmail(rs.getString("contact_email"));
+			userProfile.setGenerationId(rs.getInt("generation_id"));
+			userProfile.setDateOfBirth(rs.getDate("dob"));
+			
+			list.add(userProfile);
+		}
+	
+    	return list;
 	}
 	
 }

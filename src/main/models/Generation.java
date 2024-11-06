@@ -75,15 +75,5 @@ public class Generation {
 		return generations;
 
 	}
-	public static String getNameById(Connection con, int id) throws SQLException, NotFoundException {
-		String query = "SELECT name FROM generation WHERE id = ?";
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, id);
-		ResultSet rs = stmt.executeQuery();
-		if (rs.next()) {
-			return rs.getString("name");
-		}
 
-		throw new NotFoundException("Generation is not existed!");
-	}
 }
