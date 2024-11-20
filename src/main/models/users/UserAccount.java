@@ -127,9 +127,11 @@ public class UserAccount {
 			throw new SQLException("Update user account failed!");
 	}
 
-	public static void delete(Connection con, String accountId) throws SQLException {
+	public static void delete(Connection con, String accountId) throws SQLException, NotFoundException {
+		UserProfile.delete(con, accountId);
+		UserRole.delete(con, accountId);
 		String query = """
-				DELETE FROM user_account WHERE account_id = ?
+				DELETE FROM user_account WHERE id = ?
 				""";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, accountId);

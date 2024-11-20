@@ -124,24 +124,25 @@ public class ApplicationService extends AuthService{
             throw new SQLException(String.format("Error occurs when create role: %s", name));
         }
     }
-    public static void UpdateRole(Connection connection,String oldName, String newName)
+    public static void UpdateRole(Connection connection,int roleId, String newName)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
         try {
-            Role.updateRole(connection, oldName, newName);
+            newName = normalizedRolePermission(newName);
+            Role.updateRole(connection, roleId, newName);
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new SQLException(String.format("Disallow null values %s",newName));
         } catch (SQLException e) {
-            throw new SQLException(String.format("Error occurs when update role: %s", oldName));
+            throw new SQLException(String.format("Error occurs when update role ID: %d", roleId));
         }
     }
-    public static void DeleteRole(Connection connection,String nameRole)
+    public static void DeleteRole(Connection connection,int roleId)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
         try {
-            Role.deleteRole(connection, nameRole);
+            Role.deleteRole(connection, roleId);
         } catch (SQLIntegrityConstraintViolationException e) {
-            throw new SQLException(String.format("Disallow null values %s",nameRole));
+            throw new SQLException(String.format("Disallow null values %d",roleId));
         } catch (SQLException e) {
-            throw new SQLException(String.format("Error occurs when delete guild: %s", nameRole));
+            throw new SQLException(String.format("Error occurs when delete role id: %d", roleId));
         }
     }
     // TODO: User Role
@@ -149,6 +150,7 @@ public class ApplicationService extends AuthService{
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
         try {
             String accountId = UserAccount.getIdByUsername(connection, userName);
+            roleName = normalizedRolePermission(roleName);
             int roleId = Role.getByName(connection, roleName).getId();
             UserRole.insert(connection, accountId, roleId);
         } catch (SQLIntegrityConstraintViolationException e) {
@@ -191,23 +193,20 @@ public class ApplicationService extends AuthService{
             throw new SQLException("Error occurs when update user role");
         }
     }
-    public static void UpdatePermissionDto(String roleName, String name,String newName, Connection connection) throws SQLException, NotFoundException {
+    public static void UpdatePermissionDto(String roleName, int permisisonId,int newPermissionId, Connection connection) throws SQLException, NotFoundException {
         try {
             int roleId = Role.getByName(connection, roleName).getId();
-            int permissionId = Permission.getIdByName(connection, name);
-            int newPermissionId = Permission.getIdByName(connection, newName);
-            Permission.updatePermissionToRole(newPermissionId,permissionId,roleId,connection);
+            Permission.updatePermissionToRole(roleId,permisisonId,newPermissionId,connection);
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new SQLException("Disallow null values");
         } catch (SQLException e) {
             throw new SQLException("Error occurs when update user role");
         }
     }
-    public static void DeletePermissionDto(String roleName,String name, Connection connection) throws SQLException, NotFoundException {
+    public static void DeletePermissionDto(String roleName,int permisisonId, Connection connection) throws SQLException, NotFoundException {
         try {
-            int permissionId = Permission.getIdByName(connection, name);
             int roleId = Role.getByName(connection, roleName).getId();
-            Permission.deletePermissionRole(permissionId,roleId,connection);
+            Permission.deletePermissionRole(permisisonId,roleId,connection);
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new SQLException("Disallow null values");
         } catch (SQLException e) {

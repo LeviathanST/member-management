@@ -87,27 +87,27 @@ public class Role {
 			throw new SQLException("Create role failed : now row is affected!");
 	}
 
-	public static void updateRole(Connection con, String nameRole, String newNameRole) throws SQLException{
+	public static void updateRole(Connection con, int roleId, String newNameRole) throws SQLException{
 		String query = """
 				UPDATE role
 				SET name = ?
-				WHERE name = ?
+				WHERE id = ?
 				""";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setString(1, newNameRole);
-		stmt.setString(2, nameRole);
+		stmt.setInt(2, roleId);
 		int row = stmt.executeUpdate();
 		if(row == 0)
 			throw new SQLException("Update role failed : now row is affected!");
 	}
 
-	public static void deleteRole(Connection con, String nameRole) throws SQLException{
+	public static void deleteRole(Connection con, int roleId) throws SQLException{
 		String query = """
 				DELETE FROM role
-				WHERE name = ?
+				WHERE id = ?
 				""";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, nameRole);
+		stmt.setInt(1, roleId);
 		int row = stmt.executeUpdate();
 		if(row == 0)
 			throw new SQLException("Delete role failed : now row is affected!");

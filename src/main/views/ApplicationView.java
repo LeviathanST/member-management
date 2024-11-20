@@ -322,6 +322,7 @@ public class ApplicationView extends View{
     public void crudRoleView(Connection con) {
         ResponseDTO<Object> response = new ResponseDTO<Object>(null, null, con);
         String name;
+        int roleId;
         viewTitle("|CREATE ROLE | GET ALL ROLES | UPDATE ROLE | DELETE ROLE |", textIO);
         String option = textIO.newStringInputReader().withNumberedPossibleValues("GET ALL ROLES", "CREATE ROLE", "UPDATE ROLE", "DELETE ROLE", "BACK").read("");
         switch (option) {
@@ -345,9 +346,10 @@ public class ApplicationView extends View{
 
             case "UPDATE ROLE":
                 viewTitle("| UPDATE ROLE |", textIO);
-                String oldName = textIO.newStringInputReader().read("Enter role's name to update : ");
+                listAllRole(con);
+                roleId = textIO.newIntInputReader().read("Enter role's id to update : ");
                 String newName = textIO.newStringInputReader().read("Enter new name to role : ");
-                response = ApplicationController.updateRole(oldName, newName, con);
+                response = ApplicationController.updateRole(roleId, newName, con);
                 if(response.getStatus() != ResponseStatus.OK) {
                     printError(response.getMessage());
                 } else textIO.getTextTerminal().println(response.getMessage());
@@ -355,8 +357,9 @@ public class ApplicationView extends View{
 
             case "DELETE ROLE":
                 viewTitle("| DELETE ROLE |", textIO);
-                name = textIO.newStringInputReader().read("Enter role's name to delete : ");
-                response = ApplicationController.deleteRole(name, con);
+                listAllRole(con);
+                roleId = textIO.newIntInputReader().read("Enter role's id to delete : ");
+                response = ApplicationController.deleteRole(roleId, con);
                 if(response.getStatus() != ResponseStatus.OK) {
                     printError(response.getMessage());
                 } else textIO.getTextTerminal().println(response.getMessage());
@@ -390,7 +393,7 @@ public class ApplicationView extends View{
         String username;
         String roleName;
         ResponseDTO<Object> response = new ResponseDTO<Object>(null, null, null);
-        String option = textIO.newStringInputReader().withNumberedPossibleValues("SET UESR ROLE", "UPDATE UESR ROLE", "BACK").read("");
+        String option = textIO.newStringInputReader().withNumberedPossibleValues("SET USER ROLE", "UPDATE UESR ROLE", "BACK").read("");
         switch (option) {
             case "SET USER ROLE":
                 viewTitle("| SET USER ROLE |", textIO);
@@ -423,6 +426,7 @@ public class ApplicationView extends View{
 
     public void crudPermission(Connection con) {
         String permission, roleName;
+        int permissionId;
         ResponseDTO<Object> response = new ResponseDTO<Object>(null, null, null);
         viewTitle("| CREATE PERMISSION | GET ALL PERMISSIONS |UPDATE PERMISSION | DELETE PERMISSION |", textIO);
         String option = textIO.newStringInputReader().withNumberedPossibleValues("CREATE PERMISSION", "GET ALL PERMISSIONS", "UPDATE PERMISSION", "DELETE PERMISSION").read("");
@@ -438,19 +442,16 @@ public class ApplicationView extends View{
         
 
             case "GET ALL PERMISSIONS":
-                viewTitle("| GET ALL PERMISSIONS |", textIO);
-                List<Permission> list = ApplicationController.getAllPermissions(con).getData();
-                textIO.getTextTerminal().println("There are " + list.size() + " roles.");
-                for(Permission i : list)
-                    textIO.getTextTerminal().println(i.getName());
+                getAllPermissions(con);
                 break;
 
             case "UPDATE PERMISSION":
                 viewTitle("| UPDATE PERMISSION |", textIO);
+                getAllPermissions(con);
                 roleName = textIO.newStringInputReader().read("Enter role's name : ");
-                permission = textIO.newStringInputReader().read("Enter old permission : ");
-                String newPermission = textIO.newStringInputReader().read("Enter new permission : ");
-                response = ApplicationController.updatePermission(roleName, permission, newPermission, con);
+                permissionId = textIO.newIntInputReader().read("Enter old permission's id : ");
+                int newPermission = textIO.newIntInputReader().read("Enter new permission's id : ");
+                response = ApplicationController.updatePermission(roleName, permissionId, newPermission, con);
                 if(response.getStatus() != ResponseStatus.OK) {
                     printError(response.getMessage());
                 } else textIO.getTextTerminal().println(response.getMessage());
@@ -458,9 +459,10 @@ public class ApplicationView extends View{
             
             case "DELETE PERMISSION":
                 viewTitle("| DELETE PERMISSION |", textIO);
+                getAllPermissions(con);
                 roleName =textIO.newStringInputReader().read("Enter role : ");
-                permission = textIO.newStringInputReader().read("Enter permission to delete : ");
-                response = ApplicationController.deletePermission(roleName, permission, con);
+                permissionId = textIO.newIntInputReader().read("Enter permission's id to delete : ");
+                response = ApplicationController.deletePermission(roleName, permissionId, con);
                 if(response.getStatus() != ResponseStatus.OK) {
                     printError(response.getMessage());
                 } else textIO.getTextTerminal().println(response.getMessage());
@@ -468,11 +470,18 @@ public class ApplicationView extends View{
             default:
                 break;
         }
+
     }
 
 
  
-
+    public void getAllPermissions(Connection con) {
+        viewTitle("| GET ALL PERMISSIONS |", textIO);
+        List<Permission> list = ApplicationController.getAllPermissions(con).getData();
+        textIO.getTextTerminal().println("There are " + list.size() + " permissions.");
+        for(Permission i : list)
+            textIO.getTextTerminal().println(i.getId() + " : "  + i.getName());
+    }
 
 
 

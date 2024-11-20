@@ -56,4 +56,16 @@ public class UserRole {
 		if (rowEffected == 0)
 			throw new SQLException("Update role failed!");
 	}
+
+	public static void delete(Connection con, String accountId) throws SQLException {
+		String query = """
+				DELETE FROM user_role WHERE account_id = ?
+				""";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, accountId);
+		int row = stmt.executeUpdate();
+		if(row == 0)
+			throw new SQLException("Delete user role failed.");
+	}
 }

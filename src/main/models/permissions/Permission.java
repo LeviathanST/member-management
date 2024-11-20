@@ -107,11 +107,11 @@ public class Permission {
 
 	}
 
-	public static void delete(String name, Connection con) throws SQLException {
-		String query = "DELETE FROM permission WHERE name = ?";
+	public static void delete(int permisisonId, Connection con) throws SQLException {
+		String query = "DELETE FROM permission WHERE id = ?";
 
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, name);
+		stmt.setInt(1, permisisonId);
 
 		int row = stmt.executeUpdate();
 		if (row == 0)
@@ -129,7 +129,7 @@ public class Permission {
 		if (row == 0)
 			throw new SQLException("A permission is failed when adding to guild role!");
 	}
-	public static void updatePermissionToRole(int newPermissionID,int permissionID,int roleID, Connection con) throws SQLException {
+	public static void updatePermissionToRole(int roleID,int permissionID,int newPermissionID, Connection con) throws SQLException {
 		String query = "UPDATE role_permission SET permission_id = ? WHERE permission_id = ? AND role_id = ?";
 
 		PreparedStatement stmt = con.prepareStatement(query);
@@ -139,7 +139,7 @@ public class Permission {
 
 		int row = stmt.executeUpdate();
 		if (row == 0)
-			throw new SQLException("A guild role permission is failed when update!");
+			throw new SQLException("A application role permission is failed when update!");
 	}
 	public static void deletePermissionRole(int permissionID,int roleID, Connection con) throws SQLException {
 		String query = "DELETE FROM role_permission WHERE permission_id = ? AND role_id = ?";
@@ -149,7 +149,8 @@ public class Permission {
 		stmt.setInt(2, roleID);
 
 		int row = stmt.executeUpdate();
+		delete(permissionID, con);
 		if (row == 0)
-			throw new SQLException("A guild role permission is failed when deleting!");
+			throw new SQLException("A application role permission is failed when deleting!");
 	}
 }

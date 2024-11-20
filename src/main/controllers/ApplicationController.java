@@ -178,11 +178,11 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> deleteRole(String roleName, Connection connection) {
+    public static ResponseDTO<Object> deleteRole(int roleId, Connection connection) {
         try {
             boolean author = AuthService.AppAuthorization(connection, "CrudRole");
             if(author == true) {
-                ApplicationService.DeleteRole(connection, roleName);
+                ApplicationService.DeleteRole(connection, roleId);
                 return new ResponseDTO<>(ResponseStatus.OK, "Delete role successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to delete role", null);
         } catch (SQLException e) {
@@ -191,11 +191,11 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> updateRole(String oldName, String newName, Connection connection) {
+    public static ResponseDTO<Object> updateRole(int roleId, String newName, Connection connection) {
         try {
             boolean author = AuthService.AppAuthorization(connection, "CrudRole");
             if(author == true) {
-                ApplicationService.UpdateRole(connection, oldName, newName);
+                ApplicationService.UpdateRole(connection, roleId, newName);
                 return new ResponseDTO<>(ResponseStatus.OK, "Update role successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to update role", null);
         } catch (SQLException e) {
@@ -251,11 +251,11 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> deletePermission(String roleName, String name,  Connection connection) {
+    public static ResponseDTO<Object> deletePermission(String roleName, int permisisonId,  Connection connection) {
         try {
             boolean author = AuthService.AppAuthorization(connection, "CrudPermission");
             if(author == true) {
-                ApplicationService.DeletePermissionDto(roleName, name, connection);
+                ApplicationService.DeletePermissionDto(roleName, permisisonId, connection);
                 return new ResponseDTO<>(ResponseStatus.OK, "Delete permission successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to delete permission", null);
         } catch (SQLException | TokenException e) {
@@ -264,11 +264,11 @@ public class ApplicationController {
             return new ResponseDTO<Object>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> updatePermission(String roleName,String name,String newName, Connection connection) {
+    public static ResponseDTO<Object> updatePermission(String roleName,int permisisonId,int newPermissionID, Connection connection) {
         try {
             boolean author = AuthService.AppAuthorization(connection, "CrudPermission");
             if(author == true) {
-                ApplicationService.UpdatePermissionDto(roleName, name, newName, connection);
+                ApplicationService.UpdatePermissionDto(roleName, permisisonId, newPermissionID, connection);
                 return new ResponseDTO<>(ResponseStatus.OK, "Update permission successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to update permission", null);
         } catch (SQLException | TokenException e) {
