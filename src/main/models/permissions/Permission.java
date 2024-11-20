@@ -26,6 +26,10 @@ public class Permission {
 		return this.name;
 	}
 
+	public int getId() {
+		return this.id;
+	}
+
 	public static List<Permission> getAllPermission(Connection con) throws SQLException {
 		String query = """
 				SELECT * FROM permission

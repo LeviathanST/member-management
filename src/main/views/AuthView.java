@@ -80,6 +80,11 @@ public class AuthView extends View{
     }
 
     public void logInForm(Connection con, LoginDTO logIn) {
+        boolean checkAccessToken = AuthController.checkAccessToken(con);
+        if(checkAccessToken == true) {
+            clearScreen();
+            appCrewGuildView(con);
+        }
         viewTitle("| LOG IN |", textIO);
         logIn.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
         logIn.setPassword(textIO.newStringInputReader().read("Enter your password : "));

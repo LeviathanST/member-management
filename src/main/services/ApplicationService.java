@@ -71,7 +71,7 @@ public class ApplicationService extends AuthService{
 
     public static void readUserProfileInternal(Connection con, UserProfileDTO data) 
                              throws SQLException, NotFoundException, TokenException{
-        Path path = (Path)Paths.get("auth.json");
+        Path path = (Path)Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
         data.setAccountId(accountId);
@@ -82,7 +82,7 @@ public class ApplicationService extends AuthService{
 
     public static void updateUserProfile(Connection con, UserProfileDTO data) 
                              throws SQLException, TokenException, NotFoundException, UserProfileException {
-        Path path = (Path)Paths.get("auth.json");
+        Path path = (Path)Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
         data.setAccountId(accountId);
@@ -181,13 +181,10 @@ public class ApplicationService extends AuthService{
             throw new SQLException("Error occurs when update user role");
         }
     }
-    public static void AddPermissionDto(String roleName, String permissionName, Connection connection)
+    public static void AddPermissionDto(int roleId, int permissionId, Connection connection)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException {
         try {
-            permissionName = normalizedRolePermission(permissionName);
-            Role role = Role.getByName(connection, permissionName);
-            int permissionId = Permission.getIdByName(connection, permissionName);
-            Permission.addPermissionToRole(connection,role.getId(),permissionId);
+            Permission.addPermissionToRole(connection,roleId,permissionId);
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new SQLException("Permission Role already exists");
         } catch (SQLException e) {
@@ -230,7 +227,7 @@ public class ApplicationService extends AuthService{
     public static void updateUserAccount(Connection con, String username, String password, String email) 
                 throws SQLException, TokenException {
                     
-        Path path = (Path)Paths.get("auth.json");
+        Path path = (Path)Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
         int round = Integer.parseInt(Optional.ofNullable(System.getenv("ROUND_HASHING")).orElse("4"));

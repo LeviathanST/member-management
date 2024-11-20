@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.ArrayList;
+
+import dto.LoginDTO;
 import dto.SignUpDTO;
 import exceptions.DataEmptyException;
 import exceptions.NotFoundException;
@@ -22,6 +24,25 @@ public class UserAccount {
 
 	public String getUsername() {
 		return this.username;
+	}
+
+	public static List<String> getAllId(Connection con) throws SQLException {
+		String query = "SELECT id FROM user_account";
+		List<String> list = new ArrayList<>();
+		PreparedStatement stmt = con.prepareStatement(query);
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) 
+			list.add(rs.getString("id"));
+		return list;
+	}
+
+	public static String getHashPasswordByUsername(Connection con, LoginDTO data) throws SQLException {
+		String query = "SELECT hashed_password FROM user_account WHERE username = ?";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, data.getUsername());
+		ResultSet rs = stmt.executeQuery();
+		rs.next();
+		return rs.getString("hashed_password");
 	}
 
 	public static List<UserAccount> getAllUserAccounts(Connection con) throws SQLException {

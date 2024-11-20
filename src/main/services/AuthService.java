@@ -61,37 +61,37 @@ public class AuthService {
 
 	public static void loginInternal(Connection con, LoginDTO data)
 			throws AuthException, TokenException, SQLException, NotFoundException {
-		PreparedStatement stmt = con.prepareStatement(
-				"SELECT id, hashed_password FROM user_account WHERE username = ?");
-		stmt.setString(1, data.getUsername());
-
-		ResultSet rs = stmt.executeQuery();
-		if (!rs.next()) {
-			throw new NotFoundException(
-					"Your username is not existed, please sign up with this username or login with other account!");
-		} else {
-			BCrypt.Result result = BCrypt
+		String hashPassword = UserAccount.getHashPasswordByUsername(con, data);
+		BCrypt.Result result = BCrypt
 					.verifyer()
-					.verify(data.getPassword().toCharArray(),
-							rs.getString("hashed_password"));
-
-			if (!result.verified) {
-				throw new AuthException("Wrong password!");
-			} else {
-				Path path = Paths.get("storage.json");
-				String account_id = rs.getString("id");
-				int userRoleId = UserRole.getIdByAccountId(con, account_id);
-				List<Integer> userGuildRoleId = UserGuildRole.getIdByAccountId(con, account_id);
-				List<Integer> userCrewRole = UserCrewRole.getIdByAccountId(con, account_id);
+					.verify(data.getPassword().toCharArray(), hashPassword);
+		if (!result.verified) {
+			throw new AuthException("Wrong password!");
+		} else {
+			Path path = Paths.get("storage.json");
+			String account_id = UserAccount.getIdByUsername(con, data.getUsername());
+			int userRoleId = UserRole.getIdByAccountId(con, account_id);
+			List<Integer> userGuildRoleId = UserGuildRole.getIdByAccountId(con, account_id);
+			List<Integer> userCrewRole = UserCrewRole.getIdByAccountId(con, account_id);
 
 
-				ClaimsDTO claimsData = new ClaimsDTO(account_id, userRoleId, userGuildRoleId,
+			ClaimsDTO claimsData = new ClaimsDTO(account_id, userRoleId, userGuildRoleId,
 						userCrewRole);
-				TokenPairDTO tokenData = TokenPairDTO.GenerateNew(claimsData);
-				TokenService.saveToFile(path, tokenData);
-			}
-
+			TokenPairDTO tokenData = TokenPairDTO.GenerateNew(claimsData);
+			TokenService.saveToFile(path, tokenData);
 		}
+
+	}
+
+	public static boolean checkAccessToken(Connection con) throws TokenException, SQLException {
+		Path path = (Path)Paths.get("storage.json");
+		String accessToken = TokenService.loadFromFile(path).getAccessToken();
+		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
+		List<String> list = UserAccount.getAllId(con);
+		for(String i : list)
+			if(i.equals(accountId))
+				return true;
+		return false;
 	}
 
 	protected static String hashingPassword(String password, int round) {
@@ -155,7 +155,7 @@ public class AuthService {
 			String namePermission)
 			throws NotFoundException, SQLException, TokenException {
 		boolean isAuthorized;
-		Path path = (Path)Paths.get("auth.json");
+		Path path = (Path)Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
 		try {

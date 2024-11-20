@@ -371,10 +371,15 @@ public class ApplicationView extends View{
 
     public void addPermissionToRoleView(Connection con) {
         viewTitle("| ADD PERMISSION TO ROLE |", this.textIO);
-        String roleName = textIO.newStringInputReader().read("Enter role's name : ");
-        String permissionName = textIO.newStringInputReader().read("Enter permission to add : ");
+        viewTitle("ROLES", textIO);
+        listAllRole(con);
+        int roleId = textIO.newIntInputReader().read("Enter role's id : ");
+        List<Permission> list = ApplicationController.getAllPermissions(con).getData();
+        for(Permission i : list) 
+            textIO.getTextTerminal().println(i.getId() + " : " + i.getName());
+        int permissionId = textIO.newIntInputReader().read("Enter permission's id to add : ");
         ResponseDTO<Object> response = new ResponseDTO<Object>(null, null, null);
-        response = ApplicationController.AddPermissionToRole(roleName, permissionName, con);
+        response = ApplicationController.AddPermissionToRole(roleId, permissionId, con);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else textIO.getTextTerminal().println(response.getMessage());

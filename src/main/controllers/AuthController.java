@@ -47,6 +47,13 @@ public class AuthController {
 
 	}
 
+	public static boolean checkAccessToken(Connection con) {
+		try {
+			return AuthService.checkAccessToken(con);
+		} catch (Exception e) {
+			return false;
+		}
+	}
 
 	
 }

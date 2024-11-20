@@ -277,11 +277,11 @@ public class ApplicationController {
             return new ResponseDTO<Object>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> AddPermissionToRole(String roleName, String  permissionName, Connection connection){
+    public static ResponseDTO<Object> AddPermissionToRole(int roleId, int  permissionId, Connection connection){
         try {
             boolean author = AuthService.AppAuthorization(connection, "AddPermissionToRole");
             if(author == true) {
-                ApplicationService.AddPermissionDto(roleName, permissionName, connection);
+                ApplicationService.AddPermissionDto(roleId, permissionId, connection);
                 return new ResponseDTO<>(ResponseStatus.OK, "Add permission to  role successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to add permission to role", null);
         } catch (SQLException | TokenException e) {
