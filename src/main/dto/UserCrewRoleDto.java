@@ -1,20 +1,28 @@
 package dto;
 
 public class UserCrewRoleDto {
-	private int id;
-	private String name;
+	private String username;
+	private String role;
+	private String crew;
 
-	public UserCrewRoleDto(int id, String name) {
-		this.id = id;
-		this.name = name;
+	private String accountId;
+	private int crewRoleId;
+
+	public UserCrewRoleDto(String crew, String username, String role) {
+		this.crew = crew;
+		this.username = username;
+		this.role = role;
 	}
 
-	public int getId() {
-		return this.id;
-	}
+	public String getUsername() {return this.username;}
 
-	public String getName() {
-		return this.name;
-	}
+	public String getRole() { return this.role; }
 
+	public String getCrew() {return this.crew;}
+
+	public String getAccountId() {return this.accountId;}
+	public void setAccountId(String accountId) {this.accountId = accountId;}
+
+	public int getCrewRoleId() {return this.crewRoleId;}
+	public void setCrewRoleId(int crewRoleId) {this.crewRoleId = crewRoleId;}
 }

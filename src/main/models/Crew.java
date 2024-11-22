@@ -1,12 +1,9 @@
 package models;
 
 import exceptions.NotFoundException;
+import models.users.UserAccount;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,13 +14,36 @@ public class Crew {
 
 		try (PreparedStatement stmt = con.prepareStatement(query)) {
 			stmt.setString(1, name);
-			stmt.executeUpdate();
 
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected == 0) {
 				throw new SQLException(String.format("Insert crew %s is failed", name));
 			}
 		}
+	}
+	public static List<String> getMemberInCrew(Connection con, int crewId)
+			throws SQLException, NotFoundException {
+
+		String query = """
+				SELECT ucr.account_id as account_id
+				FROM crew g
+				JOIN crew_role cr ON cr.guild_id = c.id
+				JOIN user_crew_role ucr ON ucr.crew_role_id = cr.id
+				WHERE c.id = ?
+				""";
+
+		List<String> list = new ArrayList<>();
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, crewId);
+
+		ResultSet rs = stmt.executeQuery();
+
+		while (rs.next()) {
+			list.add(UserAccount.getNameById(con,rs.getString("account_id")));
+		}
+
+		return list;
 	}
 
 	public static void update(Connection con, int crewId, String newName) throws SQLException {
@@ -32,7 +52,6 @@ public class Crew {
 		try (PreparedStatement stmt = con.prepareStatement(query)) {
 			stmt.setString(1, newName);
 			stmt.setInt(2, crewId);
-			stmt.executeUpdate();
 
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected == 0) {
@@ -46,7 +65,6 @@ public class Crew {
 
 		try (PreparedStatement stmt = con.prepareStatement(query)) {
 			stmt.setInt(1, crewId);
-			stmt.executeUpdate();
 
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected == 0) {
@@ -77,6 +95,18 @@ public class Crew {
 
 		throw new NotFoundException("Crew ID is not existed!");
 	}
+	public static String getNameByID(Connection con, int id) throws SQLException, NotFoundException {
+		String query = "SELECT name FROM crew WHERE id = ?";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, id);
+		ResultSet rs = stmt.executeQuery();
+
+		if (rs.next()) {
+			return rs.getString("name");
+		}
+
+		throw new NotFoundException("Crew is not existed!");
+	}
 
 	public static List<String> getAllNameToList(Connection con) throws SQLException {
 		List<String> crewNames = new ArrayList<>();
@@ -88,5 +118,29 @@ public class Crew {
 			crewNames.add(rs.getString("name"));
 		}
 		return crewNames;
+	}
+	public static List<String> getAllCrewByAccountId(Connection con, String accountId)
+			throws SQLException {
+
+		String query = """
+				SELECT c.name as name
+				FROM crew g
+				JOIN crew_role cr ON cr.crew_id = c.id
+				JOIN user_crew_role ucr ON ucr.crew_role_id = cr.id
+				WHERE ucr.account_id = ?
+				""";
+
+		List<String> list = new ArrayList<>();
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, accountId);
+
+		ResultSet rs = stmt.executeQuery();
+
+		while (rs.next()) {
+			list.add(rs.getString("name"));
+		}
+
+		return list;
 	}
 }

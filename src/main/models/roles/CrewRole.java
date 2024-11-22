@@ -1,13 +1,13 @@
 package models.roles;
 
+import exceptions.NotFoundException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import exceptions.NotFoundException;
-import java.sql.ResultSet;
 
 public class CrewRole {
 	private int crew_id;
@@ -101,43 +101,41 @@ public class CrewRole {
 		return rs.getInt("id");
 	}
 
-	public static void insertCrewMember(Connection con, String accountId, int crewRoleId)
+	public static void insertCrewRole(Connection con, String role, int crewId)
 			throws SQLException, NotFoundException {
-		String query = "INSERT INTO user_crew_role(account_id, crew_role_id) VALUES (?, ?)";
+		String query = "INSERT INTO crew_role(name, crew_id) VALUES (?, ?)";
 		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, accountId);
-		stmt.setInt(2, crewRoleId);
-		int row = stmt.executeUpdate();
-		if (row == 0)
-			throw new SQLException("Insert member to crew is failed!");
-	}
-
-	public static void updateCrewMember(Connection con, String accountId, int crewId, int newCrewRoleId)
-			throws SQLException, NotFoundException {
-		String query = """
-				UPDATE user_crew_role ucr
-				JOIN crew_role cr ON cr.id = ucr.crew_role_id
-				SET ucr.crew_role_id = ?
-				WHERE ucr.account_id = ? AND cr.crew_id = ?
-				""";
-
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, newCrewRoleId);
-		stmt.setString(2, accountId);
-		stmt.setInt(3, crewId);
-		int row = stmt.executeUpdate();
-		if (row == 0)
-			throw new SQLException("Update member from crew is failed!");
-	}
-
-	public static void deleteCrewMember(Connection con, String accountId, int crewId)
-			throws SQLException, NotFoundException {
-		String query = "DELETE FROM user_crew_role WHERE account_id = ? AND crew_role_id = ?";
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, accountId);
+		stmt.setString(1, role);
 		stmt.setInt(2, crewId);
 		int row = stmt.executeUpdate();
 		if (row == 0)
-			throw new SQLException(String.format("Delete member from crew is failed!"));
+			throw new SQLException("Insert crew role to database is failed!");
+	}
+
+	public static void updateCrewRole(Connection con, String newRole, int crewRoleId, int newCrewId)
+			throws SQLException, NotFoundException {
+		String query = """
+				UPDATE crew_role
+				SET name = ?, crew_id = ?
+				WHERE id = ?
+				""";
+
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setString(1, newRole);
+		stmt.setInt(2, newCrewId);
+		stmt.setInt(3, crewRoleId);
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("Update crew role from database is failed!");
+	}
+
+	public static void deleteCrewRole(Connection con, int crewRoleId)
+			throws SQLException, NotFoundException {
+		String query = "DELETE FROM crew_role WHERE id = ?";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, crewRoleId);
+		int row = stmt.executeUpdate();
+		if (row == 0)
+			throw new SQLException("Delete crew role from database is failed!");
 	}
 }
