@@ -21,24 +21,24 @@ public class CrewView extends View {
 
     public void view(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle("Crews Tab",textIO);
+        viewTitle("CREW TAB",textIO);
         String option = textIO.newStringInputReader()
-                .withNumberedPossibleValues("Crew", "Crew Role", "Role Crew To User","Crew Event","Back")
+                .withNumberedPossibleValues("CREW", "CREW ROLE", "ROLE CREW TO USER","CREW EVENT","BACK")
                 .read("");
         switch (option){
-            case "Crew":
+            case "CREW":
                 viewCrew(connection);
                 break;
-            case "Crew Role":
+            case "CREW ROLE":
                 viewCrewRole(connection);
                 break;
-            case "Role Crew To User":
+            case "ROLE CREW TO USER":
                 viewUserCrewRole(connection);
                 break;
-            case "Crew Event":
+            case "CREW EVENT":
                 viewCrewEvent(connection);
                 break;
-            case "Back":
+            case "BACK":
                 ApplicationView app = new ApplicationView(con);
                 app.view();
                 clearScreen();
@@ -175,24 +175,24 @@ public class CrewView extends View {
     //TODO: View Crew
     public void viewCrew(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle("Crew",textIO);
+        viewTitle("CREW",textIO);
         String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("View Crews", "Create New Crew", "Update Information Crew","Delete Crew","Back")
+                .withNumberedPossibleValues("VIEW CREW", "CREATE NEW CREW", "UPDATE INFORMATION","DELETE CREW","BACK")
                 .read("");
         switch (options){
-            case "View Crews":
+            case "VIEW CREW":
                 viewListCrews(connection,options);
                 break;
-            case "Create New Crew":
+            case "CREATE NEW CREW":
                 viewCreateCrew(connection,options);
                 break;
-            case "Update Information Crew":
+            case "UPDATE INFORMATION":
                 viewUpdateCrew(connection,options);
                 break;
-            case "Delete Crew":
+            case "DELETE CREW":
                 viewDeleteCrew(connection,options);
                 break;
-            case "Back":
+            case "BACK":
                 view(connection);
                 break;
         }
@@ -212,13 +212,13 @@ public class CrewView extends View {
             textIO.getTextTerminal().println(crew);
         }
         String BackToMenuOrBack = textIO.newStringInputReader()
-                .withNumberedPossibleValues("Back", "Back To Menu")
+                .withNumberedPossibleValues("BACK", "BACK TO MENU")
                 .read("");
         switch (BackToMenuOrBack) {
-            case "Back":
+            case "BACK":
                 viewCrew(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -229,7 +229,7 @@ public class CrewView extends View {
         do  {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
-            viewTitle("Input Crew Name", textIO);
+            viewTitle("INPUT CREW NAME", textIO);
             String crewName = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("");
@@ -243,12 +243,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        }while (continueOrBack.equals("Continue"));
+        }while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCrew(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -261,7 +261,7 @@ public class CrewView extends View {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
             String crewUpdated = getCrewFromList(connection);
-            viewTitle("Input Crew Name", textIO);
+            viewTitle("INPUT NEW CREW", textIO);
             String newCrew = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("");
@@ -276,12 +276,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        } while (continueOrBack.equals("Continue"));
+        } while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCrew(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -303,12 +303,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        } while (continueOrBack.equals("Continue"));
+        } while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCrew(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -316,24 +316,24 @@ public class CrewView extends View {
     //TODO: View Crew Role
     public void viewCrewRole(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle("Crew Role",textIO);
+        viewTitle("CREW ROLE",textIO);
         String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("View Crew Roles", "Add New Crew Role", "Update Information Crew Role","Delete Crew Role","Back")
+                .withNumberedPossibleValues("VIEW CREW ROLE", "ADD NEW CREW ROLE", "UPDATE INFORMATION CREW ROLE","DELETE CREW ROLE","BACK")
                 .read("");
         switch (options){
-            case "View Crew Roles":
+            case "VIEW CREW ROLE":
                 viewListCrewRoles(connection,options);
                 break;
-            case "Add New Crew Role":
+            case "ADD NEW CREW ROLE":
                 viewAddCrewRole(connection,options);
                 break;
-            case "Update Information Crew Role":
+            case "UPDATE INFORMATION CREW ROLE":
                 viewUpdateCrewRole(connection,options);
                 break;
-            case "Delete Crew Role":
+            case "DELETE CREW ROLE":
                 viewDeleteCrewRole(connection,options);
                 break;
-            case "Back":
+            case "BACK":
                 view(connection);
                 break;
         }
@@ -353,13 +353,13 @@ public class CrewView extends View {
             textIO.getTextTerminal().println(crewRole.getName());
         }
         String BackToMenuOrBack = textIO.newStringInputReader()
-                .withNumberedPossibleValues("Back", "Back To Menu")
+                .withNumberedPossibleValues("BACK", "BACK TO MENU")
                 .read("");
         switch (BackToMenuOrBack) {
-            case "Back":
+            case "BACK":
                 viewCrewRole(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -371,7 +371,7 @@ public class CrewView extends View {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
             String crew = getCrewFromList(connection);
-            viewTitle("Input Crew Role", textIO);
+            viewTitle("INPUT NEW CREW ROLE", textIO);
             String crewRole = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("");
@@ -385,12 +385,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        }while (continueOrBack.equals("Continue"));
+        }while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCrewRole(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -402,7 +402,7 @@ public class CrewView extends View {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
             Pair<String,String> crew = getCrewRoleFromList(connection);
-            viewTitle("Input New Crew Role", textIO);
+            viewTitle("INPUT NEW CREW ROLE", textIO);
             String newCrewRole = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("");
@@ -417,12 +417,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        } while (continueOrBack.equals("Continue"));
+        } while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCrewRole(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -444,12 +444,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        } while (continueOrBack.equals("Continue"));
+        } while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCrewRole(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -457,27 +457,27 @@ public class CrewView extends View {
     //TODO: View User Crew Role
     public void viewUserCrewRole(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle("User Crew Role",textIO);
+        viewTitle("USER CREW ROLE",textIO);
         String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("View User Crew Roles", "Add New User Crew Role", "Update Information User Crew Role","Delete User Crew Role","Crew Permission","Back")
+                .withNumberedPossibleValues("VIEW USER CREW ROLES", "ADD NEW USER CREW ROLE", "UPDATE INFORMATION USER CREW ROLE","DELETE USER CREW ROLE","CREW PERMISSION","BACK")
                 .read("");
         switch (options){
-            case "View User Crew Roles":
+            case "VIEW USER CREW ROLES":
                 viewListUserCrewRoles(connection,options);
                 break;
-            case "Add New User Crew Role":
+            case "ADD NEW USER CREW ROLE":
                 viewAddUserCrewRole(connection,options);
                 break;
-            case "Update Information User Crew Role":
+            case "UPDATE INFORMATION USER CREW ROLE":
                 viewUpdateUserCrewRole(connection,options);
                 break;
-            case "Delete User Crew Role":
+            case "DELETE USER CREW ROLE":
                 viewDeleteUserCrewRole(connection,options);
                 break;
-            case "Crew Permission":
+            case "CREW PERMISSION":
                 viewCrewPermission(connection);
                 break;
-            case "Back":
+            case "BACK":
                 view(connection);
                 break;
         }
@@ -502,13 +502,13 @@ public class CrewView extends View {
             textIO.getTextTerminal().println();
         }
         String BackToMenuOrBack = textIO.newStringInputReader()
-                .withNumberedPossibleValues("Back", "Back To Menu")
+                .withNumberedPossibleValues("BACK", "BACK TO MENU")
                 .read("");
         switch (BackToMenuOrBack) {
-            case "Back":
+            case "BACK":
                 viewUserCrewRole(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -519,7 +519,7 @@ public class CrewView extends View {
         do  {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
-            viewTitle("Input Username", textIO);
+            viewTitle("INPUT USERNAME", textIO);
             String username = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("");
@@ -534,12 +534,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        }while (continueOrBack.equals("Continue"));
+        }while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewUserCrewRole(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -567,12 +567,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        } while (continueOrBack.equals("Continue"));
+        } while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewUserCrewRole(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -597,12 +597,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        } while (continueOrBack.equals("Continue"));
+        } while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewUserCrewRole(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -610,21 +610,21 @@ public class CrewView extends View {
     //TODO: View Guild Permission
     public void viewCrewPermission(Connection connection){
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle("Crew Permission",textIO);
+        viewTitle("CREW PERMISSION",textIO);
         String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("View Crew Permission", "CRUD Permission","CRUD Permission To Crew Role","Back")
+                .withNumberedPossibleValues("VIEW CREW PERMISSION", "CRUD PERMISSION","CRUD PERMISSION TO CREW ROLE","BACK")
                 .read("");
         switch (options){
-            case "View Crew Permission":
+            case "VIEW CREW PERMISSION":
                 viewPermissionByAccountIdAndCrewId(connection,options);
                 break;
-            case "CRUD Permission":
+            case "CRUD PERMISSION":
                 viewCRUDPermission(connection);
                 break;
-            case "CRUD Permission To Crew Role":
+            case "CRUD PERMISSION TO CREW ROLE":
                 viewCRUDPermissionToCrewRole(connection);
                 break;
-            case "Back":
+            case "BACK":
                 view(connection);
                 break;
         }
@@ -635,7 +635,7 @@ public class CrewView extends View {
         ResponseDTO<List<CrewPermission>> response;
         TextIO textIO = TextIoFactory.getTextIO();
         String crew = getCrewFromList(connection);
-        viewTitle("Input Username", textIO);
+        viewTitle("INPUT USERNAME", textIO);
         String username = textIO.newStringInputReader()
                 .withDefaultValue(null)
                 .read("");
@@ -650,13 +650,13 @@ public class CrewView extends View {
             textIO.getTextTerminal().println(response.getMessage());
         }
         String BackToMenuOrBack = textIO.newStringInputReader()
-                .withNumberedPossibleValues("Back", "Back To Menu")
+                .withNumberedPossibleValues("BACK", "BACK TO MENU")
                 .read("");
         switch (BackToMenuOrBack) {
-            case "Back":
+            case "BACK":
                 viewCRUDPermission(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -664,24 +664,24 @@ public class CrewView extends View {
 
     public void viewCRUDPermission(Connection connection){
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle("Permission",textIO);
+        viewTitle("PERMISSION",textIO);
         String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("View Permission", "Add Permission","Update Permission","Delete Permission","Back")
+                .withNumberedPossibleValues("VIEW PERMISSION", "ADD PERMISSION","UPDATE PERMISSION","DELETE PERMISSION","BACK")
                 .read("");
         switch (options){
-            case "View Permission":
+            case "VIEW PERMISSION":
                 viewPermission(connection,options);
                 break;
-            case "Add Permission":
+            case "ADD PERMISSION":
                 viewAddPermission(connection,options);
                 break;
-            case "Update Permission":
+            case "UPDATE PERMISSION":
                 viewUpdatePermission(connection,options);
                 break;
-            case "Delete Permission":
+            case "DELETE PERMISSION":
                 viewDeletePermission(connection,options);
                 break;
-            case "Back":
+            case "BACK":
                 view(connection);
                 break;
         }
@@ -701,13 +701,13 @@ public class CrewView extends View {
             textIO.getTextTerminal().println(response.getMessage());
         }
         String BackToMenuOrBack = textIO.newStringInputReader()
-                .withNumberedPossibleValues("Back", "Back To Menu")
+                .withNumberedPossibleValues("BACK", "BACK TO MENU")
                 .read("");
         switch (BackToMenuOrBack) {
-            case "Back":
+            case "BACK":
                 viewCRUDPermission(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -718,7 +718,7 @@ public class CrewView extends View {
         do  {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
-            viewTitle("Input Permission", textIO);
+            viewTitle("INPUT PERMISSION", textIO);
             String permission = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("");
@@ -731,12 +731,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        }while (continueOrBack.equals("Continue"));
+        }while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCRUDPermission(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -749,7 +749,7 @@ public class CrewView extends View {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
             String permissionUpdated = getPermissionFromList(connection);
-            viewTitle("Input New Permission", textIO);
+            viewTitle("INPUT NEW PERMISSION", textIO);
             String permission = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("");
@@ -762,12 +762,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        } while (continueOrBack.equals("Continue"));
+        } while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCRUDPermission(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -788,12 +788,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        } while (continueOrBack.equals("Continue"));
+        } while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCRUDPermission(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -801,24 +801,24 @@ public class CrewView extends View {
     // TODO: CRUD Permission To Crew Role
     public void viewCRUDPermissionToCrewRole(Connection connection){
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle("Permission Of Crew Role",textIO);
+        viewTitle("PERMISSION OF CREW ROLE",textIO);
         String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("View Permission Of Crew Role", "Add Permission To Crew Role","Update Permission In Crew Role","Delete Permission In Crew Role","Back")
+                .withNumberedPossibleValues("VIEW PERMISSION OF CREW ROLE", "ADD PERMISSION TO CREW ROLE","UPDATE PERMISSION IN CREW ROLE","DELETE PERMISSION IN CREW ROLE","BACK")
                 .read("");
         switch (options){
-            case "View Permission Of Crew Role":
+            case "VIEW PERMISSION OF CREW ROLE":
                 viewPermissionByCrewId(connection,options);
                 break;
-            case "Add Permission To Crew Role":
+            case "ADD PERMISSION TO CREW ROLE":
                 viewAddPermissionToCrewRole(connection,options);
                 break;
-            case "Update Permission In Crew Role":
+            case "UPDATE PERMISSION IN CREW ROLE":
                 viewUpdatePermissionInCrewRole(connection,options);
                 break;
-            case "Delete Permission In Crew Role":
+            case "DELETE PERMISSION IN CREW ROLE":
                 viewDeletePermissionInCrewRole(connection,options);
                 break;
-            case "Back":
+            case "BACK":
                 view(connection);
                 break;
         }
@@ -830,9 +830,9 @@ public class CrewView extends View {
         do  {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
-            viewTitle("Choose Crew And Role", textIO);
+            viewTitle("CHOOSE CREW AND ROLE", textIO);
             Pair<String,String> crewAndRole = getCrewRoleFromList(connection);
-            viewTitle("Choose Permission", textIO);
+            viewTitle("CHOOSE PERMISSION", textIO);
             String permissionAdded = getPermissionFromList(connection);
             CrewRoleDTO crewRole = new CrewRoleDTO(crewAndRole.getSecond(),crewAndRole.getFirst());
             response = CrewController.addPermissionToCrewRole(connection,crewRole,permissionAdded);
@@ -844,12 +844,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        }while (continueOrBack.equals("Continue"));
+        }while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCRUDPermissionToCrewRole(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -861,11 +861,11 @@ public class CrewView extends View {
         do{
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
-            viewTitle("Choose Crew And Role", textIO);
+            viewTitle("CHOOSE CREW AND ROLE", textIO);
             Pair<String,String> crewAndRole = getCrewRoleFromList(connection);
-            viewTitle("Choose Permission Updated", textIO);
+            viewTitle("CHOOSE PERMISSION UPDATED", textIO);
             String permissionUpdated = getPermissionByCrewAndRoleFromList(connection,crewAndRole.getFirst(),crewAndRole.getSecond());
-            viewTitle("Choose New Permission", textIO);
+            viewTitle("CHOOSE NEW PERMISSION", textIO);
             String newPermission = getPermissionFromList(connection);
             CrewRoleDTO crewRole = new CrewRoleDTO(crewAndRole.getSecond(),crewAndRole.getFirst());
             response = CrewController.updatePermissionInCrewRole(connection,crewRole,permissionUpdated,newPermission);
@@ -877,12 +877,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        } while (continueOrBack.equals("Continue"));
+        } while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCRUDPermissionToCrewRole(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -893,9 +893,9 @@ public class CrewView extends View {
         do {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
-            viewTitle("Choose Crew And Role", textIO);
+            viewTitle("CHOOSE CREW AND ROLE", textIO);
             Pair<String,String> crewAndRole = getCrewRoleFromList(connection);
-            viewTitle("Choose Permission Deleted", textIO);
+            viewTitle("CHOOSE PERMISSION DELETED", textIO);
             String permissionDeleted = getPermissionByCrewAndRoleFromList(connection,crewAndRole.getFirst(),crewAndRole.getSecond());
             CrewRoleDTO crewRole = new CrewRoleDTO(crewAndRole.getSecond(),crewAndRole.getFirst());
             response = CrewController.deletePermissionInCrewRole(connection,crewRole,permissionDeleted);
@@ -907,12 +907,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        } while (continueOrBack.equals("Continue"));
+        } while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCRUDPermissionToCrewRole(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -939,13 +939,13 @@ public class CrewView extends View {
         }
 
         String BackToMenuOrBack = textIO.newStringInputReader()
-                .withNumberedPossibleValues("Back", "Back To Menu")
+                .withNumberedPossibleValues("BACK", "BACK TO MENU")
                 .read("");
         switch (BackToMenuOrBack) {
-            case "Back":
+            case "BACK":
                 viewCRUDPermission(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -953,24 +953,24 @@ public class CrewView extends View {
     // TODO: Crew Event
     public void viewCrewEvent(Connection connection){
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle("Crew Event",textIO);
+        viewTitle("CREW EVENT",textIO);
         String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("View Crew Event", "Insert Crew Event","Update Crew Event","Delete Crew Event","Back")
+                .withNumberedPossibleValues("VIEW CREW EVENT", "INSERT CREW EVENT","UPDATE CREW EVENT","DELETE CREW EVENT","BACK")
                 .read("");
         switch (options){
-            case "View Crew Event":
+            case "VIEW CREW EVENT":
                 viewListCrewEvent(connection,options);
                 break;
-            case "Insert Crew Event":
+            case "INSERT CREW EVENT":
                 viewCreateCrewEvent(connection,options);
                 break;
-            case "Update Crew Event":
+            case "UPDATE CREW EVENT":
                 viewUpdateCrewEvent(connection,options);
                 break;
-            case "Delete Crew Event":
+            case "DELETE CREW EVENT":
                 viewDeleteCrewEvent(connection,options);
                 break;
-            case "Back":
+            case "BACK":
                 view(connection);
                 break;
         }
@@ -987,22 +987,22 @@ public class CrewView extends View {
             textIO.getTextTerminal().println(response.getMessage());
         }
         for (CrewEventDto crewEvent : response.getData()){
-            textIO.getTextTerminal().println("Crew: " + crewEvent.getCrewName());
-            textIO.getTextTerminal().println("Title: " + crewEvent.getTitle());
-            textIO.getTextTerminal().println("Description: " + crewEvent.getDescription());
-            textIO.getTextTerminal().println("Start " + crewEvent.getStartAt().toString());
-            textIO.getTextTerminal().println("End " + crewEvent.getEndAt().toString());
-            textIO.getTextTerminal().println("Type: " + crewEvent.getType());
+            textIO.getTextTerminal().println("CREW: " + crewEvent.getCrewName());
+            textIO.getTextTerminal().println("TITLE: " + crewEvent.getTitle());
+            textIO.getTextTerminal().println("DESCRIPTION: " + crewEvent.getDescription());
+            textIO.getTextTerminal().println("START: " + crewEvent.getStartAt().toString());
+            textIO.getTextTerminal().println("END: " + crewEvent.getEndAt().toString());
+            textIO.getTextTerminal().println("TYPE: " + crewEvent.getType());
             textIO.getTextTerminal().println("---------------------------------------------------");
         }
         String BackToMenuOrBack = textIO.newStringInputReader()
-                .withNumberedPossibleValues("Back", "Back To Menu")
+                .withNumberedPossibleValues("BACK", "BACK TO MENU")
                 .read("");
         switch (BackToMenuOrBack) {
-            case "Back":
+            case "BACK":
                 viewCrewEvent(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -1017,19 +1017,19 @@ public class CrewView extends View {
             String generation = getGenerationFromList(connection);
             String title = textIO.newStringInputReader()
                     .withDefaultValue(null)
-                    .read("Input Title");
+                    .read("INPUT TITLE");
             String description=textIO.newStringInputReader()
                     .withDefaultValue(null)
-                    .read("Input Description");
+                    .read("INPUT DESCRIPTION");
             String start = textIO.newStringInputReader()
                     .withPattern("^[0-9]{2}-[0-9]{2}-[0-9]{4}$")
-                    .read("Enter your date start (dd-MM-yyyy):");
+                    .read("ENTER YOUR DATE START (DD-MM-YYYY):");
             String end = textIO.newStringInputReader()
                     .withPattern("^[0-9]{2}-[0-9]{2}-[0-9]{4}$")
-                    .read("Enter your date end (dd-MM-yyyy):");
+                    .read("ENTER YOUR DATE END (DD-MM-YYYY):");
             String type=textIO.newStringInputReader()
                     .withDefaultValue(null)
-                    .read("Type Of Event");
+                    .read("TYPE OF EVENT");
             CrewEventDto crewEvent = new CrewEventDto(crewName,generation,title,description,type);
             response = CrewController.addCrewEvent(connection, crewEvent,start,end);
             if(response.getStatus() != ResponseStatus.OK) {
@@ -1040,12 +1040,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        }while (continueOrBack.equals("Continue"));
+        }while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCrewEvent(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -1062,19 +1062,19 @@ public class CrewView extends View {
             String generation = getGenerationFromList(connection);
             String title = textIO.newStringInputReader()
                     .withDefaultValue(null)
-                    .read("Input Title");
+                    .read("INPUT TITLE");
             String description=textIO.newStringInputReader()
                     .withDefaultValue(null)
-                    .read("Input Description: ");
+                    .read("INPUT DESCRIPTION: ");
             String start = textIO.newStringInputReader()
                     .withPattern("^[0-9]{2}-[0-9]{2}-[0-9]{4}$")
-                    .read("Enter your date start (dd-MM-yyyy):");
+                    .read("ENTER YOUR DATE START (DD-MM-YYYY):");
             String end = textIO.newStringInputReader()
                     .withPattern("^[0-9]{2}-[0-9]{2}-[0-9]{4}$")
-                    .read("Enter your date end (dd-MM-yyyy):");
+                    .read("ENTER YOUR DATE END (DD-MM-YYYY):");
             String type=textIO.newStringInputReader()
                     .withDefaultValue(null)
-                    .read("Input Type Of Event: ");
+                    .read("INPUT TYPE OF EVENT: ");
             CrewEventDto crewEvent = new CrewEventDto(crewName,generation,title,description,type);
             response = CrewController.updateCrewEvent(connection, crewEvent,crewEventId,start,end);
             if(response.getStatus() != ResponseStatus.OK) {
@@ -1085,12 +1085,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        } while (continueOrBack.equals("Continue"));
+        } while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCrewEvent(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }
@@ -1112,12 +1112,12 @@ public class CrewView extends View {
                 waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
-        } while (continueOrBack.equals("Continue"));
+        } while (continueOrBack.equals("CONTINUE"));
         switch (continueOrBack){
-            case "Back":
+            case "BACK":
                 viewCrewEvent(connection);
                 break;
-            case "Back To Menu":
+            case "BACK TO MENU":
                 view(connection);
                 break;
         }

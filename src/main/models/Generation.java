@@ -64,6 +64,17 @@ public class Generation {
 
 		throw new NotFoundException("Generation ID is not existed!");
 	}
+	public static String getNameById(Connection con, int id) throws SQLException, NotFoundException {
+		String query = "SELECT name FROM generation WHERE id = ?";
+		PreparedStatement stmt = con.prepareStatement(query);
+		stmt.setInt(1, id);
+		ResultSet rs = stmt.executeQuery();
+		if (rs.next()) {
+			return rs.getString("name");
+		}
+
+		throw new NotFoundException("Generation name is not existed!");
+	}
 	public static List<String> getAllGenerations(Connection con) throws SQLException, NotFoundException {
 		String query = "SELECT * FROM generation";
 		PreparedStatement stmt = con.prepareStatement(query);

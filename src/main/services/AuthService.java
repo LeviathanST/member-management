@@ -180,7 +180,7 @@ public class AuthService {
 				}
 				case RoleType.Crew -> {
 					List<CrewPermission> crewPermissions = CrewPermission
-							.getAllByAccountIdAndGuildId(con,
+							.getAllByAccountIdAndCrewId(con,
 									accountId, id);
 
 					isAuthorized = false;

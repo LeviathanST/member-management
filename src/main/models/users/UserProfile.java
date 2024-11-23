@@ -1,18 +1,15 @@
 package models.users;
 
+import constants.Sex;
+import dto.UserProfileDTO;
+import exceptions.NotFoundException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import constants.Sex;
-import exceptions.NotFoundException;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
-
-import dto.UserProfileDTO;
 
 
 public class UserProfile {
@@ -134,7 +131,5 @@ public class UserProfile {
 	
     	return list;
 	}
-
-
 	
 }

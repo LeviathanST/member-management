@@ -1,10 +1,7 @@
 package controllers;
 
 import dto.*;
-import exceptions.DataEmptyException;
-import exceptions.InvalidDataException;
-import exceptions.NotFoundException;
-import exceptions.TokenException;
+import exceptions.*;
 import models.Generation;
 import models.Guild;
 
@@ -29,7 +26,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!" + e, null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        } catch (DataEmptyException | InvalidDataException e){
+        } catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
         }
     }
@@ -44,7 +41,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -59,7 +56,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -84,7 +81,7 @@ public class GuildController {
             throw new RuntimeException(e);
         } catch (TokenException | NotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        } catch (InvalidDataException e) {
+        } catch (InvalidDataException | NotHavePermission e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -115,7 +112,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -129,7 +126,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!" + e, null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -143,7 +140,7 @@ public class GuildController {
                     "Error occurs when querying, cannot delete this role because related data still exists", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -171,7 +168,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -186,7 +183,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -201,7 +198,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!" + e, null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -218,7 +215,7 @@ public class GuildController {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found Guild ID!", null);
         } catch (NullPointerException e){
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found data!", null);
-        } catch (TokenException e) {
+        } catch (TokenException | NotHavePermission e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
@@ -233,7 +230,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!" + e, null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        } catch (DataEmptyException | InvalidDataException e){
+        } catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
         }
     }
@@ -248,7 +245,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -263,7 +260,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -290,7 +287,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!" + e, null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        } catch (DataEmptyException | InvalidDataException e){
+        } catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
         }
     }
@@ -305,7 +302,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -320,7 +317,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -348,7 +345,7 @@ public class GuildController {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found guild permission!", null);
         } catch (DataEmptyException | InvalidDataException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        } catch (TokenException e) {
+        } catch (TokenException | NotHavePermission e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
@@ -363,7 +360,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!" + e, null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        } catch (DataEmptyException | InvalidDataException e){
+        } catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
         }
     }
@@ -378,7 +375,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -393,7 +390,7 @@ public class GuildController {
                     "Error occurs when querying, please try again!" + e, null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }

@@ -2,10 +2,7 @@ package controllers;
 
 import constants.ResponseStatus;
 import dto.*;
-import exceptions.DataEmptyException;
-import exceptions.InvalidDataException;
-import exceptions.NotFoundException;
-import exceptions.TokenException;
+import exceptions.*;
 import models.Crew;
 import models.Generation;
 import models.permissions.CrewPermission;
@@ -27,12 +24,10 @@ public class CrewController {
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
-        } catch (NotFoundException e) {
-            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        } catch (DataEmptyException | InvalidDataException e){
+        }  catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
-        } catch (TokenException e) {
-            throw new RuntimeException(e);
+        } catch (NotFoundException | TokenException e) {
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
 
@@ -47,7 +42,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        } catch (DataEmptyException | InvalidDataException e){
+        } catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
         }
     }
@@ -62,7 +57,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        } catch (DataEmptyException | InvalidDataException e){
+        } catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
         }
     }
@@ -87,7 +82,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -101,7 +96,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -115,7 +110,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -143,7 +138,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -158,7 +153,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -173,7 +168,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!" + e, null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -188,7 +183,7 @@ public class CrewController {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found Guild ID!", null);
         } catch (IndexOutOfBoundsException e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        } catch (TokenException e) {
+        } catch (TokenException | NotHavePermission e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
@@ -203,7 +198,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!" + e, null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        } catch (DataEmptyException | InvalidDataException e){
+        } catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
         }
     }
@@ -218,7 +213,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -233,7 +228,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -252,6 +247,7 @@ public class CrewController {
     // TODO: CRUD Permission In Guild Role
     public static ResponseDTO<Object> addPermissionToCrewRole(Connection connection,CrewRoleDTO crewRole, String permission) {
         try {
+
             CrewService.addPermissionToCrewRole(connection, crewRole,permission);
             return new ResponseDTO<>(ResponseStatus.OK,
                     String.format("Add permission %s to crew role %s successfully!", permission,crewRole.getCrewName()), null);
@@ -260,7 +256,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!" + e, null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        } catch (DataEmptyException | InvalidDataException e){
+        } catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
         }
     }
@@ -275,7 +271,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -290,7 +286,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -316,7 +312,7 @@ public class CrewController {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found crew permission!", null);
         } catch (DataEmptyException | InvalidDataException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        } catch (TokenException e) {
+        } catch (TokenException | NotHavePermission e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
@@ -331,7 +327,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!" + e, null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        } catch (DataEmptyException | InvalidDataException e){
+        } catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
         }
     }
@@ -346,7 +342,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -361,7 +357,7 @@ public class CrewController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | NotHavePermission e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }

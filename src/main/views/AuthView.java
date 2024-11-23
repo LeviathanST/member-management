@@ -51,6 +51,16 @@ public class AuthView extends View{
                     app.view();
                     clearScreen();
                     break;
+                case "CREW":
+                    CrewView crew = new CrewView(con);
+                    crew.view(con);
+                    clearScreen();
+                    break;
+                case "GUILD":
+                    GuildView guild = new GuildView(con);
+                    guild.view(con);
+                    clearScreen();
+                    break;
                 case "BACK":
                     break;
                 default:

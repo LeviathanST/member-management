@@ -1,22 +1,24 @@
 package dto;
 
-import java.sql.Date;
 import constants.Sex;
 
-public class UserProfileDTO{
+import java.sql.Date;
+
+public class UserProfileDTO {
     private String account_id;
     private String full_name;
     private Sex sex;
     private String student_code;
     private String contact_email;
     private int generation_id;
-    private Date date_of_birth;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-
+    private Date date_of_birth;
+    private String userName;
+    private String generationName;
 
     public UserProfileDTO() {}
 
     public UserProfileDTO(String account_id, String full_name, Sex sex,
-                        String student_code, String contact_email, int generation_id, Date date_of_birth) {
+                          String student_code, String contact_email, int generation_id, Date date_of_birth) {
 
         this.account_id = account_id;
         this.full_name = full_name;
@@ -35,32 +37,32 @@ public class UserProfileDTO{
         this.account_id = account_id;
     }
 
-    public String getFullName() { 
+    public String getFullName() {
         return this.full_name;
     }
 
-    public void setFullName(String full_name) { 
+    public void setFullName(String full_name) {
         this.full_name = full_name;
     }
 
     public Sex getSex() {
-         return this.sex;
+        return this.sex;
     }
 
-    public void setSex(Sex sex) { 
-        this.sex = sex; 
+    public void setSex(Sex sex) {
+        this.sex = sex;
     }
 
-    public String getStudentCode() { 
+    public String getStudentCode() {
         return this.student_code;
     }
 
     public void setStudentCode(String student_code) {
-         this.student_code = student_code;
+        this.student_code = student_code;
     }
 
-    public String getContactEmail() { 
-        return this.contact_email; 
+    public String getContactEmail() {
+        return this.contact_email;
     }
 
     public void setContactEmail(String contact_email) {
@@ -83,6 +85,14 @@ public class UserProfileDTO{
         this.date_of_birth = date_of_birth;
     }
 
-}
+    public String getUserName() {
+        return this.userName;
+    }
 
+    public String getGenerationName() {return this.generationName;}
+
+    public void setGenerationName(String generationName) {
+        this.generationName = generationName;
+    }
+}
 
