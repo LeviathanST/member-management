@@ -9,6 +9,7 @@ import models.permissions.CrewPermission;
 import models.roles.CrewRole;
 import models.users.UserAccount;
 import models.users.UserCrewRole;
+import models.users.UserRole;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -637,7 +638,7 @@ public class CrewService {
 	}
 	public static String getAccountIDUser()
 			throws SQLException, NotFoundException, TokenException {
-		Path path = (Path) Paths.get("auth.json");
+		Path path = (Path) Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
 		return accountId;
@@ -645,23 +646,14 @@ public class CrewService {
 	public static boolean checkPermission(Connection connection, String permission, String crewChose) throws SQLException, TokenException, NotFoundException {
 		try {
 			boolean  check = false;
-			List<String> listCrew =  Crew.getAllCrewByAccountId(connection,getAccountIDUser());
-			for (String crew : listCrew) {
-				if (crew.equals(crewChose)) {
-					check = AuthService.CrewAuthorization(connection,Crew.getIdByName(connection,crew),permission);
-					if (check) {
-						return check;
-					}
+			List<String> listRole = UserRole.getRoleByAccountId(connection,getAccountIDUser());
+			for (String role : listRole) {
+				if (role.equals("President")){
+					return true;
 				}
 			}
-			if (crewChose == null){
-				List<String> listRole = UserCrewRole.getRoleByAccountId(connection,getAccountIDUser());
-				for (String role : listRole) {
-					if (role.equals("Leader")){
-						return true;
-					}
-				}
-			}
+			check = AuthService.CrewAuthorization(connection,Crew.getIdByName(connection,crewChose),permission);
+
 			return check;
 		} catch (SQLException e) {
 			throw new SQLException("Error occurs when query");

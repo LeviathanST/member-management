@@ -27,21 +27,25 @@ public class CrewView extends View {
                 .read("");
         switch (option){
             case "CREW":
+                clearScreen();
                 viewCrew(connection);
                 break;
             case "CREW ROLE":
+                clearScreen();
                 viewCrewRole(connection);
                 break;
             case "ROLE CREW TO USER":
+                clearScreen();
                 viewUserCrewRole(connection);
                 break;
             case "CREW EVENT":
+                clearScreen();
                 viewCrewEvent(connection);
                 break;
             case "BACK":
-                ApplicationView app = new ApplicationView(con);
-                app.view();
                 clearScreen();
+                AuthView authView = new AuthView(connection);
+                authView.Auth_view();
                 break;
         }
         textIO.dispose();

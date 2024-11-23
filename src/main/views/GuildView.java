@@ -1,13 +1,12 @@
 package views;
+
 import constants.ResponseStatus;
+import controllers.GuildController;
 import dto.*;
 import kotlin.Pair;
-import models.Guild;
-import models.permissions.GuildPermission;
 import models.roles.GuildRole;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
-import controllers.GuildController;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class GuildView extends View {
-    public GuildView (Connection connection){
+    public GuildView(Connection connection){
         super(connection);
     }
 
@@ -47,6 +46,9 @@ public class GuildView extends View {
                 viewSearch(connection,option);
                 break;
             case "BACK":
+                clearScreen();
+                AuthView authView = new AuthView(connection);
+                authView.Auth_view();
                 break;
         }
         textIO.dispose();
@@ -243,10 +245,10 @@ public class GuildView extends View {
             response = GuildController.addGuild(connection,guildDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
-                waitTime(500);
+
             } else {
                 textIO.getTextTerminal().println(response.getMessage());
-                waitTime(500);
+
             }
             continueOrBack = AskContinueOrGoBack();
         }while (continueOrBack.equals("CONTINUE"));
@@ -276,10 +278,10 @@ public class GuildView extends View {
             response = GuildController.updateGuild(connection,oldGuildDTO,newGuildDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
-                waitTime(500);
+
             } else {
                 textIO.getTextTerminal().println(response.getMessage());
-                waitTime(500);
+
             }
             continueOrBack = AskContinueOrGoBack();
         } while (continueOrBack.equals("CONTINUE"));
@@ -303,10 +305,10 @@ public class GuildView extends View {
             response = GuildController.deleteGuild(connection,guildDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
-                waitTime(500);
+
             } else {
                 textIO.getTextTerminal().println(response.getMessage());
-                waitTime(500);
+
             }
             continueOrBack = AskContinueOrGoBack();
         } while (continueOrBack.equals("CONTINUE"));
@@ -387,10 +389,10 @@ public class GuildView extends View {
             response = GuildController.addGuildRole(connection,guildRoleDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
-                waitTime(500);
+
             } else {
                 textIO.getTextTerminal().println(response.getMessage());
-                waitTime(500);
+
             }
             continueOrBack = AskContinueOrGoBack();
         }while (continueOrBack.equals("CONTINUE"));
@@ -419,10 +421,9 @@ public class GuildView extends View {
             response = GuildController.updateGuildRole(connection,guildRoleDTO,newGuildRoleDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
-                waitTime(500);
+
             } else {
                 textIO.getTextTerminal().println(response.getMessage());
-                waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
         } while (continueOrBack.equals("CONTINUE"));
@@ -446,10 +447,8 @@ public class GuildView extends View {
             response = GuildController.deleteGuildRole(connection,guildRoleDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
-                waitTime(500);
             } else {
                 textIO.getTextTerminal().println(response.getMessage());
-                waitTime(500);
             }
             continueOrBack = AskContinueOrGoBack();
         } while (continueOrBack.equals("CONTINUE"));
@@ -538,10 +537,10 @@ public class GuildView extends View {
             textIO.getTextTerminal().println(response.getStatus().toString());
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
-                waitTime(500);
+
             } else {
                 textIO.getTextTerminal().println(response.getMessage());
-                waitTime(500);
+
             }
             continueOrBack = AskContinueOrGoBack();
         }while (continueOrBack.equals("CONTINUE"));

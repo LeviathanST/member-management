@@ -11,6 +11,7 @@ import models.roles.GuildRole;
 import models.users.UserAccount;
 import models.users.UserGuildRole;
 import models.users.UserProfile;
+import models.users.UserRole;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,8 +51,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when create guild: %s", data.getName()));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 
 	public static void update(Connection con, GuildDTO data, GuildDTO newData)
@@ -82,8 +82,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when update guild: %s", data.getName()));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 
 	public static void delete(Connection con, GuildDTO data)
@@ -101,8 +100,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when delete guild: %s", data.getName()));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 	public static List<String> getMemberInGuild(Connection con, String guild)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission {
@@ -121,8 +119,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when delete guild: %s", guild));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-		}
+			throw new TokenException("Can't get access token");		}
 	}
 	public static UserProfileDTO getUserProfile(Connection con, String username)
 			throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException {
@@ -168,8 +165,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when create guild role: %s", data.getGuildName()));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 
 	public static void updateGuildRole(Connection con, GuildRoleDTO data, GuildRoleDTO newData)
@@ -199,8 +195,7 @@ public class GuildService {
 		catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when update guild role: %s" + e, data.getGuildName()));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-		}
+			throw new TokenException("Can't get access token");		}
     }
 
 	public static void deleteGuildRole(Connection con, GuildRoleDTO data)
@@ -220,8 +215,7 @@ public class GuildService {
 		catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when delete guild role: %s", data.getGuildName()));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 
 	// TODO: CRUD User Guild Role
@@ -260,8 +254,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when add user to guild: %s", data.getUsername()));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 	public static void updateUserInGuild(Connection con, UserGuildRoleDTO data, UserGuildRoleDTO newData)
             throws SQLIntegrityConstraintViolationException, SQLException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission {
@@ -298,8 +291,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when update user in guild: %s", data.getUsername()));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 	public static void deleteUserInGuild(Connection con, UserGuildRoleDTO data)
             throws SQLIntegrityConstraintViolationException, SQLException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission {
@@ -317,8 +309,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when delete user in guild: %s" + e, data.getUsername()));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 	public static List<UserGuildRoleDTO> getAllUserGuildRolesByGuildID(Connection connection, String guild) throws SQLException, NotFoundException, NullPointerException, TokenException, NotHavePermission {
 		try {
@@ -340,8 +331,7 @@ public class GuildService {
         } catch (NullPointerException e) {
 			throw new NullPointerException("Null Data");
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 
 	// TODO: CRUD Guild Permission
@@ -367,8 +357,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when add guild permission: %s", data));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 	public static void updateGuildPermission(Connection con, String data, String newData) throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission {
 		try {
@@ -391,8 +380,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when update guild permission: %s", data));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 
 	public static void deleteGuildPermission(Connection con, String data)
@@ -409,8 +397,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when delete guild permission: %s", data));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 	// TODO: CRUD Permission To Guild Role
 	public static void addPermissionToGuildRole(Connection con, GuildRoleDTO guildRole, String permission)
@@ -429,8 +416,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when add permission to guild role: %s", guildRole.getGuildName()));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 
 	public static void updatePermissionInGuildRole(Connection con, GuildRoleDTO guildRole, String permission,String newPermission) throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission {
@@ -450,8 +436,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when update permission guild role: %s", guildRole.getGuildName()));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 
 	public static void deletePermissionInGuildRole(Connection con, GuildRoleDTO guildRole, String permission)
@@ -472,8 +457,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when update permission guild role: %s", guildRole.getGuildName()));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 	public static List<GuildPermission> getAllPermissionByAccountId(Connection connection, String guild, String userName)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission {
@@ -496,8 +480,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when view permission crew role: %s", guild));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 	// TODO Crew Event
 	public static void insertGuildEvent(Connection con, GuildEventDto guildEvent, String dateStart, String dateEnd)
@@ -531,8 +514,7 @@ public class GuildService {
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 
 	public static void updateGuildEvent(Connection con, GuildEventDto guildEvent, int guildEventId, String dateStart, String dateEnd)
@@ -568,8 +550,7 @@ public class GuildService {
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 
 	public static void deleteGuildEvent(Connection con, int guildEventId, String guild)
@@ -586,8 +567,7 @@ public class GuildService {
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when delete guild event: %s", guildEventId));
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
-        }
+			throw new TokenException("Can't get access token");        }
     }
 	public static List<GuildEventDto> getAllEvent(Connection connection)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException {
@@ -666,7 +646,7 @@ public class GuildService {
 	}
 	public static String getAccountIDUser()
             throws SQLException, NotFoundException, TokenException {
-		Path path = (Path) Paths.get("auth.json");
+		Path path = (Path) Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
 		return accountId;
@@ -674,28 +654,20 @@ public class GuildService {
 	public static boolean checkPermission(Connection connection, String permission, String guildChose) throws SQLException, TokenException, NotFoundException {
 		try {
 			boolean  check = false;
-			List<String> listGuild =  Guild.getAllGuildByAccountId(connection,getAccountIDUser());
-			for (String guild : listGuild) {
-				if (guild.equals(guildChose)) {
-					check = AuthService.GuildAuthorization(connection,Guild.getIdByName(connection,guild),permission);
-					if (check) {
-						return check;
-					}
+
+			List<String> listRole = UserRole.getRoleByAccountId(connection,getAccountIDUser());
+			for (String role : listRole) {
+				if (role.equals("President")){
+					return true;
 				}
 			}
-			if (guildChose == null){
-				List<String> listRole = UserGuildRole.getRoleByAccountId(connection,getAccountIDUser());
-				for (String role : listRole) {
-					if (role.equals("Leader")){
-						return true;
-					}
-				}
-			}
+			check = AuthService.GuildAuthorization(connection,Guild.getIdByName(connection,guildChose),permission);
+
 			return check;
 		} catch (SQLException e) {
 			throw new SQLException("Error occurs when query");
 		} catch (TokenException e) {
-			throw new TokenException("You don't have permission");
+			throw new TokenException("Can't get access token");
 		}
     }
 
