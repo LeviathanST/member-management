@@ -83,6 +83,16 @@ public class AuthService {
 
 	}
 
+	public static void changeAccessToken(Connection con, SignUpDTO data) throws TokenException, SQLException, NotFoundException {
+		Path path = (Path)Paths.get("storage.json");
+		String accountId = UserAccount.getIdByUsername(con, data.getUsername());
+		List<Integer> userGuildRoleId = UserGuildRole.getIdByAccountId(con, accountId);
+			List<Integer> userCrewRole = UserCrewRole.getIdByAccountId(con, accountId);
+			ClaimsDTO claimsData = new ClaimsDTO(accountId, 2, userGuildRoleId, userCrewRole);
+		TokenPairDTO tokenData = TokenPairDTO.GenerateNew(claimsData);
+		TokenService.saveToFile(path, tokenData);
+	}
+
 	public static boolean checkAccessToken(Connection con) throws TokenException, SQLException {
 		Path path = (Path)Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();

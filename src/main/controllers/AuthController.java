@@ -55,5 +55,14 @@ public class AuthController {
 		}
 	}
 
+	public static ResponseDTO<Object> changeAccessToken(Connection con, SignUpDTO data) {
+		try {
+			AuthService.changeAccessToken(con, data);
+			return new ResponseDTO<Object>(ResponseStatus.OK, "Change access token successfully", null);
+		} catch (Exception e) {
+			return new ResponseDTO<Object>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+		}
+	}
+
 	
 }

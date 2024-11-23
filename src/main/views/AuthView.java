@@ -84,6 +84,9 @@ public class AuthView extends View{
             clearScreen();
             UserProfileView profileView = new UserProfileView(con);
             profileView.addUserProfile(con, signUp);
+            ResponseDTO<Object> res = AuthController.changeAccessToken(con, signUp);
+            if(res.getStatus() != ResponseStatus.OK)
+                printError(res.getMessage());
             clearScreen();
             logInForm(con, logIn);
         }
