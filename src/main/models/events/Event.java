@@ -94,11 +94,14 @@ public class Event {
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
+				StringBuilder generation = new StringBuilder();
+				generation.append("F");
+				generation.append(rs.getInt("generation_id"));
 				event.add(new
 						EventDto(rs.getInt("id"),
 						rs.getString("title"),
 						rs.getString("description"),
-						rs.getInt("generation_id"),
+						generation.toString(),
 						rs.getTimestamp("start_at"),rs.getTimestamp("end_at"),rs.getString("type")));
 			}
 			return event;

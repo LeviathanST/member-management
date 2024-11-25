@@ -503,10 +503,9 @@ public class GuildService {
 				throw new DataEmptyException("End date is empty");
 			}
 			int guildId = Guild.getIdByName(guildEvent.getGuildName());
-			int generationId = Generation.getIdByName(guildEvent.getGeneration());
 			Timestamp start = validTimeStamp(dateStart);
 			Timestamp end = validTimeStamp(dateEnd);
-			guildEvent = new GuildEventDto(guildId,guildEvent.getTitle(),guildEvent.getDescription(),generationId,start,end,guildEvent.getType());
+			guildEvent = new GuildEventDto(guildId,guildEvent.getTitle(),guildEvent.getDescription(),guildEvent.getGenerationId(),start,end,guildEvent.getType());
 			if (checkPermission("CRUDGuildEvent",guildEvent.getGuildName())){
 				GuildEvent.insert(guildEvent);
 			}else {
@@ -537,10 +536,9 @@ public class GuildService {
 				throw new DataEmptyException("End date is empty");
 			}
 			int guildId = Guild.getIdByName(guildEvent.getGuildName());
-			int generationId = Generation.getIdByName(guildEvent.getGeneration());
 			Timestamp start = validTimeStamp(dateStart);
 			Timestamp end = validTimeStamp(dateEnd);
-			guildEvent = new GuildEventDto(guildId,guildEvent.getTitle(),guildEvent.getDescription(),generationId,start,end,guildEvent.getType());
+			guildEvent = new GuildEventDto(guildId,guildEvent.getTitle(),guildEvent.getDescription(),guildEvent.getGenerationId(),start,end,guildEvent.getType());
 			if (checkPermission("CRUDGuildEvent",guildEvent.getGuildName())){
 				GuildEvent.update(guildEvent,guildEventId);
 			}else {
