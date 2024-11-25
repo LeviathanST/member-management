@@ -116,8 +116,8 @@ public class ApplicationView extends View{
         String description = textIO.newStringInputReader().read("Enter description's event : ");
         String type = textIO.newStringInputReader().read("Enter type's event : ");
         String generation = textIO.newStringInputReader().read("Enter generation : ");
-        String start = textIO.newStringInputReader().read("Enter date start (dd/MM/yyyy) : ");
-        String end = textIO.newStringInputReader().read("Enter date start (dd/MM/yyyy) : ");
+        String start = textIO.newStringInputReader().read("Enter date start (dd-MM-yyyy) : ");
+        String end = textIO.newStringInputReader().read("Enter date end (dd-MM-yyyy) : ");
         EventDto event = new EventDto(generation, title, description, type);
         ResponseDTO<Object> response1 = ApplicationController.addEvent( event, start, end);
         if(response1.getStatus() != ResponseStatus.OK) {
@@ -154,8 +154,8 @@ public class ApplicationView extends View{
             String description = textIO.newStringInputReader().read("Enter new description's event : ");
             String type = textIO.newStringInputReader().read("Enter new type's event : ");
             String generation = textIO.newStringInputReader().read("Enter generation : ");
-            String start = textIO.newStringInputReader().read("Enter new date start (dd/MM/yyyy) : ");
-            String end = textIO.newStringInputReader().read("Enter new date start (dd/MM/yyyy) : ");
+            String start = textIO.newStringInputReader().read("Enter new date start (dd-MM-yyyy) : ");
+            String end = textIO.newStringInputReader().read("Enter new date end (dd-MM-yyyy) : ");
             EventDto event = new EventDto(generation, title, description, type);
             ResponseDTO<Object> response = ApplicationController.updateEvent(event, id, start, end);
             if(response.getStatus() != ResponseStatus.OK) {

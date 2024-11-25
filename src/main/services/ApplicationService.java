@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Optional;
+import java.util.Date;
 
 import config.Database;
 import dto.*;
@@ -24,7 +25,6 @@ import models.roles.Role;
 import models.users.UserAccount;
 import models.users.UserProfile;
 import models.users.UserRole;
-import java.sql.Date;
 
 
 public class ApplicationService extends AuthService{
@@ -55,7 +55,7 @@ public class ApplicationService extends AuthService{
         dateFormat.setLenient(false);
         try {
             long millis = dateFormat.parse(date).getTime();
-            Date sqlDate = new Date(millis);
+            java.sql.Date sqlDate = new java.sql.Date(millis);
             data.setDateOfBirth(sqlDate);
         
             if (!isAgeBetween18And22(data.getDateOfBirth())) {
@@ -439,8 +439,8 @@ public class ApplicationService extends AuthService{
     }
     public static Timestamp validTimeStamp(String date) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-        java.util.Date parsedDate = sdf.parse(date);
-        return new Timestamp(parsedDate.getTime());
+		Date parsedDate = sdf.parse(date);
+		return new Timestamp(parsedDate.getTime());
     }
 
 }
