@@ -198,6 +198,9 @@ public class GuildView extends View {
         if(listMember.getStatus() != ResponseStatus.OK) {
             printError(listMember.getMessage());
         }
+        else if (listMember.getData().isEmpty()){
+            printError("Not member in this guild");
+        }
         else {
             textIO.getTextTerminal().println(listMember.getMessage());
             viewTitle(option,textIO);

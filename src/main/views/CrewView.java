@@ -2,6 +2,7 @@ package views;
 
 import constants.ResponseStatus;
 import controllers.CrewController;
+import controllers.GuildController;
 import dto.*;
 import kotlin.Pair;
 import models.permissions.CrewPermission;
@@ -203,18 +204,36 @@ public class CrewView extends View {
         textIO.dispose();
     }
     public void viewListCrews(Connection connection, String option) {
-        ResponseDTO<List<String>> response;
-        response = CrewController.getAllCrews();
+        ResponseDTO<List<String>> listMember;
+        ResponseDTO<UserProfileDTO> userprofile;
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle(option,textIO);
-        if(response.getStatus() != ResponseStatus.OK) {
-            printError(response.getMessage());
+        String crewName = getCrewFromList(connection);
+        listMember = CrewController.getMemberCrew(crewName);
+        if (listMember.getStatus() != ResponseStatus.OK) {
+            printError(listMember.getMessage());
+        } else if (listMember.getData().isEmpty()) {
+            printError("Not member in this guild");
         } else {
-            textIO.getTextTerminal().println(response.getMessage());
+            textIO.getTextTerminal().println(listMember.getMessage());
+            viewTitle(option, textIO);
+            String username = textIO.newStringInputReader()
+                    .withNumberedPossibleValues(listMember.getData())
+                    .read("");
+            userprofile = GuildController.getUserProfile(username);
+            textIO.getTextTerminal().println("FULL NAME: " + userprofile.getData().getFullName());
+            textIO.getTextTerminal().println("SEX: " + userprofile.getData().getSex());
+            textIO.getTextTerminal().println("STUDENT CODE: " + userprofile.getData().getStudentCode());
+            textIO.getTextTerminal().println("CONTACT MAIL: " + userprofile.getData().getContactEmail());
+            textIO.getTextTerminal().println("DATE OF BIRTH: " + userprofile.getData().getDateOfBirth());
+            textIO.getTextTerminal().println("GENERATION: " + userprofile.getData().getGenerationName());
+            textIO.getTextTerminal().println("---------------------------------------------------");
+            if (userprofile.getStatus() != ResponseStatus.OK) {
+                printError(userprofile.getMessage());
+            } else {
+                textIO.getTextTerminal().println(userprofile.getMessage());
+            }
         }
-        for (String crew : response.getData()){
-            textIO.getTextTerminal().println(crew);
-        }
+
         String BackToMenuOrBack = textIO.newStringInputReader()
                 .withNumberedPossibleValues("BACK", "BACK TO MENU")
                 .read("");

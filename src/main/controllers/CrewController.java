@@ -10,7 +10,6 @@ import models.roles.CrewRole;
 import services.CrewService;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -62,7 +61,21 @@ public class CrewController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
         }
     }
-
+    public static ResponseDTO<List<String>> getMemberCrew(String crew) {
+        try {
+            List<String> data = CrewService.getMemberInCrew(crew);
+            return new ResponseDTO<>(ResponseStatus.OK, "Get all member in crew successfully!", data);
+        } catch (SQLException e) {
+            return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurs when querying, please try again!", null);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (TokenException | NotFoundException e) {
+            return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
+        } catch (NotHavePermission e) {
+            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
     public static ResponseDTO<List<String>> getAllCrews() {
         try {
             List<String> data = Crew.getAllNameToList();
