@@ -48,7 +48,7 @@ public class GuildView extends View {
             case "BACK":
                 clearScreen();
                 AuthView authView = new AuthView(connection);
-                authView.Auth_view();
+                authView.appCrewGuildView(connection);
                 break;
         }
         textIO.dispose();

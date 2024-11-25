@@ -1,5 +1,6 @@
 import java.sql.Connection;
 
+import config.Database;
 import models.permissions.Permission;
 import models.users.UserAccount;
 import services.AuthService;

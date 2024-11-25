@@ -62,6 +62,7 @@ public class AuthView extends View{
                     clearScreen();
                     break;
                 case "BACK":
+                    Auth_view();
                     break;
                 default:
                     printError("Invalid value!");
