@@ -3,6 +3,7 @@ package views;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 import org.beryx.textio.TextTerminal;
+
 import java.sql.Connection;
 
 public class View {
@@ -48,7 +49,7 @@ public class View {
     }
     public String AskContinueOrGoBack(){
         String continueOrBack = textIO.newStringInputReader()
-                .withNumberedPossibleValues("Continue", "Back", "Back To Menu")
+                .withNumberedPossibleValues("CONTINUE", "BACK", "BACK TO MENU")
                 .read("");
         return continueOrBack;
     }

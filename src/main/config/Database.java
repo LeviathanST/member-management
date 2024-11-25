@@ -1,7 +1,8 @@
+package config;
+
 import java.io.IOException;
 import java.sql.*;
 
-import config.DbConfig;
 import utils.EnvLoader;
 
 import java.sql.Connection;

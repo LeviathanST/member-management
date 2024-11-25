@@ -1,20 +1,22 @@
 package dto;
 
 public class CrewRoleDTO {
+    private String role;
+    private int crewId;
     private int id;
-    private String name;
-    private int guildId;
+    private String crewName;
 
-    public CrewRoleDTO(int id, String name, int guildId) {
-        this.id = id;
-        this.name = name;
-        this.guildId = guildId;
+    public CrewRoleDTO(String role, String crewName) {
+        this.role = role;
+        this.crewName = crewName;
     }
-    public CrewRoleDTO(String name, int guildId) {
-        this.name = name;
-        this.guildId = guildId;
-    }
+    public String getRole() {return role;}
+
+    public int getCrewId() {return crewId;}
+    public void setCrewId(int crewId) {this.crewId = crewId;}
+
     public int getId() {return id;}
-    public String getName() {return name;}
-    public int getGuildId() {return guildId;}
+    public void setId(int id) {this.id = id;}
+
+    public String getCrewName() {return crewName;}
 }

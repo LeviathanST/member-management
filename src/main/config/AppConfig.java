@@ -7,7 +7,7 @@ public class AppConfig {
     private String secretKey;
 
     @EnvVar("ROUND_HASHING")
-    private int roundHashing;
+    private Integer roundHashing;
 
     public AppConfig() {
     }
