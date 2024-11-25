@@ -1,5 +1,6 @@
 package controllers;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -97,7 +98,7 @@ public class ApplicationController {
                 List<UserAccount> listAccounts = ApplicationService.getAllUserAccounts(con);
                 return new ResponseDTO<List<UserAccount>>(ResponseStatus.OK, "Get all user accounts successfully!", listAccounts);
             } else return new ResponseDTO<List<UserAccount>>(ResponseStatus.BAD_REQUEST, "Dont have permission!", null);
-        } catch (SQLException | TokenException | NotFoundException e) {
+        } catch (SQLException | TokenException | NotFoundException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<List<UserAccount>>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
         }
     }
@@ -110,7 +111,7 @@ public class ApplicationController {
 
         } catch (SQLException e) {
 			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-		} catch(TokenException e ) {
+		} catch(TokenException | IOException | ClassNotFoundException e ) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -124,7 +125,7 @@ public class ApplicationController {
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission!", null);
         } catch (SQLException e) {
 			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-		} catch(NotFoundException | TokenException e ) {
+		} catch(NotFoundException | TokenException | IOException | ClassNotFoundException e ) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -138,7 +139,7 @@ public class ApplicationController {
 			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
 		} catch(UserProfileException | NotFoundException |TokenException e ) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        } catch (ParseException e ) {
+        } catch (ParseException | IOException | ClassNotFoundException e ) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, "Invalid date", null);
         }
     }
@@ -150,7 +151,7 @@ public class ApplicationController {
 			return new ResponseDTO<UserProfileDTO>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
 		} catch(NotFoundException e) {
             return new ResponseDTO<UserProfileDTO>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        } catch(TokenException e) {
+        } catch(TokenException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -161,7 +162,7 @@ public class ApplicationController {
             return new ResponseDTO<List<Role>>(ResponseStatus.OK, "Get all roles successfully!", list);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch(NotFoundException e) {
+        } catch(NotFoundException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -174,7 +175,7 @@ public class ApplicationController {
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to create role", null);
         } catch (SQLException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch(NotFoundException e) {
+        } catch(NotFoundException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -187,7 +188,7 @@ public class ApplicationController {
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to delete role", null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch(NotFoundException | TokenException e) {
+        } catch(NotFoundException | TokenException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -200,7 +201,7 @@ public class ApplicationController {
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to update role", null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch(NotFoundException | TokenException e) {
+        } catch(NotFoundException | TokenException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -213,7 +214,7 @@ public class ApplicationController {
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to set user role", null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch(NotFoundException | TokenException e) {
+        } catch(NotFoundException | TokenException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -226,7 +227,7 @@ public class ApplicationController {
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to update role", null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch(NotFoundException | TokenException e) {
+        } catch(NotFoundException | TokenException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -234,7 +235,7 @@ public class ApplicationController {
         try {
             List<Permission> list = ApplicationService.getAllPermissions(con);
             return new ResponseDTO<>(ResponseStatus.OK, "Get all permissions successfully!", list);
-        } catch (SQLException e) {
+        } catch (SQLException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
         } 
     }
@@ -247,7 +248,7 @@ public class ApplicationController {
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to create permisison", null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch(NotFoundException | TokenException e) {
+        } catch(NotFoundException | TokenException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -260,7 +261,7 @@ public class ApplicationController {
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to delete permission", null);
         } catch (SQLException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<Object>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
@@ -273,7 +274,7 @@ public class ApplicationController {
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to update permission", null);
         } catch (SQLException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<Object>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
@@ -286,7 +287,7 @@ public class ApplicationController {
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to add permission to role", null);
         } catch (SQLException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -305,7 +306,7 @@ public class ApplicationController {
                     "Error occurs when querying, please try again!" + e, null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        } catch (DataEmptyException | InvalidDataException e){
+        } catch (DataEmptyException | InvalidDataException | IOException | ClassNotFoundException e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage() , null);
         }
     }
@@ -323,7 +324,7 @@ public class ApplicationController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException | TokenException e){
+        }catch (DataEmptyException | InvalidDataException | TokenException | IOException | ClassNotFoundException e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         } 
     }
@@ -342,7 +343,7 @@ public class ApplicationController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException | TokenException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | IOException | ClassNotFoundException e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
@@ -355,18 +356,18 @@ public class ApplicationController {
                     "Error occurs when querying, please try again!", null);
         } catch (NotFoundException e){
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found event!", null);
-        }catch (DataEmptyException | InvalidDataException e){
+        }catch (DataEmptyException | InvalidDataException | IOException | ClassNotFoundException e){
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
     public static ResponseDTO<List<String>> getAllGeneration(Connection connection){
         try {
-            List<String> data = Generation.getAllGenerations(connection);
+            List<String> data = Generation.getAllGenerations();
             return new ResponseDTO<>(ResponseStatus.OK, "Get all generation successfully!", data);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
-        } catch (NotFoundException e){
+        } catch (NotFoundException | IOException | ClassNotFoundException e){
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found generation!", null);
         }
     }

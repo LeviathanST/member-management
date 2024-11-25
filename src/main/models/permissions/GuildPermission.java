@@ -1,9 +1,11 @@
 package models.permissions;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import config.Database;
 import exceptions.NotFoundException;
 
 import java.sql.Connection;
@@ -26,11 +28,10 @@ public class GuildPermission {
 		return this.name;
 	}
 
-	public static List<GuildPermission> getAllByAccountIdAndGuildId(Connection con, String accountId,
-			int guildId)
-			throws SQLException {
-
-		String query = """
+	public static List<GuildPermission> getAllByAccountIdAndGuildId( String accountId, int guildId)
+            throws SQLException, IOException, ClassNotFoundException {
+		try(Connection con = Database.connection()) {
+			String query = """
 				SELECT gp.name as name, gp.id as id
 				FROM guild g
 				JOIN guild_role gr ON gr.guild_id = g.id
@@ -40,146 +41,175 @@ public class GuildPermission {
 				WHERE g.id = ? AND ugr.account_id = ?
 				""";
 
-		List<GuildPermission> list = new ArrayList<>();
+			List<GuildPermission> list = new ArrayList<>();
 
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, guildId);
-		stmt.setString(2, accountId);
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setInt(1, guildId);
+			stmt.setString(2, accountId);
 
-		ResultSet rs = stmt.executeQuery();
+			ResultSet rs = stmt.executeQuery();
 
-		while (rs.next()) {
-			System.out.println(rs.getString("name"));
-			list.add(new GuildPermission(rs.getInt("id"), rs.getString("name")));
+			while (rs.next()) {
+				System.out.println(rs.getString("name"));
+				list.add(new GuildPermission(rs.getInt("id"), rs.getString("name")));
+			}
+
+			return list;
 		}
 
-		return list;
 	}
 
-	public static List<String> getAllByGuildRoleId(Connection con, int guildRoleId)
-			throws SQLException, NotFoundException {
-		List<String> list = new ArrayList<>();
+	public static List<String> getAllByGuildRoleId( int guildRoleId)
+            throws SQLException, NotFoundException, IOException, ClassNotFoundException {
+		try(Connection con = Database.connection()) {
+			List<String> list = new ArrayList<>();
 
-		String query = "SELECT  guild_permission_id FROM guild_role_permission WHERE guild_role_id = ?";
+			String query = "SELECT  guild_permission_id FROM guild_role_permission WHERE guild_role_id = ?";
 
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, guildRoleId);
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setInt(1, guildRoleId);
 
-		ResultSet rs = stmt.executeQuery();
+			ResultSet rs = stmt.executeQuery();
 
-		while (rs.next()) {
-			list.add(getNameById(con,rs.getInt("guild_permission_id")) );
+			while (rs.next()) {
+				list.add(getNameById(rs.getInt("guild_permission_id")) );
+			}
+
+			return list;
 		}
 
-		return list;
 	}
-	public static List<String> getAllGuildPermission(Connection con)
-			throws SQLException, NotFoundException {
-		String query = "SELECT name FROM guild_permission";
-		List<String> list = new ArrayList<>();
+	public static List<String> getAllGuildPermission()
+            throws SQLException, NotFoundException, IOException, ClassNotFoundException {
+		try(Connection con = Database.connection()) {
+			String query = "SELECT name FROM guild_permission";
+			List<String> list = new ArrayList<>();
 
-		PreparedStatement stmt = con.prepareStatement(query);
+			PreparedStatement stmt = con.prepareStatement(query);
 
-		ResultSet rs = stmt.executeQuery();
+			ResultSet rs = stmt.executeQuery();
 
-		while (rs.next()) {
-			list.add(rs.getString("name"));
+			while (rs.next()) {
+				list.add(rs.getString("name"));
+			}
+
+			return list;
 		}
 
-		return list;
 	}
-	public static int getIdByName(Connection con, String permission) throws SQLException, NotFoundException {
-		String query = "SELECT id FROM guild_permission WHERE name = ?";
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, permission);
-		ResultSet rs = stmt.executeQuery();
+	public static int getIdByName( String permission) throws SQLException, NotFoundException, IOException, ClassNotFoundException {
+		try(Connection con = Database.connection()) {
+			String query = "SELECT id FROM guild_permission WHERE name = ?";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, permission);
+			ResultSet rs = stmt.executeQuery();
 
-		if (rs.next()) {
-			return rs.getInt("id");
+			if (rs.next()) {
+				return rs.getInt("id");
+			}
+
+			throw new NotFoundException("Guild Permission is not existed!");
+		}
+	}
+	public static String getNameById( int id) throws SQLException, NotFoundException, IOException, ClassNotFoundException {
+		try(Connection con = Database.connection()) {
+			String query = "SELECT name FROM guild_permission WHERE id = ?";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setInt(1, id);
+			ResultSet rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				return rs.getString("name");
+			}
+
+			throw new NotFoundException("Guild Permission is not existed!");
 		}
 
-		throw new NotFoundException("Guild Permission is not existed!");
 	}
-	public static String getNameById(Connection con, int id) throws SQLException, NotFoundException {
-		String query = "SELECT name FROM guild_permission WHERE id = ?";
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, id);
-		ResultSet rs = stmt.executeQuery();
 
-		if (rs.next()) {
-			return rs.getString("name");
+
+	public static void insert(String name) throws SQLException, IOException, ClassNotFoundException {
+		try(Connection con = Database.connection()) {
+			String query = "INSERT INTO guild_permission (name) VALUES (?)";
+
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, name);
+
+			int row = stmt.executeUpdate();
+			if (row == 0)
+				throw new SQLException("A permission is failed when adding!");
 		}
 
-		throw new NotFoundException("Guild Permission is not existed!");
 	}
 
+	public static void update(String name,String newName) throws SQLException, IOException, ClassNotFoundException {
+		try(Connection con = Database.connection()) {
+			String query = "UPDATE guild_permission SET name = ? WHERE name = ?";
 
-	public static void insert(String name, Connection con) throws SQLException {
-		String query = "INSERT INTO guild_permission (name) VALUES (?)";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, newName);
+			stmt.setString(2, name);
 
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, name);
-
-		int row = stmt.executeUpdate();
-		if (row == 0)
-			throw new SQLException("A permission is failed when adding!");
+			int row = stmt.executeUpdate();
+			if (row == 0)
+				throw new SQLException("A permission is failed when update!");
+		}
 	}
 
-	public static void update(String name,String newName, Connection con) throws SQLException {
-		String query = "UPDATE guild_permission SET name = ? WHERE name = ?";
+	public static void delete(String name) throws SQLException, IOException, ClassNotFoundException {
+		try(Connection con = Database.connection()) {
+			String query = "DELETE FROM guild_permission WHERE name = ?";
 
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, newName);
-		stmt.setString(2, name);
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, name);
 
-		int row = stmt.executeUpdate();
-		if (row == 0)
-			throw new SQLException("A permission is failed when update!");
+			int row = stmt.executeUpdate();
+			if (row == 0)
+				throw new SQLException("A permission is failed when deleting!");
+		}
+
 	}
+	public static void addPermissionToGuildRole( int guildRoleId, int permissionId) throws SQLException, IOException, ClassNotFoundException {
+		try(Connection con = Database.connection()) {
+			String query = "INSERT INTO guild_role_permission (guild_role_id,guild_permission_id) VALUES (?,?)";
 
-	public static void delete(String name, Connection con) throws SQLException {
-		String query = "DELETE FROM guild_permission WHERE name = ?";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setInt(1, guildRoleId);
+			stmt.setInt(2, permissionId);
 
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setString(1, name);
+			int row = stmt.executeUpdate();
+			if (row == 0)
+				throw new SQLException("A permission is failed when adding to guild role!");
+		}
 
-		int row = stmt.executeUpdate();
-		if (row == 0)
-			throw new SQLException("A permission is failed when deleting!");
 	}
-	public static void addPermissionToGuildRole(Connection con, int guildRoleId, int permissionId) throws SQLException {
-		String query = "INSERT INTO guild_role_permission (guild_role_id,guild_permission_id) VALUES (?,?)";
+	public static void updatePermissionInGuildRole(int newPermissionID,int permissionID,int guildRoleID) throws SQLException, IOException, ClassNotFoundException {
+		try(Connection con = Database.connection()) {
+			String query = "UPDATE guild_role_permission SET guild_permission_id = ? WHERE guild_permission_id = ? AND guild_role_id = ?";
 
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, guildRoleId);
-		stmt.setInt(2, permissionId);
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setInt(1, newPermissionID);
+			stmt.setInt(2, permissionID);
+			stmt.setInt(3, guildRoleID);
 
-		int row = stmt.executeUpdate();
-		if (row == 0)
-			throw new SQLException("A permission is failed when adding to guild role!");
+			int row = stmt.executeUpdate();
+			if (row == 0)
+				throw new SQLException("A guild role permission is failed when update!");
+		}
+
 	}
-	public static void updatePermissionInGuildRole(int newPermissionID,int permissionID,int guildRoleID, Connection con) throws SQLException {
-		String query = "UPDATE guild_role_permission SET guild_permission_id = ? WHERE guild_permission_id = ? AND guild_role_id = ?";
+	public static void deletePermissionInGuildRole(int permissionID,int guildRoleID) throws SQLException, IOException, ClassNotFoundException {
+		try(Connection con = Database.connection()) {
+			String query = "DELETE FROM guild_role_permission WHERE guild_permission_id = ? AND guild_role_id = ?";
 
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, newPermissionID);
-		stmt.setInt(2, permissionID);
-		stmt.setInt(3, guildRoleID);
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setInt(1, permissionID);
+			stmt.setInt(2, guildRoleID);
 
-		int row = stmt.executeUpdate();
-		if (row == 0)
-			throw new SQLException("A guild role permission is failed when update!");
-	}
-	public static void deletePermissionInGuildRole(int permissionID,int guildRoleID, Connection con) throws SQLException {
-		String query = "DELETE FROM guild_role_permission WHERE guild_permission_id = ? AND guild_role_id = ?";
-
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, permissionID);
-		stmt.setInt(2, guildRoleID);
-
-		int row = stmt.executeUpdate();
-		if (row == 0)
-			throw new SQLException("A guild role permission is failed when deleting!");
+			int row = stmt.executeUpdate();
+			if (row == 0)
+				throw new SQLException("A guild role permission is failed when deleting!");
+		}
 	}
 
 }

@@ -1,5 +1,6 @@
 package controllers;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -25,7 +26,7 @@ public class AuthController {
 					"Server have some troubles, please comback again!", null);
 		} catch (NotFoundException e) {
 			return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
-		} catch (DataEmptyException | AuthException | IllegalArgumentException e) {
+		} catch (DataEmptyException | AuthException | IllegalArgumentException | IOException | ClassNotFoundException e) {
 			return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
 		} 
 	}
@@ -41,7 +42,7 @@ public class AuthController {
 			return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
 		} catch (SQLException e) {
 			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-		} catch (TokenException e) {
+		} catch (TokenException | IOException | ClassNotFoundException e) {
 			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
 		}
 

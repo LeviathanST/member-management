@@ -5,6 +5,7 @@ import exceptions.*;
 import models.Generation;
 import models.Guild;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -63,9 +64,9 @@ public class GuildController {
 
     public static ResponseDTO<List<String>> getAllGuilds(Connection connection) {
         try {
-            List<String> data = Guild.getAllNameToList(connection);
+            List<String> data = Guild.getAllNameToList();
             return new ResponseDTO<>(ResponseStatus.OK, "Get all guilds successfully!", data);
-        } catch (SQLException e) {
+        } catch (SQLException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
         }
@@ -146,13 +147,13 @@ public class GuildController {
     }
     public static ResponseDTO<List<GuildRole>> getAllGuildRoles(Connection connection, String guild) {
         try {
-            int guildId = Guild.getIdByName(connection,guild);
-            List<GuildRole> data = GuildRole.getAllByGuildId(connection,guildId);
+            int guildId = Guild.getIdByName(guild);
+            List<GuildRole> data = GuildRole.getAllByGuildId(guildId);
             return new ResponseDTO<>(ResponseStatus.OK, "Get all guild roles successfully!", data);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
-        } catch (NotFoundException e){
+        } catch (NotFoundException | IOException | ClassNotFoundException e){
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found Guild ID!", null);
         }
     }
@@ -267,12 +268,12 @@ public class GuildController {
 
     public static ResponseDTO<List<String>> getAllGuildPermissions(Connection connection) {
         try {
-            List<String> data = GuildPermission.getAllGuildPermission(connection);
+            List<String> data = GuildPermission.getAllGuildPermission();
             return new ResponseDTO<>(ResponseStatus.OK, "Get all guilds successfully!", data);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -323,14 +324,14 @@ public class GuildController {
     }
     public static ResponseDTO<List<String>> getAllPermissionByGuildId(Connection connection, String guild, String role) {
         try {
-            int guildId = Guild.getIdByName(connection,guild);
-            int guildRoleId = GuildRole.getIdByName(connection,guildId,role);
-            List<String> listData = GuildPermission.getAllByGuildRoleId(connection,guildRoleId);
+            int guildId = Guild.getIdByName(guild);
+            int guildRoleId = GuildRole.getIdByName(guildId,role);
+            List<String> listData = GuildPermission.getAllByGuildRoleId(guildRoleId);
             return new ResponseDTO<>(ResponseStatus.OK, "Get all guild permission successfully!", listData);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
-        } catch (NotFoundException e){
+        } catch (NotFoundException | IOException | ClassNotFoundException e){
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found guild permission!", null);
         }
     }
@@ -412,12 +413,12 @@ public class GuildController {
     }
     public static ResponseDTO<List<String>> getAllGeneration(Connection connection){
         try {
-            List<String> data = Generation.getAllGenerations(connection);
+            List<String> data = Generation.getAllGenerations();
             return new ResponseDTO<>(ResponseStatus.OK, "Get all generation successfully!", data);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!", null);
-        } catch (NotFoundException e){
+        } catch (NotFoundException | IOException | ClassNotFoundException e){
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found generation!", null);
         }
     }
