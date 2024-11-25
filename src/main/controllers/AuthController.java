@@ -17,9 +17,9 @@ import services.AuthService;
 
 
 public class AuthController {
-	public static ResponseDTO<Object> signUp(Connection con, SignUpDTO data) {
+	public static ResponseDTO<Object> signUp(SignUpDTO data) {
 		try {
-			AuthService.signUpInternal(con, data);
+			AuthService.signUpInternal(data);
 			return new ResponseDTO<>(ResponseStatus.OK, "Sign up successfully!", null);
 		} catch (SQLException e) {
 			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
@@ -31,10 +31,10 @@ public class AuthController {
 		} 
 	}
 
-	public static ResponseDTO<Object> login(Connection con, LoginDTO data) {
+	public static ResponseDTO<Object> login(LoginDTO data) {
 		try {
 
-			AuthService.loginInternal(con, data);
+			AuthService.loginInternal(data);
 			return new ResponseDTO<>(ResponseStatus.OK, "Login successfully!", null);
 		} catch (AuthException e) {
 			return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
@@ -48,17 +48,17 @@ public class AuthController {
 
 	}
 
-	public static boolean checkAccessToken(Connection con) {
+	public static boolean checkAccessToken() {
 		try {
-			return AuthService.checkAccessToken(con);
+			return AuthService.checkAccessToken();
 		} catch (Exception e) {
 			return false;
 		}
 	}
 
-	public static ResponseDTO<Object> changeAccessToken(Connection con, SignUpDTO data) {
+	public static ResponseDTO<Object> changeAccessToken(SignUpDTO data) {
 		try {
-			AuthService.changeAccessToken(con, data);
+			AuthService.changeAccessToken(data);
 			return new ResponseDTO<Object>(ResponseStatus.OK, "Change access token successfully", null);
 		} catch (Exception e) {
 			return new ResponseDTO<Object>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);

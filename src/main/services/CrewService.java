@@ -26,7 +26,7 @@ import java.util.List;
 public class CrewService {
 
 	// TODO: CRUD Crew
-	public static void create(Connection con, CrewDTO data)
+	public static void create(CrewDTO data)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			if (data.getName().isEmpty()) {
@@ -37,7 +37,7 @@ public class CrewService {
 			}
 			String crew = normalizeNameDeleteSpace(data.getName());
 			boolean checkPermissions = false;
-			checkPermissions = AuthService.AppAuthorization(con,"CRUDCrew");
+			checkPermissions = AuthService.AppAuthorization("CRUDCrew");
 			if (checkPermissions) {
 				Crew.insert( crew);
 			} else {
@@ -52,7 +52,7 @@ public class CrewService {
 		}
     }
 
-	public static void update(Connection con, CrewDTO data, CrewDTO newData)
+	public static void update(CrewDTO data, CrewDTO newData)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			if (newData.getName().isEmpty() ) {
@@ -63,7 +63,7 @@ public class CrewService {
 			}
 			String guild = normalizeNameDeleteSpace(data.getName());
 			newData = new CrewDTO(Crew.getIdByName(data.getName()), guild);
-			if (AuthService.AppAuthorization(con,"CRUDCrew")) {
+			if (AuthService.AppAuthorization("CRUDCrew")) {
 				Crew.update( newData.getId(), newData.getName());
 			}
 			else {
@@ -79,11 +79,11 @@ public class CrewService {
         }
     }
 
-	public static void delete(Connection con, CrewDTO data)
+	public static void delete(CrewDTO data)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			data = new CrewDTO(Crew.getIdByName(data.getName()), data.getName());
-			if (AuthService.AppAuthorization(con,"CRUDCrew")) {
+			if (AuthService.AppAuthorization("CRUDCrew")) {
 				Crew.delete( data.getId());
 			}
 			else {
@@ -98,12 +98,12 @@ public class CrewService {
 			throw new TokenException("Can't get access token");
         }
     }
-	public static List<String> getMemberInCrew(Connection con, String crew)
+	public static List<String> getMemberInCrew( String crew)
             throws SQLException, NotFoundException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			int crewId = Crew.getIdByName( crew);
 			List<String> listUsername = new ArrayList<>();
-			if (checkPermission(con,"ViewCrew",crew)) {
+			if (checkPermission("ViewCrew",crew)) {
 				listUsername = Crew.getMemberInCrew( crewId);
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -120,7 +120,7 @@ public class CrewService {
 	}
 
 	// TODO: CRUD Crew Role
-	public static void insertCrewRole(Connection con, CrewRoleDTO data)
+	public static void insertCrewRole(CrewRoleDTO data)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			if (data.getRole().isEmpty()) {
@@ -131,7 +131,7 @@ public class CrewService {
 			}
 			String role = normalizeName(data.getRole());
 			data.setCrewId(Crew.getIdByName(data.getCrewName()));
-			if (checkPermission(con,"CRUDCrewRole",data.getCrewName())) {
+			if (checkPermission("CRUDCrewRole",data.getCrewName())) {
 				CrewRole.insertCrewRole(role, data.getCrewId());
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -147,7 +147,7 @@ public class CrewService {
         }
     }
 
-	public static void updateCrewRole(Connection con, CrewRoleDTO data, CrewRoleDTO newData)
+	public static void updateCrewRole(CrewRoleDTO data, CrewRoleDTO newData)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			if (newData.getRole().isEmpty()) {
@@ -161,7 +161,7 @@ public class CrewService {
 			newData.setCrewId(Crew.getIdByName(newData.getCrewName()));
 			data.setCrewId(Crew.getIdByName(data.getCrewName()));
 			data.setId(CrewRole.getIdByName(data.getCrewId(),data.getRole()));
-			if (checkPermission(con,"CRUDCrewRole",data.getCrewName())) {
+			if (checkPermission("CRUDCrewRole",data.getCrewName())) {
 				CrewRole.updateCrewRole(newRole, data.getId(),newData.getCrewId());
 			}
 			else {
@@ -178,12 +178,12 @@ public class CrewService {
         }
     }
 
-	public static void deleteCrewRole(Connection con, CrewRoleDTO data)
+	public static void deleteCrewRole(CrewRoleDTO data)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			data.setCrewId(Crew.getIdByName(data.getCrewName()));
 			data.setId(CrewRole.getIdByName(data.getCrewId(),data.getRole()));
-			if (checkPermission(con,"CRUDCrewRole",data.getCrewName())) {
+			if (checkPermission("CRUDCrewRole",data.getCrewName())) {
 				CrewRole.deleteCrewRole(data.getId());
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -201,7 +201,7 @@ public class CrewService {
     }
 
 	// TODO: CRUD User Crew Role
-	public static void addUserToCrew(Connection con, UserCrewRoleDto data)
+	public static void addUserToCrew(UserCrewRoleDto data)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 
@@ -217,7 +217,7 @@ public class CrewService {
 			int crewId = Crew.getIdByName(data.getCrew());
 			data.setCrewRoleId(CrewRole.getIdByName(crewId,data.getRole()));
 			data.setAccountId( UserAccount.getIdByUsername(usr));
-			if (checkPermission(con,"CRUDUserCrewRole",data.getCrew())){
+			if (checkPermission("CRUDUserCrewRole",data.getCrew())){
 				UserCrewRole.insertCrewMember( data.getAccountId(), data.getCrewRoleId());
 
 			}else {
@@ -231,7 +231,7 @@ public class CrewService {
 			throw new TokenException("Can't get access token");
         }
     }
-	public static void updateUserToCrew(Connection con, UserCrewRoleDto data, UserCrewRoleDto newData)
+	public static void updateUserToCrew(UserCrewRoleDto data, UserCrewRoleDto newData)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			if (newData.getUsername().isEmpty()) {
@@ -246,7 +246,7 @@ public class CrewService {
 			newData.setAccountId( UserAccount.getIdByUsername(usr));
 			int newCrewId = Crew.getIdByName(newData.getCrew());
 			newData.setCrewRoleId(CrewRole.getIdByName(newCrewId,newData.getRole()));
-			if (checkPermission(con,"CRUDUserCrewRole",data.getCrew())){
+			if (checkPermission("CRUDUserCrewRole",data.getCrew())){
 				UserCrewRole.updateCrewMember( newData.getAccountId(), crewId,newData.getCrewRoleId());
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -259,14 +259,14 @@ public class CrewService {
 			throw new TokenException("Can't get access token");
         }
     }
-	public static void deleteUserInCrew(Connection con, UserCrewRoleDto data)
+	public static void deleteUserInCrew(UserCrewRoleDto data)
             throws SQLIntegrityConstraintViolationException, SQLException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			data.setAccountId( UserAccount.getIdByUsername(data.getUsername()));
 			int crewId = Crew.getIdByName(data.getCrew());
 			int crewRoleId = CrewRole.getIdByName(crewId,data.getRole());
 
-			if (checkPermission(con,"CRUDUserCrewRole",data.getCrew())){
+			if (checkPermission("CRUDUserCrewRole",data.getCrew())){
 				UserCrewRole.deleteCrewMember(data.getAccountId(),crewRoleId);
 
 			}else {
@@ -280,11 +280,11 @@ public class CrewService {
 			throw new TokenException("Can't get access token");
         }
     }
-	public static List<UserCrewRoleDto> getAllUserCrewRolesByCrewID(Connection connection, String crew) throws SQLException, NotFoundException, NullPointerException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
+	public static List<UserCrewRoleDto> getAllUserCrewRolesByCrewID(String crew) throws SQLException, NotFoundException, NullPointerException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			int crewId = Crew.getIdByName(crew);
 			List<UserCrewRoleDto> data = new ArrayList<>();
-			if (checkPermission(connection,"CRUDUserCrewRole",crew)){
+			if (checkPermission("CRUDUserCrewRole",crew)){
 				data = UserCrewRole.getAllByCrewId(crew, crewId);
 
 			}else {
@@ -306,7 +306,7 @@ public class CrewService {
         }
     }
 	// TODO: CRUD Crew Permission
-	public static void addCrewPermission(Connection con, String data)
+	public static void addCrewPermission(String data)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			if (data.isEmpty()) {
@@ -317,7 +317,7 @@ public class CrewService {
 			}
 
 			normalizeName(data);
-			if (checkPermission(con,"CRUDCrewPermission",null)){
+			if (checkPermission("CRUDCrewPermission",null)){
 				CrewPermission.insert(data);
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -331,7 +331,7 @@ public class CrewService {
 			throw new TokenException("Can't get access token");
         }
     }
-	public static void updateCrewPermission(Connection con, String data, String newData) throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
+	public static void updateCrewPermission(String data, String newData) throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			if (newData.isEmpty() ) {
 				throw new DataEmptyException("Crew Permission is empty");
@@ -340,7 +340,7 @@ public class CrewService {
 				throw new InvalidDataException("Invalid crew permission");
 			}
 			newData = normalizeNameDeleteSpace(newData);
-			if (checkPermission(con,"CRUDCrewPermission",null)){
+			if (checkPermission("CRUDCrewPermission",null)){
 				CrewPermission.update( data, newData);
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -356,10 +356,10 @@ public class CrewService {
         }
     }
 
-	public static void deleteGuildPermission(Connection con, String data)
+	public static void deleteGuildPermission( String data)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
-			if (checkPermission(con,"CRUDCrewPermission",null)){
+			if (checkPermission("CRUDCrewPermission",null)){
 				CrewPermission.delete(data);
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -376,14 +376,14 @@ public class CrewService {
     }
 
 	// TODO: CRUD Permission To Crew Role
-	public static void addPermissionToCrewRole(Connection con, CrewRoleDTO crewRole, String permission)
+	public static void addPermissionToCrewRole(CrewRoleDTO crewRole, String permission)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			int crewId = Crew.getIdByName(crewRole.getCrewName());
 			int crewRoleId = CrewRole.getIdByName(crewId,crewRole.getRole());
 
 			int permissionId =  CrewPermission.getIdByName(permission);
-			if (checkPermission(con,"CRUDCrewRolePermission",crewRole.getCrewName())){
+			if (checkPermission("CRUDCrewRolePermission",crewRole.getCrewName())){
 				CrewPermission.addPermissionToCrewRole(crewRoleId,permissionId );
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -398,14 +398,14 @@ public class CrewService {
         }
     }
 
-	public static void updatePermissionInCrewRole(Connection con, CrewRoleDTO crewRole, String permission,String newPermission) throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
+	public static void updatePermissionInCrewRole( CrewRoleDTO crewRole, String permission,String newPermission) throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			int crewId = Crew.getIdByName(crewRole.getCrewName());
 			int crewRoleId = CrewRole.getIdByName(crewId,crewRole.getRole());
 
 			int permissionId =  CrewPermission.getIdByName(permission);
 			int newPermissionId =  CrewPermission.getIdByName(newPermission);
-			if (checkPermission(con,"CRUDCrewRolePermission",crewRole.getCrewName())){
+			if (checkPermission("CRUDCrewRolePermission",crewRole.getCrewName())){
 				CrewPermission.updatePermissionInCrewRole(newPermissionId,permissionId,crewRoleId );
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -421,14 +421,14 @@ public class CrewService {
         }
     }
 
-	public static void deletePermissionInCrewRole(Connection con, CrewRoleDTO crewRole, String permission)
+	public static void deletePermissionInCrewRole(CrewRoleDTO crewRole, String permission)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			int crewId = Crew.getIdByName(crewRole.getCrewName());
 			int crewRoleId = CrewRole.getIdByName(crewId,crewRole.getRole());
 
 			int permissionId =  CrewPermission.getIdByName(permission);
-			if (checkPermission(con,"CRUDCrewRolePermission",crewRole.getCrewName())){
+			if (checkPermission("CRUDCrewRolePermission",crewRole.getCrewName())){
 				CrewPermission.deletePermissionInCrewRole(permissionId,crewRoleId);
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -443,7 +443,7 @@ public class CrewService {
 			throw new TokenException("Can't get access token");
         }
     }
-	public static List<CrewPermission> getAllPermissionByAccountId(Connection connection, String crew, String userName)
+	public static List<CrewPermission> getAllPermissionByAccountId(String crew, String userName)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			if (userName.isEmpty()) {
@@ -452,7 +452,7 @@ public class CrewService {
 			int crewId = Crew.getIdByName(crew);
 			String accountId = UserAccount.getIdByUsername(userName);
 			List<CrewPermission> data = new ArrayList<>();
-			if (checkPermission(connection,"ViewCrewRolePermission",crew)){
+			if (checkPermission("ViewCrewRolePermission",crew)){
 				data = CrewPermission.getAllByAccountIdAndCrewId(accountId,crewId);
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -468,7 +468,7 @@ public class CrewService {
 			throw new TokenException("Can't get access token");
         }
     }
-	public static List<String> getAllPermissionByCrewId(Connection connection, String crew, String role)
+	public static List<String> getAllPermissionByCrewId(String crew, String role)
             throws SQLException, IOException, ClassNotFoundException {
 		try {
 			int crewId = Crew.getIdByName(crew);
@@ -489,7 +489,7 @@ public class CrewService {
         }
     }
 	// TODO Crew Event
-	public static void insertCrewEvent(Connection con, CrewEventDto crewEvent, String dateStart, String dateEnd)
+	public static void insertCrewEvent(CrewEventDto crewEvent, String dateStart, String dateEnd)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			if (crewEvent.getTitle().isEmpty()) {
@@ -508,7 +508,7 @@ public class CrewService {
 			Timestamp start = validTimeStamp(dateStart);
 			Timestamp end = validTimeStamp(dateEnd);
 			crewEvent = new CrewEventDto(crewId,crewEvent.getTitle(),crewEvent.getDescription(),generationId,start,end,crewEvent.getType());
-			if (checkPermission(con,"CRUDCrewEvent",crewEvent.getCrewName())){
+			if (checkPermission("CRUDCrewEvent",crewEvent.getCrewName())){
 				CrewEvent.insert( crewEvent);
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -525,7 +525,7 @@ public class CrewService {
         }
     }
 
-	public static void updateCrewEvent(Connection con, CrewEventDto crewEvent, int crewEventId, String dateStart, String dateEnd)
+	public static void updateCrewEvent(CrewEventDto crewEvent, int crewEventId, String dateStart, String dateEnd)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			if (crewEvent.getTitle().isEmpty()) {
@@ -544,7 +544,7 @@ public class CrewService {
 			Timestamp start = validTimeStamp(dateStart);
 			Timestamp end = validTimeStamp(dateEnd);
 			crewEvent = new CrewEventDto(crewId,crewEvent.getTitle(),crewEvent.getDescription(),generationId,start,end,crewEvent.getType());
-			if (checkPermission(con,"CRUDCrewEvent",crewEvent.getCrewName())){
+			if (checkPermission("CRUDCrewEvent",crewEvent.getCrewName())){
 				CrewEvent.update( crewEvent,crewEventId);
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -562,10 +562,10 @@ public class CrewService {
         }
     }
 
-	public static void deleteCrewEvent(Connection con, int crewEventId, String crew)
+	public static void deleteCrewEvent(int crewEventId, String crew)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
-			if (checkPermission(con,"CRUDCrewEvent",crew)){
+			if (checkPermission("CRUDCrewEvent",crew)){
 				CrewEvent.delete( crewEventId);
 			}else {
 				throw new NotHavePermission("You don't have permission");
@@ -580,7 +580,7 @@ public class CrewService {
 			throw new TokenException("Can't get access token");
         }
     }
-	public static List<CrewEventDto> getAllEvent(Connection connection)
+	public static List<CrewEventDto> getAllEvent()
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, IOException, ClassNotFoundException {
 		try {
 			List<CrewEventDto> data = CrewEvent.getAllCrewEvent();
@@ -644,7 +644,7 @@ public class CrewService {
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
 		return accountId;
 	}
-	public static boolean checkPermission(Connection connection, String permission, String crewChose) throws SQLException, TokenException, NotFoundException, IOException, ClassNotFoundException {
+	public static boolean checkPermission(String permission, String crewChose) throws SQLException, TokenException, NotFoundException, IOException, ClassNotFoundException {
 		try {
 			boolean  check = false;
 			List<String> listRole = UserRole.getRoleByAccountId(getAccountIDUser());
@@ -653,7 +653,7 @@ public class CrewService {
 					return true;
 				}
 			}
-			check = AuthService.CrewAuthorization(connection,Crew.getIdByName(crewChose),permission);
+			check = AuthService.CrewAuthorization(Crew.getIdByName(crewChose),permission);
 
 			return check;
 		} catch (SQLException e) {

@@ -76,7 +76,7 @@ public class AuthView extends View{
         signUp.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
         signUp.setPassword(textIO.newStringInputReader().read("Enter your password : "));
         signUp.setEmail(textIO.newStringInputReader().read("Enter your email : "));
-        ResponseDTO<Object> response =  AuthController.signUp(con, signUp);
+        ResponseDTO<Object> response =  AuthController.signUp(signUp);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else {
@@ -84,7 +84,7 @@ public class AuthView extends View{
             clearScreen();
             UserProfileView profileView = new UserProfileView(con);
             profileView.addUserProfile(con, signUp);
-            ResponseDTO<Object> res = AuthController.changeAccessToken(con, signUp);
+            ResponseDTO<Object> res = AuthController.changeAccessToken(signUp);
             if(res.getStatus() != ResponseStatus.OK)
                 printError(res.getMessage());
             clearScreen();
@@ -93,7 +93,7 @@ public class AuthView extends View{
     }
 
     public void logInForm(Connection con, LoginDTO logIn) {
-        boolean checkAccessToken = AuthController.checkAccessToken(con);
+        boolean checkAccessToken = AuthController.checkAccessToken();
         if(checkAccessToken == true) {
             clearScreen();
             appCrewGuildView(con);
@@ -101,7 +101,7 @@ public class AuthView extends View{
         viewTitle("| LOG IN |", textIO);
         logIn.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
         logIn.setPassword(textIO.newStringInputReader().read("Enter your password : "));
-        ResponseDTO<Object> response = AuthController.login(con, logIn);
+        ResponseDTO<Object> response = AuthController.login(logIn);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else {

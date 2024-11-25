@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Optional;
 
+import config.Database;
 import dto.*;
 import exceptions.*;
 import models.Generation;
@@ -27,13 +28,13 @@ import java.sql.Date;
 
 
 public class ApplicationService extends AuthService{
-    public static void insertProfileInternal(Connection con, UserProfileDTO data, SignUpDTO signUp, String date)
+    public static void insertProfileInternal(UserProfileDTO data, SignUpDTO signUp, String date)
             throws SQLException, UserProfileException, NotFoundException, ParseException, TokenException, IOException, ClassNotFoundException {
         
         String accountId = UserAccount.getIdByUsername( signUp.getUsername());
         data.setAccountId(accountId);
         data.setStudentCode((data.getStudentCode().toUpperCase()));
-        data.setGenerationId(getMaxGenerationId(con));
+        data.setGenerationId(getMaxGenerationId());
         data.setFullName(normalizeFullname(data.getFullName()));
         String errors = "";
 
@@ -70,7 +71,7 @@ public class ApplicationService extends AuthService{
     }
 
 
-    public static void readUserProfileInternal(Connection con, UserProfileDTO data)
+    public static void readUserProfileInternal(UserProfileDTO data)
             throws SQLException, NotFoundException, TokenException, IOException, ClassNotFoundException {
         Path path = (Path)Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
@@ -81,14 +82,14 @@ public class ApplicationService extends AuthService{
     }
 
 
-    public static void updateUserProfile(Connection con, UserProfileDTO data)
+    public static void updateUserProfile(UserProfileDTO data)
             throws SQLException, TokenException, NotFoundException, UserProfileException, IOException, ClassNotFoundException {
         Path path = (Path)Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
         data.setAccountId(accountId);
         data.setStudentCode((data.getStudentCode().toUpperCase()));
-        data.setGenerationId(getMaxGenerationId(con));
+        data.setGenerationId(getMaxGenerationId());
         data.setFullName(normalizeFullname(data.getFullName()));
         String errors = "";
         if (data.getFullName() == null || isValidFullName(data.getFullName()) == false) 
@@ -109,12 +110,12 @@ public class ApplicationService extends AuthService{
         UserProfile.update( data);
     }
     // TODO: Role
-    public static List<Role> getAllRoles(Connection con)
+    public static List<Role> getAllRoles()
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, IOException, ClassNotFoundException {
             List<Role> listRole = Role.getAll();
             return listRole;
     }
-    public static void CreateRole(String name,Connection con)
+    public static void CreateRole(String name)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, IOException, ClassNotFoundException {
         try {
             name = normalizedRolePermission(name);
@@ -125,7 +126,7 @@ public class ApplicationService extends AuthService{
             throw new SQLException(String.format("Error occurs when create role: %s", name));
         }
     }
-    public static void UpdateRole(Connection connection,int roleId, String newName)
+    public static void UpdateRole(int roleId, String newName)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, IOException, ClassNotFoundException {
         try {
             newName = normalizedRolePermission(newName);
@@ -136,7 +137,7 @@ public class ApplicationService extends AuthService{
             throw new SQLException(String.format("Error occurs when update role ID: %d", roleId));
         }
     }
-    public static void DeleteRole(Connection connection,int roleId)
+    public static void DeleteRole(int roleId)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, IOException, ClassNotFoundException {
         try {
             Role.deleteRole( roleId);
@@ -147,7 +148,7 @@ public class ApplicationService extends AuthService{
         }
     }
     // TODO: User Role
-    public static void SetUserRole(String userName, String roleName, Connection connection)
+    public static void SetUserRole(String userName, String roleName)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, IOException, ClassNotFoundException {
         try {
             String accountId = UserAccount.getIdByUsername( userName);
@@ -161,7 +162,7 @@ public class ApplicationService extends AuthService{
         }
     }
 
-    public static void UpdateUserRoleDto(String username, String rolename, Connection connection)
+    public static void UpdateUserRoleDto(String username, String rolename)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, IOException, ClassNotFoundException {
         try {
             String accountId = UserAccount.getIdByUsername( username);
@@ -173,7 +174,7 @@ public class ApplicationService extends AuthService{
             throw new SQLException("Error occurs when update user role");
         }
     }
-    public static void CreatePermissionDto(String name, Connection connection)
+    public static void CreatePermissionDto(String name)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, IOException, ClassNotFoundException {
         try {
             name = normalizedRolePermission(name);
@@ -184,7 +185,7 @@ public class ApplicationService extends AuthService{
             throw new SQLException("Error occurs when update user role");
         }
     }
-    public static void AddPermissionDto(int roleId, int permissionId, Connection connection)
+    public static void AddPermissionDto(int roleId, int permissionId)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, IOException, ClassNotFoundException {
         try {
             Permission.addPermissionToRole(roleId,permissionId);
@@ -194,7 +195,7 @@ public class ApplicationService extends AuthService{
             throw new SQLException("Error occurs when update user role");
         }
     }
-    public static void UpdatePermissionDto(String roleName, int permisisonId,int newPermissionId, Connection connection) throws SQLException, NotFoundException, IOException, ClassNotFoundException {
+    public static void UpdatePermissionDto(String roleName, int permisisonId,int newPermissionId) throws SQLException, NotFoundException, IOException, ClassNotFoundException {
         try {
             int roleId = Role.getByName( roleName).getId();
             Permission.updatePermissionToRole(roleId,permisisonId,newPermissionId);
@@ -204,7 +205,7 @@ public class ApplicationService extends AuthService{
             throw new SQLException("Error occurs when update user role");
         }
     }
-    public static void DeletePermissionDto(String roleName,int permisisonId, Connection connection) throws SQLException, NotFoundException, IOException, ClassNotFoundException {
+    public static void DeletePermissionDto(String roleName,int permisisonId) throws SQLException, NotFoundException, IOException, ClassNotFoundException {
         try {
             int roleId = Role.getByName( roleName).getId();
             Permission.deletePermissionRole(permisisonId,roleId);
@@ -214,17 +215,17 @@ public class ApplicationService extends AuthService{
             throw new SQLException("Error occurs when update user role");
         }
     }
-    public static List<Permission> getAllPermissions(Connection con) throws SQLException, IOException, ClassNotFoundException {
+    public static List<Permission> getAllPermissions() throws SQLException, IOException, ClassNotFoundException {
         List<Permission> list = new ArrayList<>();
         list = Permission.getAllPermission();
         return list;
     }
-    public static List<UserAccount> getAllUserAccounts(Connection con) throws SQLException, IOException, ClassNotFoundException {
+    public static List<UserAccount> getAllUserAccounts() throws SQLException, IOException, ClassNotFoundException {
         List<UserAccount> list = new ArrayList<>();
         list = UserAccount.getAllUserAccounts();
         return list;
     }
-    public static void updateUserAccount(Connection con, String username, String password, String email)
+    public static void updateUserAccount(String username, String password, String email)
             throws SQLException, TokenException, IOException, ClassNotFoundException {
                     
         Path path = (Path)Paths.get("storage.json");
@@ -250,18 +251,18 @@ public class ApplicationService extends AuthService{
         password = AuthService.hashingPassword(password, round);
         UserAccount.update( username, password, email, accountId);
     }
-    public static void deleteUserAccount(Connection con, String username) throws SQLException, NotFoundException, IOException, ClassNotFoundException {
+    public static void deleteUserAccount(String username) throws SQLException, NotFoundException, IOException, ClassNotFoundException {
         String accountId = UserAccount.getIdByUsername( username);
         UserAccount.delete( accountId);
     }
-    public static List<UserProfileDTO> getAllUserProfiles(Connection con) throws TokenException, SQLException, NotFoundException, IOException, ClassNotFoundException {
+    public static List<UserProfileDTO> getAllUserProfiles() throws TokenException, SQLException, NotFoundException, IOException, ClassNotFoundException {
         List<UserProfileDTO> list =  new ArrayList<>();
         list = UserProfile.readAll();
         return list;
     }
 
     // TODO: Event
-    public static void insertEvent(Connection con, EventDto eventDto, String dateStart, String dateEnd)
+    public static void insertEvent(EventDto eventDto, String dateStart, String dateEnd)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, IOException, ClassNotFoundException {
         try {
             if (eventDto.getTitle().isEmpty()) {
@@ -289,7 +290,7 @@ public class ApplicationService extends AuthService{
         }
     }
 
-    public static void updateEvent(Connection con, EventDto eventDto, int eventId,String dateStart, String dateEnd)
+    public static void updateEvent( EventDto eventDto, int eventId,String dateStart, String dateEnd)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, IOException, ClassNotFoundException {
         try {
             if (eventDto.getTitle().isEmpty()) {
@@ -318,7 +319,7 @@ public class ApplicationService extends AuthService{
         }
     }
 
-    public static void deleteEvent(Connection con, int guildEventId)
+    public static void deleteEvent(int guildEventId)
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, IOException, ClassNotFoundException {
         try {
             Event.delete( guildEventId);
@@ -329,7 +330,7 @@ public class ApplicationService extends AuthService{
             throw new SQLException(String.format("Error occurs when delete event: %s", guildEventId));
         }
     }
-    public static List<EventDto> getAllEvent(Connection connection)
+    public static List<EventDto> getAllEvent()
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, DataEmptyException, InvalidDataException, IOException, ClassNotFoundException {
         try {
             List<EventDto> data = Event.getAllEvent();
@@ -371,15 +372,17 @@ public class ApplicationService extends AuthService{
         return normalizedString.toString();
     }
 
-    public static int getMaxGenerationId(Connection con) throws SQLException, NotFoundException{
-        String query = """
+    public static int getMaxGenerationId() throws SQLException, NotFoundException, IOException, ClassNotFoundException {
+        try (Connection con = Database.connection()){
+            String query = """
                 SELECT MAX(id) AS max_id FROM generation
                 """;
-        PreparedStatement stmt = con.prepareStatement(query);
-        ResultSet rs = stmt.executeQuery();
-        if(!rs.next())
-            throw new NotFoundException("Generation id is not existed!");
-        return rs.getInt("max_id");
+            PreparedStatement stmt = con.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+            if(!rs.next())
+                throw new NotFoundException("Generation id is not existed!");
+            return rs.getInt("max_id");
+        }
     }
 
     public static boolean isValidFullName(String fullName) {
@@ -390,7 +393,7 @@ public class ApplicationService extends AuthService{
             return false;
         }
 
-        // Full name must not contains special character
+        // Full name must not contain special character
         for (String word : words) {
             if (!word.matches("[a-zA-Z]+")) {
                 return false;

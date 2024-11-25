@@ -127,7 +127,7 @@ public class Guild {
 			return list;
 		}
 	}
-	public static List<String> getMemberInGuild( int guildId)
+	public static List<String> getMemberInGuild(int guildId)
             throws SQLException, NotFoundException, IOException, ClassNotFoundException {
 		try(Connection con = Database.connection()) {
 			String query = """

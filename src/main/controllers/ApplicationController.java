@@ -66,10 +66,10 @@ import services.AuthService;
 public class ApplicationController {
 
     //Update user profile
-    public static ResponseDTO<Object> updateUserProfile(Connection con, UserProfileDTO data) {
+    public static ResponseDTO<Object> updateUserProfile(UserProfileDTO data) {
         try {
 
-            ApplicationService.updateUserProfile(con, data);
+            ApplicationService.updateUserProfile( data);
             return new ResponseDTO<Object>(ResponseStatus.OK, "Update profile successfully!", data);
 
         } catch (Exception e) {
@@ -78,11 +78,11 @@ public class ApplicationController {
     }
    
     //Get all user profile if role == "President" or role == "Vice president"
-    public static ResponseDTO<List<UserProfileDTO>> getAllUserProfiles(Connection con) {
+    public static ResponseDTO<List<UserProfileDTO>> getAllUserProfiles() {
         try {
-            boolean author = AuthService.AppAuthorization(con, "ViewUserInformation");
+            boolean author = AuthService.AppAuthorization( "ViewUserInformation");
             if(author == true) {
-                List<UserProfileDTO> list = ApplicationService.getAllUserProfiles(con);
+                List<UserProfileDTO> list = ApplicationService.getAllUserProfiles();
                 return new ResponseDTO<List<UserProfileDTO>>(ResponseStatus.OK, "Get all user profiles successfully!", list);
             } else return new ResponseDTO<List<UserProfileDTO>>(ResponseStatus.BAD_REQUEST, "Get all user profiles failed!", null);
         } catch (Exception e) {
@@ -91,11 +91,11 @@ public class ApplicationController {
     }
 
     	// ResponseData<UserAccount> getAllUserAccounts()
-    public static ResponseDTO<List<UserAccount>> getAllUserAccounts(Connection con) {
+    public static ResponseDTO<List<UserAccount>> getAllUserAccounts() {
         try {
-            boolean author = AuthService.AppAuthorization(con, "ViewUserInformation");
+            boolean author = AuthService.AppAuthorization( "ViewUserInformation");
             if(author == true) {
-                List<UserAccount> listAccounts = ApplicationService.getAllUserAccounts(con);
+                List<UserAccount> listAccounts = ApplicationService.getAllUserAccounts();
                 return new ResponseDTO<List<UserAccount>>(ResponseStatus.OK, "Get all user accounts successfully!", listAccounts);
             } else return new ResponseDTO<List<UserAccount>>(ResponseStatus.BAD_REQUEST, "Dont have permission!", null);
         } catch (SQLException | TokenException | NotFoundException | IOException | ClassNotFoundException e) {
@@ -103,10 +103,10 @@ public class ApplicationController {
         }
     }
 
-    public static ResponseDTO<Object> updateUserAccount(Connection con, String username, String password, String email) {
+    public static ResponseDTO<Object> updateUserAccount( String username, String password, String email) {
         try {
 
-            ApplicationService.updateUserAccount(con, username, password, email);
+            ApplicationService.updateUserAccount( username, password, email);
             return new ResponseDTO<Object>(ResponseStatus.OK, "Update account successfully", null);
 
         } catch (SQLException e) {
@@ -116,11 +116,11 @@ public class ApplicationController {
         }
     }
 
-    public static ResponseDTO<Object> deleteUserAccount(Connection con, String username) {
+    public static ResponseDTO<Object> deleteUserAccount(String username) {
         try {
-            boolean author = AuthService.AppAuthorization(con, "DeleteUserAccount");
+            boolean author = AuthService.AppAuthorization( "DeleteUserAccount");
             if(author == true) {
-                ApplicationService.deleteUserAccount(con, username);
+                ApplicationService.deleteUserAccount(username);
                 return new ResponseDTO<Object>(ResponseStatus.OK, "Delete account successfully", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission!", null);
         } catch (SQLException e) {
@@ -130,10 +130,10 @@ public class ApplicationController {
         }
     }
 
-    public static ResponseDTO<Object> createOneUserProfile(Connection con, UserProfileDTO data, SignUpDTO signUp, String date) {
+    public static ResponseDTO<Object> createOneUserProfile( UserProfileDTO data, SignUpDTO signUp, String date) {
         try {
 			
-			ApplicationService.insertProfileInternal(con, data, signUp, date);
+			ApplicationService.insertProfileInternal(data, signUp, date);
             return new ResponseDTO<>(ResponseStatus.OK, "Create user profile successfully!", null);
 		} catch (SQLException e) {
 			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
@@ -143,9 +143,9 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, "Invalid date", null);
         }
     }
-    public static ResponseDTO<UserProfileDTO> readOneUserProfile(Connection con, UserProfileDTO data) {
+    public static ResponseDTO<UserProfileDTO> readOneUserProfile(UserProfileDTO data) {
         try {
-			ApplicationService.readUserProfileInternal(con, data);
+			ApplicationService.readUserProfileInternal( data);
             return new ResponseDTO<UserProfileDTO>(ResponseStatus.OK, "Read user profile successfully!", data);
 		} catch (SQLException e) {
 			return new ResponseDTO<UserProfileDTO>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
@@ -156,9 +156,9 @@ public class ApplicationController {
         }
     }
 
-    public static ResponseDTO<List<Role>> getAllRoles(Connection connection){
+    public static ResponseDTO<List<Role>> getAllRoles(){
         try {
-            List<Role> list = ApplicationService.getAllRoles(connection);
+            List<Role> list = ApplicationService.getAllRoles();
             return new ResponseDTO<List<Role>>(ResponseStatus.OK, "Get all roles successfully!", list);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
@@ -166,11 +166,11 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> createRole(String data, Connection connection) {
+    public static ResponseDTO<Object> createRole(String data) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "CrudRole");
+            boolean author = AuthService.AppAuthorization( "CrudRole");
             if(author == true) {
-                ApplicationService.CreateRole(data,connection);
+                ApplicationService.CreateRole(data);
                 return new ResponseDTO<>(ResponseStatus.OK, "Create role successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to create role", null);
         } catch (SQLException | TokenException e) {
@@ -179,11 +179,11 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> deleteRole(int roleId, Connection connection) {
+    public static ResponseDTO<Object> deleteRole(int roleId) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "CrudRole");
+            boolean author = AuthService.AppAuthorization( "CrudRole");
             if(author == true) {
-                ApplicationService.DeleteRole(connection, roleId);
+                ApplicationService.DeleteRole(roleId);
                 return new ResponseDTO<>(ResponseStatus.OK, "Delete role successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to delete role", null);
         } catch (SQLException e) {
@@ -192,11 +192,11 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> updateRole(int roleId, String newName, Connection connection) {
+    public static ResponseDTO<Object> updateRole(int roleId, String newName) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "CrudRole");
+            boolean author = AuthService.AppAuthorization("CrudRole");
             if(author == true) {
-                ApplicationService.UpdateRole(connection, roleId, newName);
+                ApplicationService.UpdateRole(roleId, newName);
                 return new ResponseDTO<>(ResponseStatus.OK, "Update role successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to update role", null);
         } catch (SQLException e) {
@@ -205,11 +205,11 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> SetUserRole(String userName, String roleName, Connection connection) {
+    public static ResponseDTO<Object> SetUserRole(String userName, String roleName) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "SetUserRole");
+            boolean author = AuthService.AppAuthorization("SetUserRole");
             if(author == true) {
-                ApplicationService.SetUserRole(userName, roleName, connection);
+                ApplicationService.SetUserRole(userName, roleName);
                 return new ResponseDTO<>(ResponseStatus.OK, "Set user role successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to set user role", null);
         } catch (SQLException e) {
@@ -218,11 +218,11 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> updateUserRole(String username,String roleIName, Connection connection) {
+    public static ResponseDTO<Object> updateUserRole(String username,String roleIName) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "UpdateUserRole");
+            boolean author = AuthService.AppAuthorization("UpdateUserRole");
             if(author == true) {
-                ApplicationService.UpdateUserRoleDto(username, roleIName, connection);
+                ApplicationService.UpdateUserRoleDto(username, roleIName);
                 return new ResponseDTO<>(ResponseStatus.OK, "Update user role successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to update role", null);
         } catch (SQLException e) {
@@ -231,19 +231,19 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<List<Permission>> getAllPermissions(Connection con) {
+    public static ResponseDTO<List<Permission>> getAllPermissions() {
         try {
-            List<Permission> list = ApplicationService.getAllPermissions(con);
+            List<Permission> list = ApplicationService.getAllPermissions();
             return new ResponseDTO<>(ResponseStatus.OK, "Get all permissions successfully!", list);
         } catch (SQLException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
         } 
     }
-    public static ResponseDTO<Object> createPermission(String name,  Connection connection) {
+    public static ResponseDTO<Object> createPermission(String name) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "CrudPermission");
+            boolean author = AuthService.AppAuthorization("CrudPermission");
             if(author == true) {
-                ApplicationService.CreatePermissionDto(name, connection);
+                ApplicationService.CreatePermissionDto(name);
                 return new ResponseDTO<>(ResponseStatus.OK, "Create permission successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to create permisison", null);
         } catch (SQLException e) {
@@ -252,11 +252,11 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> deletePermission(String roleName, int permisisonId,  Connection connection) {
+    public static ResponseDTO<Object> deletePermission(String roleName, int permissionId) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "CrudPermission");
+            boolean author = AuthService.AppAuthorization("CrudPermission");
             if(author == true) {
-                ApplicationService.DeletePermissionDto(roleName, permisisonId, connection);
+                ApplicationService.DeletePermissionDto(roleName, permissionId);
                 return new ResponseDTO<>(ResponseStatus.OK, "Delete permission successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to delete permission", null);
         } catch (SQLException | TokenException e) {
@@ -265,11 +265,11 @@ public class ApplicationController {
             return new ResponseDTO<Object>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> updatePermission(String roleName,int permisisonId,int newPermissionID, Connection connection) {
+    public static ResponseDTO<Object> updatePermission(String roleName,int permissionId,int newPermissionID) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "CrudPermission");
+            boolean author = AuthService.AppAuthorization("CrudPermission");
             if(author == true) {
-                ApplicationService.UpdatePermissionDto(roleName, permisisonId, newPermissionID, connection);
+                ApplicationService.UpdatePermissionDto(roleName, permissionId, newPermissionID);
                 return new ResponseDTO<>(ResponseStatus.OK, "Update permission successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to update permission", null);
         } catch (SQLException | TokenException e) {
@@ -278,11 +278,11 @@ public class ApplicationController {
             return new ResponseDTO<Object>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<Object> AddPermissionToRole(int roleId, int  permissionId, Connection connection){
+    public static ResponseDTO<Object> AddPermissionToRole(int roleId, int  permissionId){
         try {
-            boolean author = AuthService.AppAuthorization(connection, "AddPermissionToRole");
+            boolean author = AuthService.AppAuthorization("AddPermissionToRole");
             if(author == true) {
-                ApplicationService.AddPermissionDto(roleId, permissionId, connection);
+                ApplicationService.AddPermissionDto(roleId, permissionId);
                 return new ResponseDTO<>(ResponseStatus.OK, "Add permission to  role successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to add permission to role", null);
         } catch (SQLException | TokenException e) {
@@ -292,11 +292,11 @@ public class ApplicationController {
         }
     }
     // TODO: Guild Event
-    public static ResponseDTO<Object> addEvent(Connection connection, EventDto eventDto, String dateStart, String dateEnd) {
+    public static ResponseDTO<Object> addEvent(EventDto eventDto, String dateStart, String dateEnd) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "CrudEvent");
+            boolean author = AuthService.AppAuthorization("CrudEvent");
             if(author == true) {
-                ApplicationService.insertEvent(connection, eventDto,dateStart,dateEnd);
+                ApplicationService.insertEvent(eventDto,dateStart,dateEnd);
             return new ResponseDTO<>(ResponseStatus.OK,
                     String.format("Add event %s successfully!", eventDto.getTitle()), null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to create event", null);
@@ -311,11 +311,11 @@ public class ApplicationController {
         }
     }
 
-    public static ResponseDTO<Object> deleteEvent(Connection connection, int eventId ) {
+    public static ResponseDTO<Object> deleteEvent( int eventId ) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "CrudEvent");
+            boolean author = AuthService.AppAuthorization("CrudEvent");
             if(author == true) {
-                ApplicationService.deleteEvent(connection, eventId);
+                ApplicationService.deleteEvent(eventId);
                 return new ResponseDTO<>(ResponseStatus.OK,
                         String.format("Delete event %s successfully!", eventId), null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to delete event", null);
@@ -329,11 +329,11 @@ public class ApplicationController {
         } 
     }
 
-    public static ResponseDTO<Object> updateEvent(Connection connection, EventDto eventDto, int eventId , String dateStart, String dateEnd) {
+    public static ResponseDTO<Object> updateEvent(EventDto eventDto, int eventId , String dateStart, String dateEnd) {
         try {
-            boolean author = AuthService.AppAuthorization(connection, "CrudEvent");
+            boolean author = AuthService.AppAuthorization("CrudEvent");
             if(author == true) {
-                ApplicationService.updateEvent(connection,eventDto,eventId,  dateStart,  dateEnd);
+                ApplicationService.updateEvent(eventDto,eventId,  dateStart,  dateEnd);
                 return new ResponseDTO<>(ResponseStatus.OK,
                     "Update event successfully!", null);
             } else return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, "You dont have permission to update event", null);
@@ -347,9 +347,9 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<List<EventDto>> getAllEvent(Connection connection) {
+    public static ResponseDTO<List<EventDto>> getAllEvent() {
         try {
-            List<EventDto> data = ApplicationService.getAllEvent(connection);
+            List<EventDto> data = ApplicationService.getAllEvent();
             return new ResponseDTO<>(ResponseStatus.OK, "Get all event successfully!", data);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
@@ -360,7 +360,7 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
-    public static ResponseDTO<List<String>> getAllGeneration(Connection connection){
+    public static ResponseDTO<List<String>> getAllGeneration(){
         try {
             List<String> data = Generation.getAllGenerations();
             return new ResponseDTO<>(ResponseStatus.OK, "Get all generation successfully!", data);

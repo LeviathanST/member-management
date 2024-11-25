@@ -53,7 +53,7 @@ public class CrewView extends View {
 
     public String getCrewFromList(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
-        ResponseDTO<List<String>> listCrews = CrewController.getAllCrews(connection);
+        ResponseDTO<List<String>> listCrews = CrewController.getAllCrews();
         viewTitle("Choose Crew", textIO);
         String crewOption = textIO.newStringInputReader()
                 .withNumberedPossibleValues(listCrews.getData())
@@ -71,7 +71,7 @@ public class CrewView extends View {
         ResponseDTO<List<CrewRole>> response;
         String crewName = getCrewFromList(connection);
         viewTitle("Choose Crew Role", textIO);
-        response = CrewController.getAllCrewRoles(connection,crewName);
+        response = CrewController.getAllCrewRoles(crewName);
         List<String> listRole = new ArrayList<>();
         for (CrewRole crewRole : response.getData()){
             listRole.add(crewRole.getName());
@@ -92,7 +92,7 @@ public class CrewView extends View {
         ResponseDTO<List<UserCrewRoleDto>> response;
         String crewName = getCrewFromList(connection);
 
-        response = CrewController.getAllUserCrewRolesByCrewID(connection,crewName);
+        response = CrewController.getAllUserCrewRolesByCrewID(crewName);
         if(response.getStatus() != ResponseStatus.OK ) {
             printError(response.getMessage());
             return null;
@@ -117,7 +117,7 @@ public class CrewView extends View {
     }
     public String getPermissionFromList(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
-        ResponseDTO<List<String>> listPermission = CrewController.getAllCrewPermissions(connection);
+        ResponseDTO<List<String>> listPermission = CrewController.getAllCrewPermissions();
         viewTitle("Choose Permission", textIO);
         String permission = textIO.newStringInputReader()
                 .withNumberedPossibleValues(listPermission.getData())
@@ -131,7 +131,7 @@ public class CrewView extends View {
     }
     public String getPermissionByCrewAndRoleFromList(Connection connection, String crew, String role) {
         TextIO textIO = TextIoFactory.getTextIO();
-        ResponseDTO<List<String>> listPermission = CrewController.getAllPermissionByCrewId(connection,crew,role);
+        ResponseDTO<List<String>> listPermission = CrewController.getAllPermissionByCrewId(crew,role);
         viewTitle("Choose Permission", textIO);
         String permission = textIO.newStringInputReader()
                 .withNumberedPossibleValues(listPermission.getData())
@@ -143,7 +143,7 @@ public class CrewView extends View {
     }
     public int getCrewEventIDFromList(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
-        ResponseDTO<List<CrewEventDto>> response = CrewController.getAllCrewEvent(connection);
+        ResponseDTO<List<CrewEventDto>> response = CrewController.getAllCrewEvent();
         HashMap<String,Integer> crewEvents = new HashMap<String, Integer>();
         List<String> crewEventList = new ArrayList<>();
         viewTitle("Choose Event To Update", textIO);
@@ -164,7 +164,7 @@ public class CrewView extends View {
     }
     public String getGenerationFromList(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
-        ResponseDTO<List<String>> listGeneration = CrewController.getAllGeneration(connection);
+        ResponseDTO<List<String>> listGeneration = CrewController.getAllGeneration();
         viewTitle("Choose Generation", textIO);
         if(listGeneration.getStatus() != ResponseStatus.OK) {
             printError(listGeneration.getMessage());
@@ -204,7 +204,7 @@ public class CrewView extends View {
     }
     public void viewListCrews(Connection connection, String option) {
         ResponseDTO<List<String>> response;
-        response = CrewController.getAllCrews(connection);
+        response = CrewController.getAllCrews();
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle(option,textIO);
         if(response.getStatus() != ResponseStatus.OK) {
@@ -238,7 +238,7 @@ public class CrewView extends View {
                     .withDefaultValue(null)
                     .read("");
             CrewDTO crewDTO = new CrewDTO(crewName);
-            response = CrewController.addCrew(connection, crewDTO);
+            response = CrewController.addCrew( crewDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -271,7 +271,7 @@ public class CrewView extends View {
                     .read("");
             CrewDTO oldCrewDTO = new CrewDTO(crewUpdated);
             CrewDTO newCrewDTO = new CrewDTO(newCrew);
-            response = CrewController.updateCrew(connection,oldCrewDTO, newCrewDTO);
+            response = CrewController.updateCrew(oldCrewDTO, newCrewDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -298,7 +298,7 @@ public class CrewView extends View {
             viewTitle(option, textIO);
             String crewDeleted = getCrewFromList(connection);
             CrewDTO crewDTO = new CrewDTO(crewDeleted);
-            response = CrewController.deleteCrew(connection,crewDTO);
+            response = CrewController.deleteCrew(crewDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -347,7 +347,7 @@ public class CrewView extends View {
         ResponseDTO<List<CrewRole>> response;
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle(option,textIO);
-        response = CrewController.getAllCrewRoles(connection, getCrewFromList(connection));
+        response = CrewController.getAllCrewRoles( getCrewFromList(connection));
         if(response.getStatus() != ResponseStatus.OK ) {
             printError(response.getMessage());
         } else {
@@ -380,7 +380,7 @@ public class CrewView extends View {
                     .withDefaultValue(null)
                     .read("");
             CrewRoleDTO crewRoleDTO = new CrewRoleDTO(crewRole,crew);
-            response = CrewController.addCrewRole(connection,crewRoleDTO);
+            response = CrewController.addCrewRole(crewRoleDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -412,7 +412,7 @@ public class CrewView extends View {
                     .read("");
             CrewRoleDTO crewRoleDTO = new CrewRoleDTO(crew.getSecond(),crew.getFirst());
             CrewRoleDTO newCrewRoleDTO = new CrewRoleDTO(newCrewRole, crew.getFirst());
-            response = CrewController.updateCrewRole(connection,crewRoleDTO,newCrewRoleDTO);
+            response = CrewController.updateCrewRole(crewRoleDTO,newCrewRoleDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -439,7 +439,7 @@ public class CrewView extends View {
             viewTitle(option, textIO);
             Pair<String,String> crew = getCrewRoleFromList(connection);
             CrewRoleDTO crewRoleDTO = new CrewRoleDTO(crew.getSecond(),crew.getFirst());
-            response = CrewController.deleteCrewRole(connection, crewRoleDTO);
+            response = CrewController.deleteCrewRole( crewRoleDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -492,7 +492,7 @@ public class CrewView extends View {
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle(option,textIO);
         String crew = getCrewFromList(connection);
-        response = CrewController.getAllUserCrewRolesByCrewID(connection, crew);
+        response = CrewController.getAllUserCrewRolesByCrewID( crew);
         if(response.getStatus() != ResponseStatus.OK ) {
             printError(response.getMessage());
         } else {
@@ -529,7 +529,7 @@ public class CrewView extends View {
                     .read("");
             Pair<String,String> pair = getCrewRoleFromList(connection);
             UserCrewRoleDto userCrewRoleDto = new UserCrewRoleDto(pair.getFirst(),username,pair.getSecond());
-            response = CrewController.addUserCrewRole(connection,userCrewRoleDto);
+            response = CrewController.addUserCrewRole(userCrewRoleDto);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -562,7 +562,7 @@ public class CrewView extends View {
             }
             Pair<String,String> newCrewRole = getCrewRoleFromList(connection);
             UserCrewRoleDto newUserCrewRole = new UserCrewRoleDto(newCrewRole.getFirst(),oldUserCrewRole.getUsername(),newCrewRole.getSecond());
-            response = CrewController.updateUserCrewRole(connection,oldUserCrewRole, newUserCrewRole);
+            response = CrewController.updateUserCrewRole(oldUserCrewRole, newUserCrewRole);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -592,7 +592,7 @@ public class CrewView extends View {
                 continueOrBack = AskContinueOrGoBack();
                 break;
             }
-            response = CrewController.deleteUserCrewRole(connection,userCrewRole);
+            response = CrewController.deleteUserCrewRole(userCrewRole);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -643,7 +643,7 @@ public class CrewView extends View {
         String username = textIO.newStringInputReader()
                 .withDefaultValue(null)
                 .read("");
-        response = CrewController.getAllPermissionByAccountId(connection,crew,username);
+        response = CrewController.getAllPermissionByAccountId(crew,username);
         viewTitle(option,textIO);
         for (CrewPermission permission : response.getData()){
             textIO.getTextTerminal().println(permission.getName());
@@ -694,7 +694,7 @@ public class CrewView extends View {
     public void viewPermission(Connection connection, String option){
         ResponseDTO<List<String>> response;
         TextIO textIO = TextIoFactory.getTextIO();
-        response = CrewController.getAllCrewPermissions(connection);
+        response = CrewController.getAllCrewPermissions();
         viewTitle(option,textIO);
         for (String permission : response.getData()){
             textIO.getTextTerminal().println(permission);
@@ -726,7 +726,7 @@ public class CrewView extends View {
             String permission = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("");
-            response = CrewController.addCrewPermission(connection,permission);
+            response = CrewController.addCrewPermission(permission);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -757,7 +757,7 @@ public class CrewView extends View {
             String permission = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("");
-            response = CrewController.updateCrewPermission(connection,permissionUpdated,permission);
+            response = CrewController.updateCrewPermission(permissionUpdated,permission);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -783,7 +783,7 @@ public class CrewView extends View {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
             String permissionDeleted = getPermissionFromList(connection);
-            response = CrewController.deleteCrewPermission(connection,permissionDeleted);
+            response = CrewController.deleteCrewPermission(permissionDeleted);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -839,7 +839,7 @@ public class CrewView extends View {
             viewTitle("CHOOSE PERMISSION", textIO);
             String permissionAdded = getPermissionFromList(connection);
             CrewRoleDTO crewRole = new CrewRoleDTO(crewAndRole.getSecond(),crewAndRole.getFirst());
-            response = CrewController.addPermissionToCrewRole(connection,crewRole,permissionAdded);
+            response = CrewController.addPermissionToCrewRole(crewRole,permissionAdded);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -872,7 +872,7 @@ public class CrewView extends View {
             viewTitle("CHOOSE NEW PERMISSION", textIO);
             String newPermission = getPermissionFromList(connection);
             CrewRoleDTO crewRole = new CrewRoleDTO(crewAndRole.getSecond(),crewAndRole.getFirst());
-            response = CrewController.updatePermissionInCrewRole(connection,crewRole,permissionUpdated,newPermission);
+            response = CrewController.updatePermissionInCrewRole(crewRole,permissionUpdated,newPermission);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -902,7 +902,7 @@ public class CrewView extends View {
             viewTitle("CHOOSE PERMISSION DELETED", textIO);
             String permissionDeleted = getPermissionByCrewAndRoleFromList(connection,crewAndRole.getFirst(),crewAndRole.getSecond());
             CrewRoleDTO crewRole = new CrewRoleDTO(crewAndRole.getSecond(),crewAndRole.getFirst());
-            response = CrewController.deletePermissionInCrewRole(connection,crewRole,permissionDeleted);
+            response = CrewController.deletePermissionInCrewRole(crewRole,permissionDeleted);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -926,7 +926,7 @@ public class CrewView extends View {
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle(option,textIO);
         Pair<String,String> crewAndRole = getCrewRoleFromList(connection);
-        response = CrewController.getAllPermissionByCrewId(connection,crewAndRole.getFirst(),crewAndRole.getSecond());
+        response = CrewController.getAllPermissionByCrewId(crewAndRole.getFirst(),crewAndRole.getSecond());
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else {
@@ -982,7 +982,7 @@ public class CrewView extends View {
     }
     public void viewListCrewEvent(Connection connection, String option) {
         ResponseDTO<List<CrewEventDto>> response;
-        response = CrewController.getAllCrewEvent(connection);
+        response = CrewController.getAllCrewEvent();
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle(option,textIO);
         if(response.getStatus() != ResponseStatus.OK) {
@@ -1035,7 +1035,7 @@ public class CrewView extends View {
                     .withDefaultValue(null)
                     .read("TYPE OF EVENT");
             CrewEventDto crewEvent = new CrewEventDto(crewName,generation,title,description,type);
-            response = CrewController.addCrewEvent(connection, crewEvent,start,end);
+            response = CrewController.addCrewEvent( crewEvent,start,end);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -1080,7 +1080,7 @@ public class CrewView extends View {
                     .withDefaultValue(null)
                     .read("INPUT TYPE OF EVENT: ");
             CrewEventDto crewEvent = new CrewEventDto(crewName,generation,title,description,type);
-            response = CrewController.updateCrewEvent(connection, crewEvent,crewEventId,start,end);
+            response = CrewController.updateCrewEvent( crewEvent,crewEventId,start,end);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -1107,7 +1107,7 @@ public class CrewView extends View {
             viewTitle(option, textIO);
             String crew = getCrewFromList(connection);
             int crewEventId = getCrewEventIDFromList(connection);
-            response = CrewController.deleteCrewEvent(connection,crewEventId,crew);
+            response = CrewController.deleteCrewEvent(crewEventId,crew);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);

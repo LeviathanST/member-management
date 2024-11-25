@@ -55,7 +55,7 @@ public class GuildView extends View {
     }
     public String getGuildFromList(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
-        ResponseDTO<List<String>> listGuilds = GuildController.getAllGuilds(connection);
+        ResponseDTO<List<String>> listGuilds = GuildController.getAllGuilds();
         viewTitle("CHOOSE GUILD", textIO);
         String guildOption = textIO.newStringInputReader()
                 .withNumberedPossibleValues(listGuilds.getData())
@@ -70,7 +70,7 @@ public class GuildView extends View {
         ResponseDTO<List<GuildRole>> response;
         String guildName = getGuildFromList(connection);
         viewTitle("CHOOSE GUILD ROLE", textIO);
-        response = GuildController.getAllGuildRoles(connection,guildName);
+        response = GuildController.getAllGuildRoles(guildName);
         List<String> listRole = new ArrayList<>();
         for (GuildRole guildRole : response.getData()){
             listRole.add(guildRole.getName());
@@ -87,7 +87,7 @@ public class GuildView extends View {
         TextIO textIO = TextIoFactory.getTextIO();
         ResponseDTO<List<UserGuildRoleDTO>> response;
         String guildName = getGuildFromList(connection);
-        response = GuildController.getAllUserGuildRolesByGuildID(connection,guildName);
+        response = GuildController.getAllUserGuildRolesByGuildID(guildName);
         if(response.getStatus() != ResponseStatus.OK ) {
             printError(response.getMessage());
             return null;
@@ -109,7 +109,7 @@ public class GuildView extends View {
     }
     public String getPermissionFromList(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
-        ResponseDTO<List<String>> listPermission = GuildController.getAllGuildPermissions(connection);
+        ResponseDTO<List<String>> listPermission = GuildController.getAllGuildPermissions();
         viewTitle("CHOOSE PERMISSION", textIO);
         String permission = textIO.newStringInputReader()
                 .withNumberedPossibleValues(listPermission.getData())
@@ -121,7 +121,7 @@ public class GuildView extends View {
     }
     public String getPermissionByGuildAndRoleFromList(Connection connection, String guildName, String role) {
         TextIO textIO = TextIoFactory.getTextIO();
-        ResponseDTO<List<String>> listPermission = GuildController.getAllPermissionByGuildId(connection,guildName,role);
+        ResponseDTO<List<String>> listPermission = GuildController.getAllPermissionByGuildId(guildName,role);
         viewTitle("CHOOSE PERMISSION", textIO);
         String permission = textIO.newStringInputReader()
                 .withNumberedPossibleValues(listPermission.getData())
@@ -133,7 +133,7 @@ public class GuildView extends View {
     }
     public int getGuildEventIDFromList(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
-        ResponseDTO<List<GuildEventDto>> response = GuildController.getAllGuildEvent(connection);
+        ResponseDTO<List<GuildEventDto>> response = GuildController.getAllGuildEvent();
         HashMap<String,Integer> guildEvents = new HashMap<String, Integer>();
         List<String> infoList = new ArrayList<>();
         viewTitle("CHOOSE EVENT TO UPDATE", textIO);
@@ -154,7 +154,7 @@ public class GuildView extends View {
     }
     public String getGenerationFromList(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
-        ResponseDTO<List<String>> listGeneration = GuildController.getAllGeneration(connection);
+        ResponseDTO<List<String>> listGeneration = GuildController.getAllGeneration();
         viewTitle("CHOOSE GENERATION", textIO);
         if(listGeneration.getStatus() != ResponseStatus.OK) {
             printError(listGeneration.getMessage());
@@ -194,7 +194,7 @@ public class GuildView extends View {
         ResponseDTO<UserProfileDTO> userprofile;
         TextIO textIO = TextIoFactory.getTextIO();
         String guildName = getGuildFromList(connection);
-        listMember = GuildController.getMemberInGuild(connection,guildName);
+        listMember = GuildController.getMemberInGuild(guildName);
         if(listMember.getStatus() != ResponseStatus.OK) {
             printError(listMember.getMessage());
         }
@@ -204,7 +204,7 @@ public class GuildView extends View {
             String username = textIO.newStringInputReader()
                     .withNumberedPossibleValues(listMember.getData())
                     .read("");
-            userprofile = GuildController.getUserProfile(connection,username);
+            userprofile = GuildController.getUserProfile(username);
             textIO.getTextTerminal().println("FULL NAME: " + userprofile.getData().getFullName());
             textIO.getTextTerminal().println("SEX: " + userprofile.getData().getSex());
             textIO.getTextTerminal().println("STUDENT CODE: " + userprofile.getData().getStudentCode());
@@ -242,7 +242,7 @@ public class GuildView extends View {
                     .withDefaultValue(null)
                     .read("");
             GuildDTO guildDTO = new GuildDTO(guildName);
-            response = GuildController.addGuild(connection,guildDTO);
+            response = GuildController.addGuild(guildDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
 
@@ -275,7 +275,7 @@ public class GuildView extends View {
                     .read("");
             GuildDTO oldGuildDTO = new GuildDTO(guildUpdated);
             GuildDTO newGuildDTO = new GuildDTO(guildName);
-            response = GuildController.updateGuild(connection,oldGuildDTO,newGuildDTO);
+            response = GuildController.updateGuild(oldGuildDTO,newGuildDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
 
@@ -302,7 +302,7 @@ public class GuildView extends View {
             viewTitle(option, textIO);
             String guildDeleted = getGuildFromList(connection);
             GuildDTO guildDTO = new GuildDTO(guildDeleted);
-            response = GuildController.deleteGuild(connection,guildDTO);
+            response = GuildController.deleteGuild(guildDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
 
@@ -353,7 +353,7 @@ public class GuildView extends View {
         ResponseDTO<List<GuildRole>> response;
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle(option,textIO);
-        response = GuildController.getAllGuildRoles(connection, getGuildFromList(connection));
+        response = GuildController.getAllGuildRoles( getGuildFromList(connection));
         if(response.getStatus() != ResponseStatus.OK ) {
             printError(response.getMessage());
         } else {
@@ -386,7 +386,7 @@ public class GuildView extends View {
                     .withDefaultValue(null)
                     .read("");
             GuildRoleDTO guildRoleDTO = new GuildRoleDTO(guildRole,guild);
-            response = GuildController.addGuildRole(connection,guildRoleDTO);
+            response = GuildController.addGuildRole(guildRoleDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
 
@@ -418,7 +418,7 @@ public class GuildView extends View {
                     .read("");
             GuildRoleDTO guildRoleDTO = new GuildRoleDTO(guild.getSecond(),guild.getFirst());
             GuildRoleDTO newGuildRoleDTO = new GuildRoleDTO(newGuildRole,guild.getFirst());
-            response = GuildController.updateGuildRole(connection,guildRoleDTO,newGuildRoleDTO);
+            response = GuildController.updateGuildRole(guildRoleDTO,newGuildRoleDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
 
@@ -444,7 +444,7 @@ public class GuildView extends View {
             viewTitle(option, textIO);
             Pair<String,String> guild = getGuildRoleFromList(connection);
             GuildRoleDTO guildRoleDTO = new GuildRoleDTO(guild.getSecond(),guild.getFirst());
-            response = GuildController.deleteGuildRole(connection,guildRoleDTO);
+            response = GuildController.deleteGuildRole(guildRoleDTO);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
             } else {
@@ -495,7 +495,7 @@ public class GuildView extends View {
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle(option,textIO);
         String guild = getGuildFromList(connection);
-        response = GuildController.getAllUserGuildRolesByGuildID(connection, guild);
+        response = GuildController.getAllUserGuildRolesByGuildID( guild);
         if(response.getStatus() != ResponseStatus.OK ) {
             printError(response.getMessage());
         } else {
@@ -533,7 +533,7 @@ public class GuildView extends View {
                     .read("");
             Pair<String,String> pair = getGuildRoleFromList(connection);
             UserGuildRoleDTO userGuildRoleDTO = new UserGuildRoleDTO(pair.getFirst(),username,pair.getSecond());
-            response = GuildController.addUserGuildRole(connection,userGuildRoleDTO);
+            response = GuildController.addUserGuildRole(userGuildRoleDTO);
             textIO.getTextTerminal().println(response.getStatus().toString());
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
@@ -566,7 +566,7 @@ public class GuildView extends View {
             }
             Pair<String,String> newGuildRole = getGuildRoleFromList(connection);
             UserGuildRoleDTO newUserGuildRole = new UserGuildRoleDTO(newGuildRole.getFirst(),oldUserGuildRole.getUsername(),newGuildRole.getSecond());
-            response = GuildController.updateUserGuildRole(connection,oldUserGuildRole,newUserGuildRole);
+            response = GuildController.updateUserGuildRole(oldUserGuildRole,newUserGuildRole);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -596,7 +596,7 @@ public class GuildView extends View {
                 continueOrBack = AskContinueOrGoBack();
                 break;
             }
-            response = GuildController.deleteUserGuildRole(connection,userGuildRole);
+            response = GuildController.deleteUserGuildRole(userGuildRole);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -663,7 +663,7 @@ public class GuildView extends View {
     public void viewPermission(Connection connection, String option){
         ResponseDTO<List<String>> response;
         TextIO textIO = TextIoFactory.getTextIO();
-        response = GuildController.getAllGuildPermissions(connection);
+        response = GuildController.getAllGuildPermissions();
         viewTitle(option,textIO);
         for (String permission : response.getData()){
             textIO.getTextTerminal().println(permission);
@@ -695,7 +695,7 @@ public class GuildView extends View {
             String permission = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("");
-            response = GuildController.addGuildPermission(connection,permission);
+            response = GuildController.addGuildPermission(permission);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -726,7 +726,7 @@ public class GuildView extends View {
             String permission = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("");
-            response = GuildController.updateGuildPermission(connection,permissionUpdated,permission);
+            response = GuildController.updateGuildPermission(permissionUpdated,permission);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -752,7 +752,7 @@ public class GuildView extends View {
             TextIO textIO = TextIoFactory.getTextIO();
             viewTitle(option, textIO);
             String permissionDeleted = getPermissionFromList(connection);
-            response = GuildController.deleteGuildPermission(connection,permissionDeleted);
+            response = GuildController.deleteGuildPermission(permissionDeleted);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -808,7 +808,7 @@ public class GuildView extends View {
             viewTitle("CHOOSE PERMISSION", textIO);
             String permissionAdded = getPermissionFromList(connection);
             GuildRoleDTO guildRoleDTO = new GuildRoleDTO(guildAndRole.getSecond(),guildAndRole.getFirst());
-            response = GuildController.addPermissionToGuildRole(connection,guildRoleDTO,permissionAdded);
+            response = GuildController.addPermissionToGuildRole(guildRoleDTO,permissionAdded);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -841,7 +841,7 @@ public class GuildView extends View {
             viewTitle("CHOOSE NEW PERMISSION", textIO);
             String newPermission = getPermissionFromList(connection);
             GuildRoleDTO guildRoleDTO = new GuildRoleDTO(guildAndRole.getSecond(),guildAndRole.getFirst());
-            response = GuildController.updatePermissionInGuildRole(connection,guildRoleDTO,permissionUpdated,newPermission);
+            response = GuildController.updatePermissionInGuildRole(guildRoleDTO,permissionUpdated,newPermission);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -871,7 +871,7 @@ public class GuildView extends View {
             viewTitle("CHOOSE PERMISSION DELETED", textIO);
             String permissionDeleted = getPermissionByGuildAndRoleFromList(connection,guildAndRole.getFirst(),guildAndRole.getSecond());
             GuildRoleDTO guildRoleDTO = new GuildRoleDTO(guildAndRole.getSecond(),guildAndRole.getFirst());
-            response = GuildController.deletePermissionInGuildRole(connection,guildRoleDTO,permissionDeleted);
+            response = GuildController.deletePermissionInGuildRole(guildRoleDTO,permissionDeleted);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -894,7 +894,7 @@ public class GuildView extends View {
         ResponseDTO<List<String>> response;
         TextIO textIO = TextIoFactory.getTextIO();
         Pair<String,String> guildAndRole = getGuildRoleFromList(connection);
-        response = GuildController.getAllPermissionByGuildId(connection,guildAndRole.getFirst(),guildAndRole.getSecond());
+        response = GuildController.getAllPermissionByGuildId(guildAndRole.getFirst(),guildAndRole.getSecond());
         viewTitle(option,textIO);
         for (String permission : response.getData()){
             textIO.getTextTerminal().println(permission);
@@ -944,7 +944,7 @@ public class GuildView extends View {
     }
     public void viewListGuildEvent(Connection connection, String option) {
         ResponseDTO<List<GuildEventDto>> response;
-        response = GuildController.getAllGuildEvent(connection);
+        response = GuildController.getAllGuildEvent();
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle(option,textIO);
         if(response.getStatus() != ResponseStatus.OK) {
@@ -998,7 +998,7 @@ public class GuildView extends View {
                     .withDefaultValue(null)
                     .read("INPUT TYPE OF EVENT: ");
             GuildEventDto guildEvent = new GuildEventDto(guildName,generation,title,description,type);
-            response = GuildController.addGuildEvent(connection, guildEvent,start,end);
+            response = GuildController.addGuildEvent( guildEvent,start,end);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -1044,7 +1044,7 @@ public class GuildView extends View {
                     .withDefaultValue(null)
                     .read("INPUT TYPE OF EVENT: ");
             GuildEventDto guildEvent = new GuildEventDto(guildName,generation,title,description,type);
-            response = GuildController.updateGuildEvent(connection, guildEvent,guildEventId,start,end);
+            response = GuildController.updateGuildEvent( guildEvent,guildEventId,start,end);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -1071,7 +1071,7 @@ public class GuildView extends View {
             viewTitle(option, textIO);
             int guildEventId = getGuildEventIDFromList(connection);
             String guildName = getGuildFromList(connection);
-            response = GuildController.deleteGuildEvent(connection,guildEventId,guildName);
+            response = GuildController.deleteGuildEvent(guildEventId,guildName);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
                 waitTime(500);
@@ -1096,7 +1096,7 @@ public class GuildView extends View {
         String username = textIO.newStringInputReader()
                 .withDefaultValue(null)
                 .read("INPUT USERNAME: ");
-        response = GuildController.findByUsername(connection,username);
+        response = GuildController.findByUsername(username);
         viewTitle(option,textIO);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());

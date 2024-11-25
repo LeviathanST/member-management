@@ -29,7 +29,7 @@ import models.permissions.Permission;
 import models.roles.Role;
 
 public class AuthService {
-	public static void signUpInternal(Connection con, SignUpDTO data)
+	public static void signUpInternal(SignUpDTO data)
             throws InvalidPasswordException, AuthException, DataEmptyException, SQLException,
             SQLIntegrityConstraintViolationException, NotFoundException, IOException, ClassNotFoundException {
         
@@ -60,7 +60,7 @@ public class AuthService {
 		UserRole.insert(account_id, role_id);
 	}
 
-	public static void loginInternal(Connection con, LoginDTO data)
+	public static void loginInternal(LoginDTO data)
             throws AuthException, TokenException, SQLException, NotFoundException, IOException, ClassNotFoundException {
 		String hashPassword = UserAccount.getHashPasswordByUsername( data);
 		BCrypt.Result result = BCrypt
@@ -84,7 +84,7 @@ public class AuthService {
 
 	}
 
-	public static void changeAccessToken(Connection con, SignUpDTO data) throws TokenException, SQLException, NotFoundException, IOException, ClassNotFoundException {
+	public static void changeAccessToken(SignUpDTO data) throws TokenException, SQLException, NotFoundException, IOException, ClassNotFoundException {
 		Path path = (Path)Paths.get("storage.json");
 		String accountId = UserAccount.getIdByUsername( data.getUsername());
 		List<Integer> userGuildRoleId = UserGuildRole.getIdByAccountId( accountId);
@@ -94,7 +94,7 @@ public class AuthService {
 		TokenService.saveToFile(path, tokenData);
 	}
 
-	public static boolean checkAccessToken(Connection con) throws TokenException, SQLException, IOException, ClassNotFoundException {
+	public static boolean checkAccessToken() throws TokenException, SQLException, IOException, ClassNotFoundException {
 		Path path = (Path)Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
@@ -143,17 +143,17 @@ public class AuthService {
 		return errors.toArray(new String[0]);
 	}
 
-	public static boolean AppAuthorization(Connection con, 
+	public static boolean AppAuthorization(
 			String namePermission) throws SQLException, NotFoundException, TokenException, IOException, ClassNotFoundException {
 		return Authorization(0, RoleType.Application, namePermission);
 	}
 
-	public static boolean GuildAuthorization(Connection con, int guildId,
+	public static boolean GuildAuthorization(int guildId,
 			String namePermission) throws SQLException, NotFoundException, TokenException, IOException, ClassNotFoundException {
 		return Authorization(guildId, RoleType.Guild, namePermission);
 	}
 
-	public static boolean CrewAuthorization(Connection con, int crewId,
+	public static boolean CrewAuthorization(int crewId,
 			String namePermission) throws SQLException, NotFoundException, TokenException, IOException, ClassNotFoundException {
 		return Authorization(crewId, RoleType.Crew, namePermission);
 	}
