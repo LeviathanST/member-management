@@ -108,10 +108,10 @@ public class UserProfile {
 			ResultSet rs = stmt.executeQuery();
 			if(!rs.next())
 				throw new NotFoundException("User profile is not existed.");
-			StringBuilder studentCode = new StringBuilder();
-			studentCode.append("F");	
-			studentCode.append(rs.getInt("generation_id"));
-			String generation = studentCode.toString();
+			StringBuilder gen = new StringBuilder();
+			gen.append("F");	
+			gen.append(rs.getInt("generation_id"));
+			String generation = gen.toString();
 			user_profile.setAccountId(rs.getString("account_id"));
 			user_profile.setFullName(rs.getString("full_name"));
 			user_profile.setSex(Sex.valueOf(rs.getString("sex")));

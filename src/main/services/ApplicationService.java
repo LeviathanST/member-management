@@ -389,17 +389,14 @@ public class ApplicationService extends AuthService{
         int generation = currentYear - 2005; 
         List<Integer> list = Generation.getAllGeneration();
 
-        boolean exists = false;
         for (Integer i : list) {
             if (i == generation) {
-                exists = true;
-                break; 
+                return;
             }
         }
 
-        if (!exists) {
-            Generation.insert(generation);
-        }
+        Generation.insert(generation);
+
     }
 
     public static boolean isValidFullName(String fullName) {
