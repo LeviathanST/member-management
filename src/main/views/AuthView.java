@@ -99,7 +99,7 @@ public class AuthView extends View{
     }
 
     public void logInForm(Connection con, LoginDTO logIn) {
-        ResponseDTO<Object> res = AuthController.checkAccessToken();
+        ResponseDTO<Boolean> res = AuthController.checkAccessToken();
         if(res.getStatus() == ResponseStatus.OK) {
             clearScreen();
             appCrewGuildView(con);
