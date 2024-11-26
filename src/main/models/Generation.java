@@ -91,8 +91,17 @@ public class Generation {
 			}
 			return generations;
 		}
-
-
 	}
-
+	public static List<Integer> getAllGeneration() throws SQLException, NotFoundException, IOException, ClassNotFoundException {
+		try(Connection con = Database.connection()) {
+			String query = "SELECT * FROM generation";
+			PreparedStatement stmt = con.prepareStatement(query);
+			ResultSet rs = stmt.executeQuery();
+			List<Integer> generations = new ArrayList<>();
+			while (rs.next()) {
+				generations.add(rs.getInt("id"));
+			}
+			return generations;
+		}
+	}
 }

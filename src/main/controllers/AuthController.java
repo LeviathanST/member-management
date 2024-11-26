@@ -48,11 +48,12 @@ public class AuthController {
 
 	}
 
-	public static boolean checkAccessToken() {
+	public static ResponseDTO<Object> checkAccessToken() {
 		try {
-			return AuthService.checkAccessToken();
+			AuthService.checkAccessToken();
+			return new ResponseDTO<Object>(ResponseStatus.OK, "Change access token successfully.", null);
 		} catch (Exception e) {
-			return false;
+			return new ResponseDTO<Object>(ResponseStatus.INTERNAL_SERVER_ERROR, "Can not change access token", null);
 		}
 	}
 

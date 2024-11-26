@@ -371,4 +371,12 @@ public class ApplicationController {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND,"Not found generation!", null);
         }
     }
+    public static ResponseDTO<Object> makeNewGeneration() {
+        try {
+            ApplicationService.makeNewGeneration();
+            return new ResponseDTO<Object>(ResponseStatus.OK, "Make new generation successfully.", null);
+        } catch (Exception e) {
+            return new ResponseDTO<Object>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        }
+    }
 }
