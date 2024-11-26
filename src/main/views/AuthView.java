@@ -85,8 +85,11 @@ public class AuthView extends View{
         ResponseDTO<Object> response =  AuthController.signUp(signUp);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
+            waitTimeByMessage("Press enter to continue!");
+            Auth_view();
         } else {
             textIO.getTextTerminal().println(response.getMessage());
+            waitTimeByMessage("Press enter to continue!");
             clearScreen();
             ResponseDTO<Object> res = AuthController.changeAccessToken(signUp);
             if(res.getStatus() != ResponseStatus.OK)
