@@ -130,10 +130,22 @@ public class ApplicationController {
         }
     }
 
-    public static ResponseDTO<Object> createOneUserProfile( UserProfileDTO data, SignUpDTO signUp, String date) {
+    public static ResponseDTO<Boolean> checkToInsertProfile() {
+        try {
+            Boolean check = ApplicationService.checkToInsertProfile();
+            if(check == true)
+                return new ResponseDTO<Boolean>(ResponseStatus.OK, "Already insert profile.", check);
+            else return new ResponseDTO<Boolean>(ResponseStatus.NOT_FOUND, "There is no profile reference this account.", check);
+        } catch (Exception e) {
+            return new ResponseDTO<Boolean>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        }
+
+    }
+
+    public static ResponseDTO<Object> createOneUserProfile( UserProfileDTO data, String date) {
         try {
 			
-			ApplicationService.insertProfileInternal(data, signUp, date);
+			ApplicationService.insertProfileInternal(data, date);
             return new ResponseDTO<>(ResponseStatus.OK, "Create user profile successfully!", null);
 		} catch (SQLException e) {
 			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);

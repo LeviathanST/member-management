@@ -29,7 +29,7 @@ public class AuthView extends View{
             clearScreen();
             switch (choice) {
                 case 1:
-                    signUpForm(con, signUp, logIn);
+                    signUpForm(con, signUp);
                     waitTimeByMessage("Press enter to continue!");
                     break;
                 case 2:
@@ -77,7 +77,7 @@ public class AuthView extends View{
     }
 
 
-    public void signUpForm(Connection con, SignUpDTO signUp, LoginDTO logIn) {
+    public void signUpForm(Connection con, SignUpDTO signUp) {
         viewTitle("| SIGN UP |", textIO);
         signUp.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
         signUp.setPassword(textIO.newStringInputReader().read("Enter your password : "));
@@ -88,18 +88,21 @@ public class AuthView extends View{
         } else {
             textIO.getTextTerminal().println(response.getMessage());
             clearScreen();
-            UserProfileView profileView = new UserProfileView(con);
-            profileView.addUserProfile(con, signUp);
             ResponseDTO<Object> res = AuthController.changeAccessToken(signUp);
             if(res.getStatus() != ResponseStatus.OK)
                 printError(res.getMessage());
             clearScreen();
-            logInForm(con, logIn);
+            Auth_view();
         }
     }
 
     public void logInForm(Connection con, LoginDTO logIn) {
         ResponseDTO<Boolean> res = AuthController.checkAccessToken();
+        ResponseDTO<Boolean> checkProfile = ApplicationController.checkToInsertProfile();
+        if(checkProfile.getStatus() != ResponseStatus.OK) {
+            UserProfileView profileView = new UserProfileView(con);
+            profileView.addUserProfile(con);
+        }
         if(res.getStatus() == ResponseStatus.OK) {
             clearScreen();
             appCrewGuildView(con);
