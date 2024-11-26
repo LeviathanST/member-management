@@ -58,4 +58,4 @@ INSERT INTO role_permission (role_id, permission_id) VALUES (1, 7);
 INSERT INTO role_permission (role_id, permission_id) VALUES (1, 8);
 
 
-INSERT INTO generation(name) VALUES ('F19');
+INSERT INTO generation(id) VALUES (19);

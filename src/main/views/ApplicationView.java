@@ -115,7 +115,7 @@ public class ApplicationView extends View{
         String title = textIO.newStringInputReader().read("Enter title's event : ");
         String description = textIO.newStringInputReader().read("Enter description's event : ");
         String type = textIO.newStringInputReader().read("Enter type's event : ");
-        String generation = textIO.newStringInputReader().read("Enter generation : ");
+        int generation = textIO.newIntInputReader().read("Enter generation : ");
         String start = textIO.newStringInputReader().read("Enter date start (dd-MM-yyyy) : ");
         String end = textIO.newStringInputReader().read("Enter date end (dd-MM-yyyy) : ");
         EventDto event = new EventDto(generation, title, description, type);
@@ -153,7 +153,7 @@ public class ApplicationView extends View{
             String title = textIO.newStringInputReader().read("Enter new title's event : ");
             String description = textIO.newStringInputReader().read("Enter new description's event : ");
             String type = textIO.newStringInputReader().read("Enter new type's event : ");
-            String generation = textIO.newStringInputReader().read("Enter generation : ");
+            int generation = textIO.newIntInputReader().read("Enter generation : ");
             String start = textIO.newStringInputReader().read("Enter new date start (dd-MM-yyyy) : ");
             String end = textIO.newStringInputReader().read("Enter new date end (dd-MM-yyyy) : ");
             EventDto event = new EventDto(generation, title, description, type);
@@ -305,7 +305,7 @@ public class ApplicationView extends View{
         textIO.getTextTerminal().println("Sex: " + profile.getSex());
         textIO.getTextTerminal().println("Student Code: " + profile.getStudentCode());
         textIO.getTextTerminal().println("Contact Email: " + profile.getContactEmail());
-        textIO.getTextTerminal().println("Generation ID: " + profile.getGenerationId());
+        textIO.getTextTerminal().println("Generation : " + profile.getGenerationName());
         textIO.getTextTerminal().println("Date of Birth: " + profile.getDateOfBirth());
     }
 

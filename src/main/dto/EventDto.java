@@ -22,18 +22,18 @@ public class EventDto {
 		this.endAt = endAt;
 		this.type = type;
 	}
-	public EventDto(int id, String title, String description, int generationId, Timestamp startAt,
+	public EventDto(int id, String title, String description, String  generation, Timestamp startAt,
                     Timestamp endAt, String type) {
 		this.id = id;
 		this.title = title;
 		this.description = description;
-		this.generationId = generationId;
+		this.generation = generation;
 		this.startAt = startAt;
 		this.endAt = endAt;
 		this.type = type;
 	}
-	public EventDto(String generation, String title, String description, String type) {
-		this.generation = generation;
+	public EventDto(int generationId, String title, String description, String type) {
+		this.generationId = generationId;
 		this.title = title;
 		this.description = description;
 		this.type = type;

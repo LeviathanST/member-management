@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -276,10 +277,9 @@ public class ApplicationService extends AuthService{
             } else if (dateEnd.isEmpty()) {
                 throw new DataEmptyException("End date is empty");
             }
-            int generationId = Generation.getIdByName(eventDto.getGeneration());
             Timestamp start = validTimeStamp(dateStart);
             Timestamp end = validTimeStamp(dateEnd);
-            eventDto = new EventDto(eventDto.getTitle(),eventDto.getDescription(),generationId,start,end,eventDto.getType());
+            eventDto = new EventDto(eventDto.getTitle(),eventDto.getDescription(),eventDto.getGenerationId(),start,end,eventDto.getType());
             Event.insert( eventDto);
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new SQLException(String.format("Your event is existed: %s", eventDto.getTitle()));
@@ -304,10 +304,9 @@ public class ApplicationService extends AuthService{
             } else if (dateEnd.isEmpty()) {
                 throw new DataEmptyException("End date is empty");
             }
-            int generationId = Generation.getIdByName(eventDto.getGeneration());
             Timestamp start = validTimeStamp(dateStart);
             Timestamp end = validTimeStamp(dateEnd);
-            eventDto = new EventDto(eventDto.getTitle(),eventDto.getDescription(),generationId,start,end,eventDto.getType());
+            eventDto = new EventDto(eventDto.getTitle(),eventDto.getDescription(),eventDto.getGenerationId(),start,end,eventDto.getType());
             Event.update( eventDto,eventId);
         } catch (SQLIntegrityConstraintViolationException e) {
 
@@ -383,6 +382,21 @@ public class ApplicationService extends AuthService{
                 throw new NotFoundException("Generation id is not existed!");
             return rs.getInt("max_id");
         }
+    }
+
+    public static void makeNewGeneration() throws ClassNotFoundException, SQLException, IOException, NotFoundException {
+        int currentYear = Year.now().getValue(); 
+        int generation = currentYear - 2004; 
+        List<Integer> list = Generation.getAllGeneration();
+
+        for (Integer i : list) {
+            if (i == generation) {
+                return;
+            }
+        }
+
+        Generation.insert(generation);
+
     }
 
     public static boolean isValidFullName(String fullName) {

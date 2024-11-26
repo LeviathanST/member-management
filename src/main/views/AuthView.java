@@ -6,6 +6,7 @@ import dto.SignUpDTO;
 import java.sql.Connection;
 import java.lang.Object;
 import constants.ResponseStatus;
+import controllers.ApplicationController;
 import controllers.AuthController;
 
 public class AuthView extends View{
@@ -43,6 +44,10 @@ public class AuthView extends View{
 
     public void appCrewGuildView(Connection con) {
         viewTitle("| MENU |", textIO);
+        ResponseDTO<Object> res = ApplicationController.makeNewGeneration();
+        if(res.getStatus() != ResponseStatus.OK) {
+            printError(res.getMessage());
+        }
         String option = textIO.newStringInputReader().withNumberedPossibleValues("APPLICATION", "CREW", "GUILD", "BACK").read("");
         do {
             switch (option) {
@@ -94,11 +99,11 @@ public class AuthView extends View{
     }
 
     public void logInForm(Connection con, LoginDTO logIn) {
-        boolean checkAccessToken = AuthController.checkAccessToken();
-        if(checkAccessToken == true) {
+        ResponseDTO<Boolean> res = AuthController.checkAccessToken();
+        if(res.getStatus() == ResponseStatus.OK) {
             clearScreen();
             appCrewGuildView(con);
-        }
+        } else printError(res.getMessage());
         viewTitle("| LOG IN |", textIO);
         logIn.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
         logIn.setPassword(textIO.newStringInputReader().read("Enter your password : "));

@@ -504,10 +504,9 @@ public class CrewService {
 				throw new DataEmptyException("End date is empty");
 			}
 			int crewId = Crew.getIdByName(crewEvent.getCrewName());
-			int generationId = Generation.getIdByName(crewEvent.getGeneration());
 			Timestamp start = validTimeStamp(dateStart);
 			Timestamp end = validTimeStamp(dateEnd);
-			crewEvent = new CrewEventDto(crewId,crewEvent.getTitle(),crewEvent.getDescription(),generationId,start,end,crewEvent.getType());
+			crewEvent = new CrewEventDto(crewId,crewEvent.getTitle(),crewEvent.getDescription(),crewEvent.getGenerationId(),start,end,crewEvent.getType());
 			if (checkPermission("CRUDCrewEvent",crewEvent.getCrewName())){
 				CrewEvent.insert( crewEvent);
 			}else {
@@ -540,10 +539,9 @@ public class CrewService {
 				throw new DataEmptyException("End date is empty");
 			}
 			int crewId = Crew.getIdByName(crewEvent.getCrewName());
-			int generationId = Generation.getIdByName(crewEvent.getGeneration());
 			Timestamp start = validTimeStamp(dateStart);
 			Timestamp end = validTimeStamp(dateEnd);
-			crewEvent = new CrewEventDto(crewId,crewEvent.getTitle(),crewEvent.getDescription(),generationId,start,end,crewEvent.getType());
+			crewEvent = new CrewEventDto(crewId,crewEvent.getTitle(),crewEvent.getDescription(),crewEvent.getGenerationId(),start,end,crewEvent.getType());
 			if (checkPermission("CRUDCrewEvent",crewEvent.getCrewName())){
 				CrewEvent.update( crewEvent,crewEventId);
 			}else {
