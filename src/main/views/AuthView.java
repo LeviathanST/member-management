@@ -103,6 +103,8 @@ public class AuthView extends View{
         ResponseDTO<Boolean> res = AuthController.checkAccessToken();
         ResponseDTO<Boolean> checkProfile = ApplicationController.checkToInsertProfile();
         if(checkProfile.getStatus() != ResponseStatus.OK) {
+            textIO.getTextTerminal().println("Missing profile, please insert you profile.");
+            waitTime(2000);
             UserProfileView profileView = new UserProfileView(con);
             profileView.addUserProfile(con);
         }
