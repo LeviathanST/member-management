@@ -386,7 +386,7 @@ public class ApplicationService extends AuthService{
 
     public static void makeNewGeneration() throws ClassNotFoundException, SQLException, IOException, NotFoundException {
         int currentYear = Year.now().getValue(); 
-        int generation = currentYear - 2005; 
+        int generation = currentYear - 2004; 
         List<Integer> list = Generation.getAllGeneration();
 
         for (Integer i : list) {
