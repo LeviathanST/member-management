@@ -15,7 +15,7 @@ public class UserProfileView extends View{
         super(con);
     }
 
-    public void addUserProfile(Connection con, SignUpDTO signUp) {
+    public void addUserProfile(Connection con) {
         ResponseDTO<Object> response = new ResponseDTO<Object>(null, null, null);
         do {
             viewTitle("| INSERT YOUR PROFILE |", textIO);
@@ -25,7 +25,7 @@ public class UserProfileView extends View{
             user_profile.setStudentCode(textIO.newStringInputReader().read("Enter your roll number : "));
             user_profile.setContactEmail(textIO.newStringInputReader().read("Enter your contact email : "));
             String dob = textIO.newStringInputReader().read("Enter your birthday (dd-MM-yyy) : ");
-            response = ApplicationController.createOneUserProfile(user_profile, signUp, dob);
+            response = ApplicationController.createOneUserProfile(user_profile, dob);
             if(response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
             } else textIO.getTextTerminal().println(response.getMessage());

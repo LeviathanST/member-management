@@ -29,10 +29,12 @@ import models.users.UserRole;
 
 
 public class ApplicationService extends AuthService{
-    public static void insertProfileInternal(UserProfileDTO data, SignUpDTO signUp, String date)
+    public static void insertProfileInternal(UserProfileDTO data, String date)
             throws SQLException, UserProfileException, NotFoundException, ParseException, TokenException, IOException, ClassNotFoundException {
         
-        String accountId = UserAccount.getIdByUsername( signUp.getUsername());
+        Path path = (Path)Paths.get("storage.json");
+        String accessToken = TokenService.loadFromFile(path).getAccessToken();
+        String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
         data.setAccountId(accountId);
         data.setStudentCode((data.getStudentCode().toUpperCase()));
         data.setGenerationId(getMaxGenerationId());
@@ -71,6 +73,14 @@ public class ApplicationService extends AuthService{
         UserProfile.insert( data);
     }
 
+    public static Boolean checkToInsertProfile() throws TokenException, ClassNotFoundException, SQLException, NotFoundException, IOException {
+        UserProfileDTO data = new UserProfileDTO();
+        readUserProfileInternal(data);
+        if(data.getFullName() == null || data.getContactEmail() == null || data.getSex() == null || data.getStudentCode() == null || data.getDateOfBirth() == null) 
+            return false;
+        return true;
+    }
+
 
     public static void readUserProfileInternal(UserProfileDTO data)
             throws SQLException, NotFoundException, TokenException, IOException, ClassNotFoundException {
@@ -78,8 +88,7 @@ public class ApplicationService extends AuthService{
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
         data.setAccountId(accountId);
-        UserProfile.read( data);
-        
+        UserProfile.read( data); 
     }
 
 
@@ -386,7 +395,7 @@ public class ApplicationService extends AuthService{
 
     public static void makeNewGeneration() throws ClassNotFoundException, SQLException, IOException, NotFoundException {
         int currentYear = Year.now().getValue(); 
-        int generation = currentYear - 2004; 
+        int generation = currentYear - 2002; 
         List<Integer> list = Generation.getAllGeneration();
 
         for (Integer i : list) {
