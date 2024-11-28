@@ -47,9 +47,6 @@ public class AuthService {
 				errors += tmp + "\n";
 		}
 
-		if (ApplicationService.isValidEmail(data.getEmail()) == false)
-			errors += "Invalid email!";
-
 		if(errors != "")
 			throw new AuthException(errors);
 
