@@ -50,9 +50,11 @@ public class ApplicationService extends AuthService{
         if (data.getContactEmail() == null)
                 errors += "Contact email is null!\n";
         if (isValidEmail(data.getContactEmail()) == false)
-                errors += "Invalid email!\n";
+                errors += "Invalid contact email!\n";
         if (isValidStudentCode(data.getStudentCode()) == false || data.getStudentCode() == null)
                 errors += "Invalid student code!\n";
+        if (isValidEmail(data.getContactEmail()) == false)
+            errors += "Invalid email!\n";
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         dateFormat.setLenient(false);
