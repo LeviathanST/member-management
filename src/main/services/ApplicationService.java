@@ -40,21 +40,21 @@ public class ApplicationService extends AuthService{
         data.setGenerationId(getMaxGenerationId());
         data.setFullName(normalizeFullname(data.getFullName()));
         String errors = "";
-
+        if(data.getContactEmail() == "\n") {
+            data.setContactEmail(null);
+        } else if(isValidEmail(data.getContactEmail()) == false) {
+            errors += "Invalid contact email (contact email can be null)\n";
+        }
         if (data.getFullName() == null || isValidFullName(data.getFullName()) == false) 
                 errors += "Full name is empty or contains special character!\n";
         if (data.getSex() == null)
                 errors += "Sex is null!\n";
         if (data.getStudentCode() == null)
                 errors += "Student code is null!\n";
-        if (data.getContactEmail() == null)
-                errors += "Contact email is null!\n";
-        if (isValidEmail(data.getContactEmail()) == false)
-                errors += "Invalid contact email!\n";
+        if (isValidEmail(data.getEmail()) == false)
+                errors += "Invalid email!\n";
         if (isValidStudentCode(data.getStudentCode()) == false || data.getStudentCode() == null)
                 errors += "Invalid student code!\n";
-        if (isValidEmail(data.getContactEmail()) == false)
-            errors += "Invalid email!\n";
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         dateFormat.setLenient(false);
@@ -78,7 +78,7 @@ public class ApplicationService extends AuthService{
     public static Boolean checkToInsertProfile() throws TokenException, ClassNotFoundException, SQLException, NotFoundException, IOException {
         UserProfileDTO data = new UserProfileDTO();
         readUserProfileInternal(data);
-        if(data.getFullName() == null || data.getContactEmail() == null || data.getSex() == null || data.getStudentCode() == null || data.getDateOfBirth() == null) 
+        if(data.getFullName() == null || data.getEmail() == null || data.getSex() == null || data.getStudentCode() == null || data.getDateOfBirth() == null) 
             return false;
         return true;
     }
@@ -113,10 +113,11 @@ public class ApplicationService extends AuthService{
         if (data.getContactEmail() == null)
                 errors += "Contact email is null!\n";
         if (isValidEmail(data.getContactEmail()) == false)
-                errors += "Invalid email!\n";
+                errors += "Invalid contact email!\n";
         if (isValidStudentCode(data.getStudentCode()) == false || data.getStudentCode() == null)
-                errors += "Invalid student code!";
-        
+                errors += "Invalid student code!\n";
+        if(isValidEmail(data.getEmail()) == false || data.getEmail() == null)
+                errors += "invalid email!\n";
         if(errors != "")
                 throw new UserProfileException(errors);
         UserProfile.update( data);
