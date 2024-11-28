@@ -23,6 +23,7 @@ public class UserProfileView extends View{
             user_profile.setFullName(textIO.newStringInputReader().read("Enter your full name : "));
             user_profile.setSex(textIO.newEnumInputReader(Sex.class).read("Enter your sex : "));
             user_profile.setStudentCode(textIO.newStringInputReader().read("Enter your roll number : "));
+            user_profile.setEmail(textIO.newStringInputReader().read("Enter your email : "));
             user_profile.setContactEmail(textIO.newStringInputReader().read("Enter your contact email : "));
             String dob = textIO.newStringInputReader().read("Enter your birthday (dd-MM-yyy) : ");
             response = ApplicationController.createOneUserProfile(user_profile, dob);

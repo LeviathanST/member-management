@@ -14,16 +14,18 @@ public class UserProfileDTO {
     private Date date_of_birth;
     private String userName;
     private String generationName;
+    private String email;
 
     public UserProfileDTO() {}
 
     public UserProfileDTO(String account_id, String full_name, Sex sex,
-                          String student_code, String contact_email, int generation_id, Date date_of_birth) {
+                          String student_code, String email, String contact_email, int generation_id, Date date_of_birth) {
 
         this.account_id = account_id;
         this.full_name = full_name;
         this.sex = sex;
         this.student_code = student_code;
+        this.email = email;
         this.contact_email = contact_email;
         this.generation_id = generation_id;
         this.date_of_birth = date_of_birth;
@@ -93,6 +95,14 @@ public class UserProfileDTO {
 
     public void setGenerationName(String generationName) {
         this.generationName = generationName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getEmail() {
+        return this.email;
     }
 }
 

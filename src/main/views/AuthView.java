@@ -81,9 +81,8 @@ public class AuthView extends View {
         viewTitle("| SIGN UP |", textIO);
         signUp.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
         signUp.setPassword(textIO.newStringInputReader().read("Enter your password : "));
-        signUp.setEmail(textIO.newStringInputReader().read("Enter your email : "));
-        ResponseDTO<Object> response = AuthController.signUp(signUp);
-        if (response.getStatus() != ResponseStatus.OK) {
+        ResponseDTO<Object> response =  AuthController.signUp(signUp);
+        if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
             waitTimeByMessage("Press enter to continue!");
             Auth_view();

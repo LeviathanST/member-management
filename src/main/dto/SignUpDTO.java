@@ -3,16 +3,14 @@ package dto;
 public class SignUpDTO {
 	private String username;
 	private String password;
-	private String email;
 
 	public SignUpDTO() {
 
 	}
 
-	public SignUpDTO(String username, String password, String email) {
+	public SignUpDTO(String username, String password) {
 		this.username = username;
 		this.password = password;
-		this.email = email;
 	}
 
 	public String getUsername() {
@@ -30,14 +28,5 @@ public class SignUpDTO {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-
-	public String getEmail() {
-		return this.email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
 	
 }

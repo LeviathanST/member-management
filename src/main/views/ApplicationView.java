@@ -226,6 +226,7 @@ public class ApplicationView extends View{
         user_profile.setFullName(textIO.newStringInputReader().read("Enter your full name : "));
         user_profile.setSex(textIO.newEnumInputReader(Sex.class).read("Enter your sex : "));
         user_profile.setStudentCode(textIO.newStringInputReader().read("Enter your roll number : "));
+        user_profile.setEmail(textIO.newStringInputReader().read("Enter your email : "));
         user_profile.setContactEmail(textIO.newStringInputReader().read("Enter your contact email : "));
 
         String dateStr = textIO.newStringInputReader()
@@ -260,6 +261,7 @@ public class ApplicationView extends View{
                 textIO.getTextTerminal().println("Full Name: " + i.getFullName());
                 textIO.getTextTerminal().println("Sex: " + i.getSex());
                 textIO.getTextTerminal().println("Student Code: " + i.getStudentCode());
+                textIO.getTextTerminal().println("Email: " + i.getEmail());
                 textIO.getTextTerminal().println("Contact Email: " + i.getContactEmail());
                 textIO.getTextTerminal().println("Generation ID: " + i.getGenerationId());
                 textIO.getTextTerminal().println("Date of Birth: " + i.getDateOfBirth());
@@ -304,6 +306,7 @@ public class ApplicationView extends View{
         textIO.getTextTerminal().println("Full Name: " + profile.getFullName());
         textIO.getTextTerminal().println("Sex: " + profile.getSex());
         textIO.getTextTerminal().println("Student Code: " + profile.getStudentCode());
+        textIO.getTextTerminal().println("Email: " + profile.getEmail());
         textIO.getTextTerminal().println("Contact Email: " + profile.getContactEmail());
         textIO.getTextTerminal().println("Generation : " + profile.getGenerationName());
         textIO.getTextTerminal().println("Date of Birth: " + profile.getDateOfBirth());
