@@ -9,7 +9,7 @@ import constants.ResponseStatus;
 import controllers.ApplicationController;
 import controllers.AuthController;
 
-public class AuthView extends View{
+public class AuthView extends View {
     private SignUpDTO signUp = new SignUpDTO();
     private LoginDTO logIn = new LoginDTO();
 
@@ -21,11 +21,11 @@ public class AuthView extends View{
         int choice;
         do {
             clearScreen();
-            choice = textIO.newIntInputReader().read("|------------------WELCOME------------------|\n" + 
-                                                     "|1 : SIGN UP                                |\n" + 
-                                                     "|2 : LOG IN                                 |\n" + 
-                                                     "|-------------------------------------------|\n" + 
-                                                     "Enter your choice : ");
+            choice = textIO.newIntInputReader().read("|------------------WELCOME------------------|\n" +
+                    "|1 : SIGN UP                                |\n" +
+                    "|2 : LOG IN                                 |\n" +
+                    "|-------------------------------------------|\n" +
+                    "Enter your choice : ");
             clearScreen();
             switch (choice) {
                 case 1:
@@ -45,10 +45,11 @@ public class AuthView extends View{
     public void appCrewGuildView(Connection con) {
         viewTitle("| MENU |", textIO);
         ResponseDTO<Object> res = ApplicationController.makeNewGeneration();
-        if(res.getStatus() != ResponseStatus.OK) {
+        if (res.getStatus() != ResponseStatus.OK) {
             printError(res.getMessage());
         }
-        String option = textIO.newStringInputReader().withNumberedPossibleValues("APPLICATION", "CREW", "GUILD", "BACK").read("");
+        String option = textIO.newStringInputReader().withNumberedPossibleValues("APPLICATION", "CREW", "GUILD", "BACK")
+                .read("");
         do {
             switch (option) {
                 case "APPLICATION":
@@ -76,7 +77,6 @@ public class AuthView extends View{
         } while (!option.equalsIgnoreCase("back"));
     }
 
-
     public void signUpForm(Connection con, SignUpDTO signUp) {
         viewTitle("| SIGN UP |", textIO);
         signUp.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
@@ -91,7 +91,7 @@ public class AuthView extends View{
             waitTimeByMessage("Press enter to continue!");
             clearScreen();
             ResponseDTO<Object> res = AuthController.changeAccessToken(signUp);
-            if(res.getStatus() != ResponseStatus.OK)
+            if (res.getStatus() != ResponseStatus.OK)
                 printError(res.getMessage());
             clearScreen();
             Auth_view();
@@ -99,29 +99,24 @@ public class AuthView extends View{
     }
 
     public void logInForm(Connection con, LoginDTO logIn) {
-        ResponseDTO<Boolean> res = AuthController.checkAccessToken();
         ResponseDTO<Boolean> checkProfile = ApplicationController.checkToInsertProfile();
-        if(checkProfile.getStatus() != ResponseStatus.OK) {
+        if (checkProfile.getStatus() == ResponseStatus.BAD_REQUEST) {
+            viewTitle("| LOG IN |", textIO);
+            logIn.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
+            logIn.setPassword(textIO.newStringInputReader().read("Enter your password : "));
+            ResponseDTO<Object> response = AuthController.login(logIn);
+            if (response.getStatus() != ResponseStatus.OK) {
+                printError(response.getMessage());
+            } else {
+                textIO.getTextTerminal().println(response.getMessage());
+                clearScreen();
+                appCrewGuildView(con);
+            }
+        } else {
             textIO.getTextTerminal().println("Missing profile, please insert you profile.");
             waitTime(2000);
             UserProfileView profileView = new UserProfileView(con);
             profileView.addUserProfile(con);
         }
-        if(res.getStatus() == ResponseStatus.OK) {
-            clearScreen();
-            appCrewGuildView(con);
-        } else printError(res.getMessage());
-        viewTitle("| LOG IN |", textIO);
-        logIn.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
-        logIn.setPassword(textIO.newStringInputReader().read("Enter your password : "));
-        ResponseDTO<Object> response = AuthController.login(logIn);
-        if(response.getStatus() != ResponseStatus.OK) {
-            printError(response.getMessage());
-        } else {
-            textIO.getTextTerminal().println(response.getMessage());
-            clearScreen();
-            appCrewGuildView(con);
-        }
     }
 }
-
