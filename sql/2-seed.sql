@@ -40,7 +40,11 @@ INSERT INTO permission (name) VALUES ("SetUserRole");
 INSERT INTO permission (name) VALUES ("UpdateUserRole"); 
 INSERT INTO permission (name) VALUES ("AddPermissionToRole"); 
 INSERT INTO permission (name) VALUES ("ViewUserInformation"); 
-INSERT INTO permission (name) VALUES ("DeleteUserAccount"); 
+INSERT INTO permission (name) VALUES ("DeleteUserAccount");
+INSERT INTO permission (name) VALUES ('ViewGuild');
+INSERT INTO permission (name) VALUES ('CRUDGuild');
+INSERT INTO permission (name) VALUES ('ViewCrew');
+INSERT INTO permission (name) VALUES ('CRUDCrew');
 
 
 
@@ -56,6 +60,10 @@ INSERT INTO role_permission (role_id, permission_id) VALUES (1, 5);
 INSERT INTO role_permission (role_id, permission_id) VALUES (1, 6);
 INSERT INTO role_permission (role_id, permission_id) VALUES (1, 7);
 INSERT INTO role_permission (role_id, permission_id) VALUES (1, 8);
+INSERT INTO role_permission (role_id, permission_id) VALUES (1, 9);
+INSERT INTO role_permission (role_id, permission_id) VALUES (1, 10);
+INSERT INTO role_permission (role_id, permission_id) VALUES (1, 11);
+INSERT INTO role_permission (role_id, permission_id) VALUES (1, 12);
 
 
 INSERT INTO generation(id) VALUES (19);

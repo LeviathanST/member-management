@@ -1,13 +1,13 @@
 package views;
 
-import dto.LoginDTO;
-import dto.ResponseDTO;
-import dto.SignUpDTO;
-import java.sql.Connection;
-import java.lang.Object;
 import constants.ResponseStatus;
 import controllers.ApplicationController;
 import controllers.AuthController;
+import dto.LoginDTO;
+import dto.ResponseDTO;
+import dto.SignUpDTO;
+
+import java.sql.Connection;
 
 public class AuthView extends View {
     private SignUpDTO signUp = new SignUpDTO();
@@ -108,10 +108,25 @@ public class AuthView extends View {
             if (response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
             } else {
+                ResponseDTO<Boolean> checkProfile_ = ApplicationController.checkToInsertProfile();
                 textIO.getTextTerminal().println(response.getMessage());
-                clearScreen();
-                appCrewGuildView(con);
+                if (!checkProfile_.getData()){
+                    textIO.getTextTerminal().println("Missing profile, please insert you profile.");
+                    waitTime(2000);
+                    UserProfileView profileView = new UserProfileView(con);
+                    profileView.addUserProfile(con);
+
+                }
+                else {
+
+                    clearScreen();
+                    appCrewGuildView(con);
+                }
             }
+        } else if (checkProfile.getStatus() == ResponseStatus.OK) {
+            clearScreen();
+            appCrewGuildView(con);
+
         } else {
             textIO.getTextTerminal().println("Missing profile, please insert you profile.");
             waitTime(2000);

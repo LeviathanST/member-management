@@ -3,7 +3,6 @@ package services;
 import dto.*;
 import exceptions.*;
 import models.Crew;
-import models.Generation;
 import models.events.CrewEvent;
 import models.permissions.CrewPermission;
 import models.roles.CrewRole;
@@ -14,7 +13,6 @@ import models.users.UserRole;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Timestamp;
@@ -636,7 +634,7 @@ public class CrewService {
         return new Timestamp(parsedDate.getTime());
 	}
 	public static String getAccountIDUser()
-			throws SQLException, NotFoundException, TokenException {
+            throws SQLException, NotFoundException, TokenException, IOException {
 		Path path = (Path) Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
