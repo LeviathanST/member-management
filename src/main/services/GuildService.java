@@ -648,7 +648,7 @@ public class GuildService {
 		return String.join(" ", normalized);
 	}
 	public static String getAccountIDUser()
-            throws SQLException, NotFoundException, TokenException {
+            throws SQLException, NotFoundException, TokenException, IOException {
 		Path path = (Path) Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();

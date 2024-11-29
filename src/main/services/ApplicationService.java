@@ -40,10 +40,10 @@ public class ApplicationService extends AuthService{
         data.setGenerationId(getMaxGenerationId());
         data.setFullName(normalizeFullname(data.getFullName()));
         String errors = "";
-        if(data.getContactEmail() == "\n") {
+        if(data.getContactEmail().length() == 0) {
             data.setContactEmail(null);
         } else if(isValidEmail(data.getContactEmail()) == false) {
-            errors += "Invalid contact email (contact email can be null)\n";
+            errors += "Invalid contact email (contact email can be skip)\n";
         }
         if (data.getFullName() == null || isValidFullName(data.getFullName()) == false) 
                 errors += "Full name is empty or contains special character!\n";
