@@ -129,18 +129,17 @@ public class UserAccount {
 
 	}
 
-	public static void update( String username, String password, String email, String accountId) throws SQLException, IOException, ClassNotFoundException {
+	public static void update( String username, String password, String accountId) throws SQLException, IOException, ClassNotFoundException {
 		try(Connection con = Database.connection()) {
 			String query = """
 				UPDATE user_account
-				SET username = ?, hashed_password = ?, email = ?
+				SET username = ?, hashed_password = ?
 				WHERE id = ?
 				""";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, username);
 			stmt.setString(2, password);
-			stmt.setString(3, email);
-			stmt.setString(4, accountId);
+			stmt.setString(3, accountId);
 			int row = stmt.executeUpdate();
 			if(row == 0)
 				throw new SQLException("Update user account failed!");

@@ -100,27 +100,36 @@ public class AuthView extends View{
 
     public void logInForm(Connection con, LoginDTO logIn) {
         ResponseDTO<Boolean> res = AuthController.checkAccessToken();
-        ResponseDTO<Boolean> checkProfile = ApplicationController.checkToInsertProfile();
-        if(checkProfile.getStatus() != ResponseStatus.OK) {
-            textIO.getTextTerminal().println("Missing profile, please insert you profile.");
-            waitTime(2000);
-            UserProfileView profileView = new UserProfileView(con);
-            profileView.addUserProfile(con);
-        }
+        ResponseDTO<Boolean> checkProfile;
         if(res.getStatus() == ResponseStatus.OK) {
             clearScreen();
-            appCrewGuildView(con);
-        } else printError(res.getMessage());
-        viewTitle("| LOG IN |", textIO);
-        logIn.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
-        logIn.setPassword(textIO.newStringInputReader().read("Enter your password : "));
-        ResponseDTO<Object> response = AuthController.login(logIn);
-        if(response.getStatus() != ResponseStatus.OK) {
-            printError(response.getMessage());
+            checkProfile = ApplicationController.checkToInsertProfile();
+            if(checkProfile.getStatus() != ResponseStatus.OK) {
+                textIO.getTextTerminal().println("Missing profile, please insert you profile.");
+                waitTime(2000);
+                UserProfileView profileView = new UserProfileView(con);
+                profileView.addUserProfile(con);
+            } else appCrewGuildView(con);
         } else {
-            textIO.getTextTerminal().println(response.getMessage());
-            clearScreen();
-            appCrewGuildView(con);
+            viewTitle("| LOG IN |", textIO);
+            logIn.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
+            logIn.setPassword(textIO.newStringInputReader().read("Enter your password : "));
+            ResponseDTO<Object> response = AuthController.login(logIn);
+
+            if(response.getStatus() != ResponseStatus.OK) {
+                printError(response.getMessage());
+            } else {
+                textIO.getTextTerminal().println(response.getMessage());
+                clearScreen();
+                checkProfile = ApplicationController.checkToInsertProfile();
+                if(checkProfile.getStatus() != ResponseStatus.OK) {
+                    textIO.getTextTerminal().println("Missing profile, please insert you profile.");
+                    waitTime(2000);
+                    UserProfileView profileView = new UserProfileView(con);
+                    profileView.addUserProfile(con);
+                    appCrewGuildView(con);
+                } else appCrewGuildView(con);
+            }
         }
     }
 }

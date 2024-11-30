@@ -277,11 +277,10 @@ public class ApplicationView extends View{
 
     public void updateAccount(Connection con) {
         viewTitle("| UPDATE ACCOUNT |", textIO);
-        String username, password, email;
+        String username, password;
         username = textIO.newStringInputReader().read("Enter new user name : ");
         password = textIO.newStringInputReader().read("Enter new password : ");
-        email = textIO.newStringInputReader().read("Enter new email : ");
-        ResponseDTO<Object> response = ApplicationController.updateUserAccount( username, password, email);
+        ResponseDTO<Object> response = ApplicationController.updateUserAccount( username, password);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else textIO.getTextTerminal().println(response.getMessage());

@@ -103,10 +103,10 @@ public class ApplicationController {
         }
     }
 
-    public static ResponseDTO<Object> updateUserAccount( String username, String password, String email) {
+    public static ResponseDTO<Object> updateUserAccount( String username, String password) {
         try {
 
-            ApplicationService.updateUserAccount( username, password, email);
+            ApplicationService.updateUserAccount( username, password);
             return new ResponseDTO<Object>(ResponseStatus.OK, "Update account successfully", null);
 
         } catch (SQLException e) {

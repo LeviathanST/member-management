@@ -1,6 +1,7 @@
 package services;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -77,9 +78,24 @@ public class ApplicationService extends AuthService{
 
     public static Boolean checkToInsertProfile() throws TokenException, ClassNotFoundException, SQLException, NotFoundException, IOException {
         UserProfileDTO data = new UserProfileDTO();
-        readUserProfileInternal(data);
+        Boolean checkStorage = checkStorageFile();
+        if(checkStorage == false) {
+            return true;
+        } else readUserProfileInternal(data);
         if(data.getFullName() == null || data.getEmail() == null || data.getSex() == null || data.getStudentCode() == null || data.getDateOfBirth() == null) 
             return false;
+        return true;
+    }
+
+    public static Boolean checkStorageFile() {
+        Path path = (Path)Paths.get("storage.json");
+        File storageFile = path.toFile();
+
+
+        if (!storageFile.exists()) {
+           return false;
+        }
+
         return true;
     }
 
@@ -238,7 +254,7 @@ public class ApplicationService extends AuthService{
         list = UserAccount.getAllUserAccounts();
         return list;
     }
-    public static void updateUserAccount(String username, String password, String email)
+    public static void updateUserAccount(String username, String password)
             throws SQLException, TokenException, IOException, ClassNotFoundException {
                     
         Path path = (Path)Paths.get("storage.json");
@@ -256,13 +272,10 @@ public class ApplicationService extends AuthService{
 				errors += tmp + "\n";
 		}
 
-		if (ApplicationService.isValidEmail(email) == false)
-			errors += "Invalid email!";
-
 		if(errors != "")
 			throw new SQLException(errors);
         password = AuthService.hashingPassword(password, round);
-        UserAccount.update( username, password, email, accountId);
+        UserAccount.update( username, password, accountId);
     }
     public static void deleteUserAccount(String username) throws SQLException, NotFoundException, IOException, ClassNotFoundException {
         String accountId = UserAccount.getIdByUsername( username);
