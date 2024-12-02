@@ -132,6 +132,8 @@ public class AuthView extends View {
             waitTime(2000);
             UserProfileView profileView = new UserProfileView(con);
             profileView.addUserProfile(con);
+            clearScreen();
+            appCrewGuildView(con);
         }
     }
 }
