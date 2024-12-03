@@ -39,6 +39,7 @@ public class ApplicationService extends AuthService{
         data.setGenerationId(getMaxGenerationId());
         data.setFullName(normalizeFullname(data.getFullName()));
         String errors = "";
+
         if(data.getContactEmail().length() == 0) {
             data.setContactEmail(null);
         } else if(isValidEmail(data.getContactEmail()) == false) {
@@ -73,6 +74,7 @@ public class ApplicationService extends AuthService{
                 throw new UserProfileException(errors);
         UserProfile.insert( data);
     }
+
 
     public static Boolean checkToInsertProfile() throws TokenException, ClassNotFoundException, SQLException, IOException {
         try {

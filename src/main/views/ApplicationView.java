@@ -195,7 +195,7 @@ public class ApplicationView extends View{
 
     public void profileView(Connection con) {
         viewTitle("| PROFILE |", textIO);
-        String option = textIO.newStringInputReader().withNumberedPossibleValues("SHOW YOUR PROFILE", "UPDATE YOUR PROFILE").read("");
+        String option = textIO.newStringInputReader().withNumberedPossibleValues("SHOW YOUR PROFILE", "UPDATE YOUR PROFILE", "BACK").read("");
         clearScreen();
         switch (option) {
             case "SHOW YOUR PROFILE":
@@ -205,6 +205,9 @@ public class ApplicationView extends View{
             case "UPDATE YOUR PROFILE":
                 viewTitle("| UPDATE YOUR PROFILE |", textIO);
                 updateProfile(con);
+                break;
+            case "BACK":
+                view();
                 break;
             default:
                 printError("Invalid value.");
@@ -245,7 +248,10 @@ public class ApplicationView extends View{
         ResponseDTO<Object> response = ApplicationController.updateUserProfile( user_profile);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
-        } else textIO.getTextTerminal().println(response.getMessage());
+            profileView(con);
+        } else {
+            textIO.getTextTerminal().println(response.getMessage());
+        }
     }
 
     public void getAllUserProfiles(Connection con) {
