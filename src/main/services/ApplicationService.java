@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 
 
 public class ApplicationService extends AuthService{
-    public static void insertProfileInternal(UserProfileDTO data, String date)
+    public static void insertProfileInternal(UserProfileDTO data)
             throws SQLException, UserProfileException, NotFoundException, ParseException, TokenException, IOException, ClassNotFoundException {
         
         Path path = (Path)Paths.get("storage.json");
@@ -38,40 +38,9 @@ public class ApplicationService extends AuthService{
         data.setStudentCode((data.getStudentCode().toUpperCase()));
         data.setGenerationId(getMaxGenerationId());
         data.setFullName(normalizeFullname(data.getFullName()));
-        String errors = "";
+        if(data.getContactEmail().length() == 0)
+                data.setContactEmail(null);
 
-        if(data.getContactEmail().length() == 0) {
-            data.setContactEmail(null);
-        } else if(isValidEmail(data.getContactEmail()) == false) {
-            errors += "Invalid contact email (contact email can be null)\n";
-        }
-        if (data.getFullName() == null || isValidFullName(data.getFullName()) == false) 
-                errors += "Full name is empty or contains special character!\n";
-        if (data.getSex() == null)
-                errors += "Sex is null!\n";
-        if (data.getStudentCode() == null)
-                errors += "Student code is null!\n";
-        if (isValidEmail(data.getEmail()) == false)
-                errors += "Invalid email!\n";
-        if (isValidStudentCode(data.getStudentCode()) == false || data.getStudentCode() == null)
-                errors += "Invalid student code!\n";
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        dateFormat.setLenient(false);
-        try {
-            long millis = dateFormat.parse(date).getTime();
-            java.sql.Date sqlDate = new java.sql.Date(millis);
-            data.setDateOfBirth(sqlDate);
-        
-            if (!isAgeBetween18And22(data.getDateOfBirth())) {
-                errors += "Invalid date!\n";
-            }
-        } catch (ParseException e) {
-            errors += "Invalid date!\n";
-        }
-        
-        if(errors != "")
-                throw new UserProfileException(errors);
         UserProfile.insert( data);
     }
 
@@ -107,23 +76,6 @@ public class ApplicationService extends AuthService{
         data.setStudentCode((data.getStudentCode().toUpperCase()));
         data.setGenerationId(getMaxGenerationId());
         data.setFullName(normalizeFullname(data.getFullName()));
-        String errors = "";
-        if (data.getFullName() == null || isValidFullName(data.getFullName()) == false) 
-                errors += "Full name is empty or contains special character!\n";
-        if (data.getSex() == null)
-                errors += "Sex is null!\n";
-        if (data.getStudentCode() == null)
-                errors += "Student code is null!\n";
-        if (data.getContactEmail() == null)
-                errors += "Contact email is null!\n";
-        if (isValidEmail(data.getContactEmail()) == false)
-                errors += "Invalid contact email!\n";
-        if (isValidStudentCode(data.getStudentCode()) == false || data.getStudentCode() == null)
-                errors += "Invalid student code!\n";
-        if(isValidEmail(data.getEmail()) == false || data.getEmail() == null)
-                errors += "invalid email!\n";
-        if(errors != "")
-                throw new UserProfileException(errors);
         UserProfile.update( data);
     }
     // TODO: Role
@@ -242,31 +194,15 @@ public class ApplicationService extends AuthService{
         list = UserAccount.getAllUserAccounts();
         return list;
     }
-    public static void updateUserAccount(String username, String password, String email)
+    public static void updateUserAccount(String username, String password)
             throws SQLException, TokenException, IOException, ClassNotFoundException {
                     
         Path path = (Path)Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
         int round = Integer.parseInt(Optional.ofNullable(System.getenv("ROUND_HASHING")).orElse("4"));
-        String[] errorsPassword = AuthService.validatePassword(password);
-		String errors = "";
-		
-		if (username == null || username == "" || username.contains(" "))
-			errors += "Your username musn't be empty or contains space!\n";
-
-		if (errorsPassword.length != 0) {
-			for (String tmp : errorsPassword)
-				errors += tmp + "\n";
-		}
-
-		if (ApplicationService.isValidEmail(email) == false)
-			errors += "Invalid email!";
-
-		if(errors != "")
-			throw new SQLException(errors);
         password = AuthService.hashingPassword(password, round);
-        UserAccount.update( username, password, email, accountId);
+        UserAccount.update( username, password, accountId);
     }
     public static void deleteUserAccount(String username) throws SQLException, NotFoundException, IOException, ClassNotFoundException {
         String accountId = UserAccount.getIdByUsername( username);
@@ -358,20 +294,6 @@ public class ApplicationService extends AuthService{
         }
     }
 
-    public static boolean isAgeBetween18And22(Date birthDate) {
-        Calendar today = Calendar.getInstance();
-        Calendar birthDateCalendar = Calendar.getInstance();
-        birthDateCalendar.setTime(birthDate);
-
-        int age = today.get(Calendar.YEAR) - birthDateCalendar.get(Calendar.YEAR);
-
-        if (today.get(Calendar.DAY_OF_YEAR) < birthDateCalendar.get(Calendar.DAY_OF_YEAR)) {
-            age--;
-        }
-
-        return age >= 18 && age <= 22;
-    }
-
     public static String normalizedRolePermission(String data) {
         String[] words = data.trim().toLowerCase().split("\\s+");
         StringBuilder normalizedString = new StringBuilder();
@@ -414,45 +336,6 @@ public class ApplicationService extends AuthService{
         Generation.insert(generation);
 
     }
-
-    public static boolean isValidFullName(String fullName) {
-
-        // Full name has at least 2 
-        String[] words = fullName.trim().split("\\s+");
-        if (words.length < 2) {
-            return false;
-        }
-
-        // Full name must not contain special character
-        for (String word : words) {
-            if (!word.matches("[a-zA-Z]+")) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public static boolean isValidEmail(String email) {
-        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-        
-        Pattern pattern = Pattern.compile(emailRegex);
-        
-        if (email == null) {
-            return false;
-        }
-        
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
-    }
-
-    public static boolean isValidStudentCode(String student_code) {
-        String regex = "[S][ASE]\\d{6}";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(student_code);
-        return matcher.matches();
-    }
-
 
     public static String normalizeFullname(String username) {
         String[] parts = username.toLowerCase().split(" ");

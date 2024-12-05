@@ -32,21 +32,6 @@ public class AuthService {
         
 		AppConfig appConfig = EnvLoader.load(AppConfig.class);
 		int round = appConfig.getRoundHashing();
-        
-		String[] errorsPassword = AuthService.validatePassword(data.getPassword());
-		String errors = "";
-		
-		if (data.getUsername() == null || data.getUsername() == "" || data.getUsername().contains(" "))
-			errors += "Your username musn't be empty or contains space!\n";
-
-		if (errorsPassword.length != 0) {
-			for (String tmp : errorsPassword)
-				errors += tmp + "\n";
-		}
-
-		if(errors != "")
-			throw new AuthException(errors);
-
 		data.setPassword(hashingPassword(data.getPassword(), round));
 		UserAccount.insert( data);
 		String account_id = UserAccount.getIdByUsername( data.getUsername());
@@ -105,37 +90,7 @@ public class AuthService {
 		return bcryptHashing;
 	}
 
-	protected static String[] validatePassword(String password) {
-		// List to hold validation error messages
-		List<String> errors = new java.util.ArrayList<>();
 
-		if (password == null) {
-			errors.add("Password cannot be null.");
-			return errors.toArray(new String[0]);
-		}
-
-		if (password.length() <= 8) {
-			errors.add("Password must be longer than 8 characters.");
-		}
-
-		if (!password.matches(".*[A-Z].*")) {
-			errors.add("Password must contain at least one uppercase letter.");
-		}
-
-		if (!password.matches(".*[a-z].*")) {
-			errors.add("Password must contain at least one lowercase letter.");
-		}
-
-		if (!password.matches(".*\\d.*")) {
-			errors.add("Password must contain at least one digit.");
-		}
-
-		if (!password.matches(".*[@#$%^&+=!].*")) {
-			errors.add("Password must contain at least one special character (@#$%^&+=!).");
-		}
-
-		return errors.toArray(new String[0]);
-	}
 
 	public static boolean AppAuthorization(
 			String namePermission) throws SQLException, NotFoundException, TokenException, IOException, ClassNotFoundException {

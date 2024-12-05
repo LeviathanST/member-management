@@ -224,34 +224,8 @@ public class ApplicationView extends View{
     }
 
     public void updateProfile(Connection con) {
-        viewTitle("| UPDATE PROFILE |", textIO);
-        UserProfileDTO user_profile = new UserProfileDTO();
-        user_profile.setFullName(textIO.newStringInputReader().read("Enter your full name : "));
-        user_profile.setSex(textIO.newEnumInputReader(Sex.class).read("Enter your sex : "));
-        user_profile.setStudentCode(textIO.newStringInputReader().read("Enter your roll number : "));
-        user_profile.setEmail(textIO.newStringInputReader().read("Enter your email : "));
-        user_profile.setContactEmail(textIO.newStringInputReader().read("Enter your contact email : "));
-
-        String dateStr = textIO.newStringInputReader()
-                .withPattern("^[0-9]{2}-[0-9]{2}-[0-9]{4}$")
-                .read("Enter your birthdate (dd-MM-yyyy):");
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-        java.util.Date parsedDate;
-        Date sqlDate;
-        try {
-            parsedDate = sdf.parse(dateStr);
-            sqlDate = new java.sql.Date(parsedDate.getTime());
-            user_profile.setDateOfBirth(sqlDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        ResponseDTO<Object> response = ApplicationController.updateUserProfile( user_profile);
-        if(response.getStatus() != ResponseStatus.OK) {
-            printError(response.getMessage());
-            profileView(con);
-        } else {
-            textIO.getTextTerminal().println(response.getMessage());
-        }
+        UserProfileView updateView = new UserProfileView(con);
+        updateView.updateProfile();
     }
 
     public void getAllUserProfiles(Connection con) {
@@ -276,15 +250,8 @@ public class ApplicationView extends View{
     }
 
     public void updateAccount(Connection con) {
-        viewTitle("| UPDATE ACCOUNT |", textIO);
-        String username, password, email;
-        username = textIO.newStringInputReader().read("Enter new user name : ");
-        password = textIO.newStringInputReader().read("Enter new password : ");
-        email = textIO.newStringInputReader().read("Enter new email : ");
-        ResponseDTO<Object> response = ApplicationController.updateUserAccount( username, password, email);
-        if(response.getStatus() != ResponseStatus.OK) {
-            printError(response.getMessage());
-        } else textIO.getTextTerminal().println(response.getMessage());
+        AuthView updateAccount = new AuthView(con);
+        updateAccount.updateAccount();
     }
 
     public void getAllAccounts(Connection con) {

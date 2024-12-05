@@ -79,8 +79,15 @@ public class AuthView extends View {
 
     public void signUpForm(Connection con, SignUpDTO signUp) {
         viewTitle("| SIGN UP |", textIO);
-        signUp.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
-        signUp.setPassword(textIO.newStringInputReader().read("Enter your password : "));
+        String userName, password;
+        do {
+            userName = textIO.newStringInputReader().read("Enter your user name : ");
+        } while (checkUserName(userName) == false);
+        do {
+            password = textIO.newStringInputReader().read("Enter your password : ");
+        } while (validatePassword(password) == false);
+        signUp.setUsername(userName);
+        signUp.setPassword(password);
         ResponseDTO<Object> response =  AuthController.signUp(signUp);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
@@ -99,25 +106,38 @@ public class AuthView extends View {
     }
 
     public void logInForm(Connection con, LoginDTO logIn) {
-        ResponseDTO<Boolean> checkProfile = ApplicationController.checkToInsertProfile();
-        if (checkProfile.getStatus() == ResponseStatus.BAD_REQUEST) {
+        String userName, password;
+        ResponseDTO<Boolean> checkInsertProfile;
+        ResponseDTO<Boolean> checkAccessToken = AuthController.checkAccessToken();
+        if(checkAccessToken.getStatus() != ResponseStatus.OK) {
             viewTitle("| LOG IN |", textIO);
-            logIn.setUsername(textIO.newStringInputReader().read("Enter your user name : "));
-            logIn.setPassword(textIO.newStringInputReader().read("Enter your password : "));
-            ResponseDTO<Object> response = AuthController.login(logIn);
-            if (response.getStatus() != ResponseStatus.OK) {
-                printError(response.getMessage());
+            do {
+                userName = textIO.newStringInputReader().read("Enter your user name : ");
+            } while (checkUserName(userName) == false);
+            do {
+                password = textIO.newStringInputReader().read("Enter your password : ");
+            } while (validatePassword(password) == false);
+            logIn.setUsername(userName);
+            logIn.setPassword(password);
+            ResponseDTO<Object> checkLogIn  = AuthController.login(logIn);
+            if(checkLogIn.getStatus() != ResponseStatus.OK) {
+                printError(checkLogIn.getMessage());
+                waitTimeByMessage("Press enter to continue!");
+                clearScreen();
             } else {
-                ResponseDTO<Boolean> checkProfile_ = ApplicationController.checkToInsertProfile();
-                textIO.getTextTerminal().println(response.getMessage());
-                if (!checkProfile_.getData()){
+
+                waitTimeByMessage("Press enter to continue!");
+                clearScreen();
+                checkInsertProfile = ApplicationController.checkToInsertProfile();
+                if(checkInsertProfile.getStatus() != ResponseStatus.OK) {
+
                     textIO.getTextTerminal().println("Missing profile, please insert you profile.");
                     waitTime(2000);
                     UserProfileView profileView = new UserProfileView(con);
                     profileView.addUserProfile(con);
-
-                }
-                else {
+                    clearScreen();
+                    appCrewGuildView(con);
+                } else {
 
                     clearScreen();
                     appCrewGuildView(con);
@@ -128,12 +148,78 @@ public class AuthView extends View {
             appCrewGuildView(con);
 
         } else {
-            textIO.getTextTerminal().println("Missing profile, please insert you profile.");
-            waitTime(2000);
-            UserProfileView profileView = new UserProfileView(con);
-            profileView.addUserProfile(con);
             clearScreen();
-            appCrewGuildView(con);
+                checkInsertProfile = ApplicationController.checkToInsertProfile();
+                if(checkInsertProfile.getStatus() != ResponseStatus.OK) {
+                    textIO.getTextTerminal().println("Missing profile, please insert you profile.");
+                    waitTime(2000);
+                    UserProfileView profileView = new UserProfileView(con);
+                    profileView.addUserProfile(con);
+                    clearScreen();
+                    appCrewGuildView(con);
+                } else {
+                    clearScreen();
+                    appCrewGuildView(con);
+                }
         }
     }
+
+    public void updateAccount() {
+        viewTitle("| UPDATE ACCOUNT |", textIO);
+        String username, password;
+        do {
+            username = textIO.newStringInputReader().read("Enter your user name : ");
+        } while (checkUserName(username) == false);
+        do {
+            password = textIO.newStringInputReader().read("Enter your password : ");
+        } while (validatePassword(password) == false);
+        ResponseDTO<Object> response = ApplicationController.updateUserAccount( username, password);
+        if(response.getStatus() != ResponseStatus.OK) {
+            printError(response.getMessage());
+        } else textIO.getTextTerminal().println(response.getMessage());
+    }
+
+    public Boolean checkUserName(String userName) {
+        if(userName == null || userName == "" || userName.contains(" ")) {
+            printError("User name can not be null or contains space.");
+            return false;
+        }
+        return true;
+    }
+
+
+    public Boolean validatePassword(String password) {
+        Boolean isValidPassword = true;
+
+		if (password == null) {
+			printError("Password can not be null.");
+            isValidPassword = false;
+		}
+
+		if (password.length() <= 8) {
+            printError("Password must be longer than 8 characters.");
+            isValidPassword = false;
+		}
+
+		if (!password.matches(".*[A-Z].*")) {
+            printError("Password must contain at least one uppercase letter.");
+            isValidPassword = false;
+		}
+
+		if (!password.matches(".*[a-z].*")) {
+            printError("Password must contain at least one lowercase letter.");
+            isValidPassword = false;
+		}
+
+		if (!password.matches(".*\\d.*")) {
+            printError("Password must contain at least one digit.");
+		}
+
+		if (!password.matches(".*[@#$%^&+=!].*")) {
+            printError("Password must contain at least one special character (@#$%^&+=!).");
+            isValidPassword = false;
+		}
+
+		return isValidPassword;
+	}
 }
