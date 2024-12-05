@@ -1,15 +1,5 @@
 package services;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.List;
-import java.util.Optional;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import config.AppConfig;
 import constants.RoleType;
@@ -18,15 +8,22 @@ import dto.LoginDTO;
 import dto.SignUpDTO;
 import dto.TokenPairDTO;
 import exceptions.*;
+import models.permissions.CrewPermission;
+import models.permissions.GuildPermission;
+import models.permissions.Permission;
+import models.roles.Role;
 import models.users.UserAccount;
 import models.users.UserCrewRole;
 import models.users.UserGuildRole;
 import models.users.UserRole;
 import utils.EnvLoader;
-import models.permissions.CrewPermission;
-import models.permissions.GuildPermission;
-import models.permissions.Permission;
-import models.roles.Role;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.List;
 
 public class AuthService {
 	public static void signUpInternal(SignUpDTO data)
@@ -87,11 +84,12 @@ public class AuthService {
 		return false;
 	}
 
-	protected static String hashingPassword(String password, int round) {
+	public static String hashingPassword(String password, int round) {
 		String bcryptHashing = BCrypt.withDefaults()
 				.hashToString(round, password.toCharArray());
 		return bcryptHashing;
 	}
+
 
 
 	public static boolean AppAuthorization(

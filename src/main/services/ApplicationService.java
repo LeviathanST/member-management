@@ -1,23 +1,10 @@
 package services;
 
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Year;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.Optional;
-import java.util.Date;
-
 import config.Database;
-import dto.*;
+import dto.EventDto;
+import dto.TokenPairDTO;
+import dto.UserProfileDTO;
 import exceptions.*;
 import models.Generation;
 import models.events.Event;
@@ -26,6 +13,18 @@ import models.roles.Role;
 import models.users.UserAccount;
 import models.users.UserProfile;
 import models.users.UserRole;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Year;
+import java.util.Date;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class ApplicationService extends AuthService{
@@ -41,15 +40,20 @@ public class ApplicationService extends AuthService{
         data.setFullName(normalizeFullname(data.getFullName()));
         if(data.getContactEmail().length() == 0)
                 data.setContactEmail(null);
+
         UserProfile.insert( data);
     }
 
-    public static Boolean checkToInsertProfile() throws TokenException, ClassNotFoundException, SQLException, NotFoundException, IOException {
-        UserProfileDTO data = new UserProfileDTO();
-        readUserProfileInternal(data);
-        if(data.getFullName() == null || data.getEmail() == null || data.getSex() == null || data.getStudentCode() == null || data.getDateOfBirth() == null) 
+
+    public static Boolean checkToInsertProfile() throws TokenException, ClassNotFoundException, SQLException, IOException {
+        try {
+            UserProfileDTO data = new UserProfileDTO();
+            readUserProfileInternal(data);
+            return true;
+        } catch (NotFoundException e) {
             return false;
-        return true;
+        }
+
     }
 
 

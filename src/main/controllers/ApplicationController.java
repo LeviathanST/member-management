@@ -1,24 +1,22 @@
 package controllers;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.util.List;
-
-import dto.*;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import constants.ResponseStatus;
+import dto.EventDto;
+import dto.ResponseDTO;
+import dto.UserProfileDTO;
 import exceptions.*;
 import models.Generation;
-import services.GuildService;
-import services.TokenService;
 import models.permissions.Permission;
 import models.roles.Role;
 import models.users.UserAccount;
-import constants.ResponseStatus;
 import services.ApplicationService;
 import services.AuthService;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.List;
 // TODO:
 	// -- User
 	// ResponseData<UserAccount> getAllUserAccounts() 
@@ -136,7 +134,9 @@ public class ApplicationController {
             if(check == true)
                 return new ResponseDTO<Boolean>(ResponseStatus.OK, "Already insert profile.", check);
             else return new ResponseDTO<Boolean>(ResponseStatus.NOT_FOUND, "There is no profile reference this account.", check);
-        } catch (Exception e) {
+        }catch (IOException | TokenException | JWTVerificationException e) {
+            return new ResponseDTO<Boolean>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+        } catch (SQLException | ClassNotFoundException e) {
             return new ResponseDTO<Boolean>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
         }
 
