@@ -103,10 +103,10 @@ public class ApplicationController {
         }
     }
 
-    public static ResponseDTO<Object> updateUserAccount( String username, String password, String email) {
+    public static ResponseDTO<Object> updateUserAccount( String username, String password) {
         try {
 
-            ApplicationService.updateUserAccount( username, password, email);
+            ApplicationService.updateUserAccount( username, password);
             return new ResponseDTO<Object>(ResponseStatus.OK, "Update account successfully", null);
 
         } catch (SQLException e) {
@@ -142,10 +142,10 @@ public class ApplicationController {
 
     }
 
-    public static ResponseDTO<Object> createOneUserProfile( UserProfileDTO data, String date) {
+    public static ResponseDTO<Object> createOneUserProfile( UserProfileDTO data) {
         try {
 			
-			ApplicationService.insertProfileInternal(data, date);
+			ApplicationService.insertProfileInternal(data);
             return new ResponseDTO<>(ResponseStatus.OK, "Create user profile successfully!", null);
 		} catch (SQLException e) {
 			return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
