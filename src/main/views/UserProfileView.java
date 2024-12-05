@@ -24,7 +24,8 @@ public class UserProfileView extends View{
             user_profile.setSex(textIO.newEnumInputReader(Sex.class).read("Enter your sex : "));
             user_profile.setStudentCode(textIO.newStringInputReader().read("Enter your roll number : "));
             user_profile.setEmail(textIO.newStringInputReader().read("Enter your email : "));
-            user_profile.setContactEmail(textIO.newStringInputReader().withDefaultValue("\n").read("Enter your contact email (enter to skip): "));
+            user_profile.setContactEmail(textIO.newStringInputReader().withMinLength(0).read("Enter your contact email (Enter to skip) : "));
+
             String dob = textIO.newStringInputReader().read("Enter your birthday (dd-MM-yyy) : ");
             response = ApplicationController.createOneUserProfile(user_profile, dob);
             if(response.getStatus() != ResponseStatus.OK) {

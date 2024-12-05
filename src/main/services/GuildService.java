@@ -16,7 +16,6 @@ import models.users.UserRole;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Timestamp;
@@ -648,7 +647,7 @@ public class GuildService {
 		return String.join(" ", normalized);
 	}
 	public static String getAccountIDUser()
-            throws SQLException, NotFoundException, TokenException {
+            throws SQLException, NotFoundException, TokenException, IOException {
 		Path path = (Path) Paths.get("storage.json");
 		String accessToken = TokenService.loadFromFile(path).getAccessToken();
 		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
