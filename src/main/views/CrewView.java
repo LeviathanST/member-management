@@ -1,6 +1,13 @@
 package views;
 
+import constants.CrewCommand;
+import constants.CrewEventCommand;
+import constants.CrewPermissionCommand;
+import constants.CrewRoleCommand;
+import constants.PermissionOfCrewCommand;
 import constants.ResponseStatus;
+import constants.UserCrewRoleCommand;
+import constants.ViewCrewCommand;
 import controllers.CrewController;
 import controllers.GuildController;
 import dto.*;
@@ -23,32 +30,33 @@ public class CrewView extends View {
     public void view(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle("CREW TAB",textIO);
-        String option = textIO.newStringInputReader()
-                .withNumberedPossibleValues("CREW", "CREW ROLE", "ROLE CREW TO USER","CREW EVENT","BACK")
-                .read("");
-        switch (option){
-            case "CREW":
-                clearScreen();
-                viewCrew(connection);
-                break;
-            case "CREW ROLE":
-                clearScreen();
-                viewCrewRole(connection);
-                break;
-            case "ROLE CREW TO USER":
-                clearScreen();
-                viewUserCrewRole(connection);
-                break;
-            case "CREW EVENT":
-                clearScreen();
-                viewCrewEvent(connection);
-                break;
-            case "BACK":
-                clearScreen();
-                AuthView authView = new AuthView(connection);
-                authView.appCrewGuildView(connection);
-                break;
-        }
+        CrewCommand option;
+        do {
+            option = textIO.newEnumInputReader(CrewCommand.class).read("Enter your choice : ");
+            switch (option){
+                case CREW:
+                    clearScreen();
+                    viewCrew(connection);
+                    break;
+                case CREW_ROLE:
+                    clearScreen();
+                    viewCrewRole(connection);
+                    break;
+                case ROLE_CREW_TO_USER:
+                    clearScreen();
+                    viewUserCrewRole(connection);
+                    break;
+                case CREW_EVENT:
+                    clearScreen();
+                    viewCrewEvent(connection);
+                    break;
+                case BACK:
+                    clearScreen();
+                    AuthView authView = new AuthView(connection);
+                    authView.appCrewGuildView(connection);
+                    break;
+            }
+        } while (option != CrewCommand.BACK);
         textIO.dispose();
     }
 
@@ -181,29 +189,30 @@ public class CrewView extends View {
     public void viewCrew(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle("CREW",textIO);
-        String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("VIEW CREW", "CREATE NEW CREW", "UPDATE INFORMATION","DELETE CREW","BACK")
-                .read("");
-        switch (options){
-            case "VIEW CREW":
-                viewListCrews(connection,options);
-                break;
-            case "CREATE NEW CREW":
-                viewCreateCrew(connection,options);
-                break;
-            case "UPDATE INFORMATION":
-                viewUpdateCrew(connection,options);
-                break;
-            case "DELETE CREW":
-                viewDeleteCrew(connection,options);
-                break;
-            case "BACK":
-                view(connection);
-                break;
-        }
+        ViewCrewCommand options;
+        do {
+            options = textIO.newEnumInputReader(ViewCrewCommand.class).read("Enter your choice : ");
+            switch (options){
+                case VIEW_CREW:
+                    viewListCrews(connection,options);
+                    break;
+                case CREATE_CREW:
+                    viewCreateCrew(connection,options);
+                    break;
+                case UPDATE_CREW:
+                    viewUpdateCrew(connection,options);
+                    break;
+                case DELETE_CREW:
+                    viewDeleteCrew(connection,options);
+                    break;
+                case BACK:
+                    view(connection);
+                    break;
+            }
+        } while (options != ViewCrewCommand.BACK);
         textIO.dispose();
     }
-    public void viewListCrews(Connection connection, String option) {
+    public void viewListCrews(Connection connection, ViewCrewCommand option) {
         ResponseDTO<List<String>> listMember;
         ResponseDTO<UserProfileDTO> userprofile;
         TextIO textIO = TextIoFactory.getTextIO();
@@ -215,7 +224,7 @@ public class CrewView extends View {
             printError("Not member in this guild");
         } else {
             textIO.getTextTerminal().println(listMember.getMessage());
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             String username = textIO.newStringInputReader()
                     .withNumberedPossibleValues(listMember.getData())
                     .read("");
@@ -246,12 +255,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewCreateCrew(Connection connection, String option) {
+    public void viewCreateCrew(Connection connection, ViewCrewCommand option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do  {
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             viewTitle("INPUT CREW NAME", textIO);
             String crewName = textIO.newStringInputReader()
                     .withDefaultValue(null)
@@ -277,12 +286,12 @@ public class CrewView extends View {
         }
     }
 
-    public void viewUpdateCrew(Connection connection, String option) {
+    public void viewUpdateCrew(Connection connection, ViewCrewCommand option) {
         ResponseDTO<Object> response ;
         String continueOrBack ;
         do{
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             String crewUpdated = getCrewFromList(connection);
             viewTitle("INPUT NEW CREW", textIO);
             String newCrew = textIO.newStringInputReader()
@@ -309,12 +318,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewDeleteCrew(Connection connection, String option) {
+    public void viewDeleteCrew(Connection connection, ViewCrewCommand option) {
         ResponseDTO<Object> response;
         String continueOrBack;
         do {
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             String crewDeleted = getCrewFromList(connection);
             CrewDTO crewDTO = new CrewDTO(crewDeleted);
             response = CrewController.deleteCrew(crewDTO);
@@ -340,32 +349,30 @@ public class CrewView extends View {
     public void viewCrewRole(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle("CREW ROLE",textIO);
-        String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("VIEW CREW ROLE", "ADD NEW CREW ROLE", "UPDATE INFORMATION CREW ROLE","DELETE CREW ROLE","BACK")
-                .read("");
+        CrewRoleCommand options = textIO.newEnumInputReader(CrewRoleCommand.class).read("Enter your choice : ");
         switch (options){
-            case "VIEW CREW ROLE":
+            case VIEW_CREW_ROLE:
                 viewListCrewRoles(connection,options);
                 break;
-            case "ADD NEW CREW ROLE":
+            case ADD_NEW_CREW_ROLE:
                 viewAddCrewRole(connection,options);
                 break;
-            case "UPDATE INFORMATION CREW ROLE":
+            case UPDATE_INFORMATION_CREW_ROLE:
                 viewUpdateCrewRole(connection,options);
                 break;
-            case "DELETE CREW ROLE":
+            case DELETE_CREW_ROLE:
                 viewDeleteCrewRole(connection,options);
                 break;
-            case "BACK":
+            case BACK:
                 view(connection);
                 break;
         }
         textIO.dispose();
     }
-    public void viewListCrewRoles(Connection connection, String option) {
+    public void viewListCrewRoles(Connection connection, CrewRoleCommand option) {
         ResponseDTO<List<CrewRole>> response;
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle(option,textIO);
+        viewTitle(option.toString(),textIO);
         response = CrewController.getAllCrewRoles( getCrewFromList(connection));
         if(response.getStatus() != ResponseStatus.OK ) {
             printError(response.getMessage());
@@ -387,12 +394,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewAddCrewRole(Connection connection, String option) {
+    public void viewAddCrewRole(Connection connection, CrewRoleCommand option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do  {
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             String crew = getCrewFromList(connection);
             viewTitle("INPUT NEW CREW ROLE", textIO);
             String crewRole = textIO.newStringInputReader()
@@ -418,12 +425,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewUpdateCrewRole(Connection connection, String option) {
+    public void viewUpdateCrewRole(Connection connection, CrewRoleCommand option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do{
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             Pair<String,String> crew = getCrewRoleFromList(connection);
             viewTitle("INPUT NEW CREW ROLE", textIO);
             String newCrewRole = textIO.newStringInputReader()
@@ -450,12 +457,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewDeleteCrewRole(Connection connection, String option) {
+    public void viewDeleteCrewRole(Connection connection, CrewRoleCommand option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do{
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             Pair<String,String> crew = getCrewRoleFromList(connection);
             CrewRoleDTO crewRoleDTO = new CrewRoleDTO(crew.getSecond(),crew.getFirst());
             response = CrewController.deleteCrewRole( crewRoleDTO);
@@ -481,35 +488,36 @@ public class CrewView extends View {
     public void viewUserCrewRole(Connection connection) {
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle("USER CREW ROLE",textIO);
-        String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("VIEW USER CREW ROLES", "ADD NEW USER CREW ROLE", "UPDATE INFORMATION USER CREW ROLE","DELETE USER CREW ROLE","CREW PERMISSION","BACK")
-                .read("");
-        switch (options){
-            case "VIEW USER CREW ROLES":
-                viewListUserCrewRoles(connection,options);
-                break;
-            case "ADD NEW USER CREW ROLE":
-                viewAddUserCrewRole(connection,options);
-                break;
-            case "UPDATE INFORMATION USER CREW ROLE":
-                viewUpdateUserCrewRole(connection,options);
-                break;
-            case "DELETE USER CREW ROLE":
-                viewDeleteUserCrewRole(connection,options);
-                break;
-            case "CREW PERMISSION":
-                viewCrewPermission(connection);
-                break;
-            case "BACK":
-                view(connection);
-                break;
-        }
+        UserCrewRoleCommand options;
+        do {
+            options = textIO.newEnumInputReader(UserCrewRoleCommand.class).read("Enter your choice :");
+            switch (options){
+                case VIEW_USER_CREW_ROLES:
+                    viewListUserCrewRoles(connection,options);
+                    break;
+                case ADD_NEW_USER_CREW_ROE:
+                    viewAddUserCrewRole(connection,options);
+                    break;
+                case UPDATE_INFORMATION_USER_CREW_ROLE:
+                    viewUpdateUserCrewRole(connection,options);
+                    break;
+                case DELETE_USER_CREW_ROLE:
+                    viewDeleteUserCrewRole(connection,options);
+                    break;
+                case CREW_PERMISSION:
+                    viewCrewPermission(connection);
+                    break;
+                case BACK:
+                    view(connection);
+                    break;
+            }
+        } while (options != UserCrewRoleCommand.BACK);
         textIO.dispose();
     }
-    public void viewListUserCrewRoles(Connection connection, String option) {
+    public void viewListUserCrewRoles(Connection connection, UserCrewRoleCommand option) {
         ResponseDTO<List<UserCrewRoleDto>> response;
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle(option,textIO);
+        viewTitle(option.toString(),textIO);
         String crew = getCrewFromList(connection);
         response = CrewController.getAllUserCrewRolesByCrewID( crew);
         if(response.getStatus() != ResponseStatus.OK ) {
@@ -536,12 +544,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewAddUserCrewRole(Connection connection, String option) {
+    public void viewAddUserCrewRole(Connection connection, UserCrewRoleCommand option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do  {
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             viewTitle("INPUT USERNAME", textIO);
             String username = textIO.newStringInputReader()
                     .withDefaultValue(null)
@@ -567,12 +575,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewUpdateUserCrewRole(Connection connection, String option) {
+    public void viewUpdateUserCrewRole(Connection connection, UserCrewRoleCommand option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do{
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             UserCrewRoleDto oldUserCrewRole = getUserCrewRoleFromList(connection);
 
             if (oldUserCrewRole == null){
@@ -600,12 +608,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewDeleteUserCrewRole(Connection connection, String option) {
+    public void viewDeleteUserCrewRole(Connection connection, UserCrewRoleCommand option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do{
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             UserCrewRoleDto userCrewRole = getUserCrewRoleFromList(connection);
             if (userCrewRole == null){
                 continueOrBack = AskContinueOrGoBack();
@@ -688,33 +696,31 @@ public class CrewView extends View {
     public void viewCRUDPermission(Connection connection){
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle("PERMISSION",textIO);
-        String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("VIEW PERMISSION", "ADD PERMISSION","UPDATE PERMISSION","DELETE PERMISSION","BACK")
-                .read("");
+        CrewPermissionCommand options = textIO.newEnumInputReader(CrewPermissionCommand.class).read("Enter your choice : ");
         switch (options){
-            case "VIEW PERMISSION":
+            case VIEW_PERMISSION:
                 viewPermission(connection,options);
                 break;
-            case "ADD PERMISSION":
+            case ADD_PERMISSION:
                 viewAddPermission(connection,options);
                 break;
-            case "UPDATE PERMISSION":
+            case UPDATE_PERMISSION:
                 viewUpdatePermission(connection,options);
                 break;
-            case "DELETE PERMISSION":
+            case DELETE_PERMISISON:
                 viewDeletePermission(connection,options);
                 break;
-            case "BACK":
+            case BACK:
                 view(connection);
                 break;
         }
         textIO.dispose();
     }
-    public void viewPermission(Connection connection, String option){
+    public void viewPermission(Connection connection, CrewPermissionCommand option){
         ResponseDTO<List<String>> response;
         TextIO textIO = TextIoFactory.getTextIO();
         response = CrewController.getAllCrewPermissions();
-        viewTitle(option,textIO);
+        viewTitle(option.toString(),textIO);
         for (String permission : response.getData()){
             textIO.getTextTerminal().println(permission);
         }
@@ -735,12 +741,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewAddPermission(Connection connection, String option)  {
+    public void viewAddPermission(Connection connection, CrewPermissionCommand option)  {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do  {
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             viewTitle("INPUT PERMISSION", textIO);
             String permission = textIO.newStringInputReader()
                     .withDefaultValue(null)
@@ -765,12 +771,12 @@ public class CrewView extends View {
         }
     }
 
-    public void viewUpdatePermission(Connection connection, String option)  {
+    public void viewUpdatePermission(Connection connection, CrewPermissionCommand option)  {
         ResponseDTO<Object> response ;
         String continueOrBack ;
         do{
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             String permissionUpdated = getPermissionFromList(connection);
             viewTitle("INPUT NEW PERMISSION", textIO);
             String permission = textIO.newStringInputReader()
@@ -795,12 +801,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewDeletePermission(Connection connection, String option) {
+    public void viewDeletePermission(Connection connection, CrewPermissionCommand option) {
         ResponseDTO<Object> response;
         String continueOrBack;
         do {
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             String permissionDeleted = getPermissionFromList(connection);
             response = CrewController.deleteCrewPermission(permissionDeleted);
             if(response.getStatus() != ResponseStatus.OK) {
@@ -825,34 +831,35 @@ public class CrewView extends View {
     public void viewCRUDPermissionToCrewRole(Connection connection){
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle("PERMISSION OF CREW ROLE",textIO);
-        String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("VIEW PERMISSION OF CREW ROLE", "ADD PERMISSION TO CREW ROLE","UPDATE PERMISSION IN CREW ROLE","DELETE PERMISSION IN CREW ROLE","BACK")
-                .read("");
-        switch (options){
-            case "VIEW PERMISSION OF CREW ROLE":
-                viewPermissionByCrewId(connection,options);
-                break;
-            case "ADD PERMISSION TO CREW ROLE":
-                viewAddPermissionToCrewRole(connection,options);
-                break;
-            case "UPDATE PERMISSION IN CREW ROLE":
-                viewUpdatePermissionInCrewRole(connection,options);
-                break;
-            case "DELETE PERMISSION IN CREW ROLE":
-                viewDeletePermissionInCrewRole(connection,options);
-                break;
-            case "BACK":
-                view(connection);
-                break;
-        }
+        PermissionOfCrewCommand options;
+        do {
+            options = textIO.newEnumInputReader(PermissionOfCrewCommand.class).read("Enter your choice : ");
+            switch (options){
+                case VIEW_PERMISSION_OF_CREW_ROLE:
+                    viewPermissionByCrewId(connection,options);
+                    break;
+                case ADD_PERMISSION_TO_CREW_ROLE:
+                    viewAddPermissionToCrewRole(connection,options);
+                    break;
+                case UPDATE_PERMISSION_IN_CREW_ROLE:
+                    viewUpdatePermissionInCrewRole(connection,options);
+                    break;
+                case DELETE_PERMISSION_IN_CREW_ROLE:
+                    viewDeletePermissionInCrewRole(connection,options);
+                    break;
+                case BACK:
+                    view(connection);
+                    break;
+            }
+        } while (options != PermissionOfCrewCommand.BACK);
         textIO.dispose();
     }
-    public void viewAddPermissionToCrewRole(Connection connection, String option)  {
+    public void viewAddPermissionToCrewRole(Connection connection, PermissionOfCrewCommand option)  {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do  {
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             viewTitle("CHOOSE CREW AND ROLE", textIO);
             Pair<String,String> crewAndRole = getCrewRoleFromList(connection);
             viewTitle("CHOOSE PERMISSION", textIO);
@@ -878,12 +885,12 @@ public class CrewView extends View {
         }
     }
 
-    public void viewUpdatePermissionInCrewRole(Connection connection, String option)  {
+    public void viewUpdatePermissionInCrewRole(Connection connection, PermissionOfCrewCommand option)  {
         ResponseDTO<Object> response ;
         String continueOrBack ;
         do{
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             viewTitle("CHOOSE CREW AND ROLE", textIO);
             Pair<String,String> crewAndRole = getCrewRoleFromList(connection);
             viewTitle("CHOOSE PERMISSION UPDATED", textIO);
@@ -910,12 +917,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewDeletePermissionInCrewRole(Connection connection, String option) {
+    public void viewDeletePermissionInCrewRole(Connection connection, PermissionOfCrewCommand option) {
         ResponseDTO<Object> response;
         String continueOrBack;
         do {
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             viewTitle("CHOOSE CREW AND ROLE", textIO);
             Pair<String,String> crewAndRole = getCrewRoleFromList(connection);
             viewTitle("CHOOSE PERMISSION DELETED", textIO);
@@ -940,10 +947,10 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewPermissionByCrewId(Connection connection, String option){
+    public void viewPermissionByCrewId(Connection connection, PermissionOfCrewCommand option){
         ResponseDTO<List<String>> response;
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle(option,textIO);
+        viewTitle(option.toString(),textIO);
         Pair<String,String> crewAndRole = getCrewRoleFromList(connection);
         response = CrewController.getAllPermissionByCrewId(crewAndRole.getFirst(),crewAndRole.getSecond());
         if(response.getStatus() != ResponseStatus.OK) {
@@ -977,33 +984,31 @@ public class CrewView extends View {
     public void viewCrewEvent(Connection connection){
         TextIO textIO = TextIoFactory.getTextIO();
         viewTitle("CREW EVENT",textIO);
-        String options = textIO.newStringInputReader()
-                .withNumberedPossibleValues("VIEW CREW EVENT", "INSERT CREW EVENT","UPDATE CREW EVENT","DELETE CREW EVENT","BACK")
-                .read("");
+        CrewEventCommand options = textIO.newEnumInputReader(CrewEventCommand.class).read("Enter your choice : ");
         switch (options){
-            case "VIEW CREW EVENT":
+            case VIEW_CREW_EVENT:
                 viewListCrewEvent(connection,options);
                 break;
-            case "INSERT CREW EVENT":
+            case ADD_CREW_EVENT:
                 viewCreateCrewEvent(connection,options);
                 break;
-            case "UPDATE CREW EVENT":
+            case UPDATE_CREW_EVENT:
                 viewUpdateCrewEvent(connection,options);
                 break;
-            case "DELETE CREW EVENT":
+            case DELETE_CREW_EVENT:
                 viewDeleteCrewEvent(connection,options);
                 break;
-            case "BACK":
+            case BACK:
                 view(connection);
                 break;
         }
         textIO.dispose();
     }
-    public void viewListCrewEvent(Connection connection, String option) {
+    public void viewListCrewEvent(Connection connection, CrewEventCommand option) {
         ResponseDTO<List<CrewEventDto>> response;
         response = CrewController.getAllCrewEvent();
         TextIO textIO = TextIoFactory.getTextIO();
-        viewTitle(option,textIO);
+        viewTitle(option.toString(),textIO);
         if(response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else {
@@ -1030,12 +1035,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewCreateCrewEvent(Connection connection, String option) {
+    public void viewCreateCrewEvent(Connection connection, CrewEventCommand option) {
         ResponseDTO<Object> response;
         String continueOrBack ;
         do  {
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             String crewName = getCrewFromList(connection);
             String generation = getGenerationFromList(connection);
             String title = textIO.newStringInputReader()
@@ -1074,12 +1079,12 @@ public class CrewView extends View {
         }
     }
 
-    public void viewUpdateCrewEvent(Connection connection, String option) {
+    public void viewUpdateCrewEvent(Connection connection, CrewEventCommand option) {
         ResponseDTO<Object> response ;
         String continueOrBack ;
         do{
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             int crewEventId = getCrewEventIDFromList(connection);
             String crewName = getCrewFromList(connection);
             String generation = getGenerationFromList(connection);
@@ -1118,12 +1123,12 @@ public class CrewView extends View {
                 break;
         }
     }
-    public void viewDeleteCrewEvent(Connection connection, String option) {
+    public void viewDeleteCrewEvent(Connection connection, CrewEventCommand option) {
         ResponseDTO<Object> response;
         String continueOrBack;
         do {
             TextIO textIO = TextIoFactory.getTextIO();
-            viewTitle(option, textIO);
+            viewTitle(option.toString(), textIO);
             String crew = getCrewFromList(connection);
             int crewEventId = getCrewEventIDFromList(connection);
             response = CrewController.deleteCrewEvent(crewEventId,crew);

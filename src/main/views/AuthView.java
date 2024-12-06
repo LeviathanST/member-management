@@ -1,5 +1,6 @@
 package views;
 
+import constants.MenuCommand;
 import constants.ResponseStatus;
 import controllers.ApplicationController;
 import controllers.AuthController;
@@ -48,33 +49,31 @@ public class AuthView extends View {
         if (res.getStatus() != ResponseStatus.OK) {
             printError(res.getMessage());
         }
-        String option = textIO.newStringInputReader().withNumberedPossibleValues("APPLICATION", "CREW", "GUILD", "BACK")
-                .read("");
+        MenuCommand option = textIO.newEnumInputReader(MenuCommand.class).read("Enter your choice : ");
         do {
             switch (option) {
-                case "APPLICATION":
+                case APPLICATION:
                     ApplicationView app = new ApplicationView(con);
                     app.view();
                     clearScreen();
                     break;
-                case "CREW":
+                case CREW :
                     CrewView crew = new CrewView(con);
                     crew.view(con);
                     clearScreen();
                     break;
-                case "GUILD":
+                case GUILD: 
                     GuildView guild = new GuildView(con);
                     guild.view(con);
                     clearScreen();
                     break;
-                case "BACK":
+                case BACK: 
                     Auth_view();
                     break;
                 default:
-                    printError("Invalid value!");
                     break;
             }
-        } while (!option.equalsIgnoreCase("back"));
+        } while (option != MenuCommand.BACK);
     }
 
     public void signUpForm(Connection con, SignUpDTO signUp) {
@@ -114,9 +113,7 @@ public class AuthView extends View {
             do {
                 userName = textIO.newStringInputReader().read("Enter your user name : ");
             } while (checkUserName(userName) == false);
-            do {
-                password = textIO.newStringInputReader().read("Enter your password : ");
-            } while (validatePassword(password) == false);
+            password = textIO.newStringInputReader().read("Enter your password : ");
             logIn.setUsername(userName);
             logIn.setPassword(password);
             ResponseDTO<Object> checkLogIn  = AuthController.login(logIn);
@@ -125,8 +122,6 @@ public class AuthView extends View {
                 waitTimeByMessage("Press enter to continue!");
                 clearScreen();
             } else {
-
-                waitTimeByMessage("Press enter to continue!");
                 clearScreen();
                 checkInsertProfile = ApplicationController.checkToInsertProfile();
                 if(checkInsertProfile.getStatus() != ResponseStatus.OK) {
@@ -143,12 +138,8 @@ public class AuthView extends View {
                     appCrewGuildView(con);
                 }
             }
-        } else if (checkProfile.getStatus() == ResponseStatus.OK) {
-            clearScreen();
-            appCrewGuildView(con);
-
         } else {
-            clearScreen();
+                clearScreen();
                 checkInsertProfile = ApplicationController.checkToInsertProfile();
                 if(checkInsertProfile.getStatus() != ResponseStatus.OK) {
                     textIO.getTextTerminal().println("Missing profile, please insert you profile.");
@@ -162,21 +153,6 @@ public class AuthView extends View {
                     appCrewGuildView(con);
                 }
         }
-    }
-
-    public void updateAccount() {
-        viewTitle("| UPDATE ACCOUNT |", textIO);
-        String username, password;
-        do {
-            username = textIO.newStringInputReader().read("Enter your user name : ");
-        } while (checkUserName(username) == false);
-        do {
-            password = textIO.newStringInputReader().read("Enter your password : ");
-        } while (validatePassword(password) == false);
-        ResponseDTO<Object> response = ApplicationController.updateUserAccount( username, password);
-        if(response.getStatus() != ResponseStatus.OK) {
-            printError(response.getMessage());
-        } else textIO.getTextTerminal().println(response.getMessage());
     }
 
     public Boolean checkUserName(String userName) {
