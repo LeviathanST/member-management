@@ -172,6 +172,5 @@ public class Permission {
 			if (row == 0)
 				throw new SQLException("A application role permission is failed when deleting!");
 		}
-
 	}
 }

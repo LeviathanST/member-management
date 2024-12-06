@@ -1,0 +1,9 @@
+package constants;
+
+public enum PermissionOfCrewCommand {
+    VIEW_PERMISSION_OF_CREW_ROLE,
+    ADD_PERMISSION_TO_CREW_ROLE,
+    UPDATE_PERMISSION_IN_CREW_ROLE,
+    DELETE_PERMISSION_IN_CREW_ROLE,
+    BACK
+}

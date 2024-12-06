@@ -90,6 +90,23 @@ public class UserProfileView extends View{
         clearScreen();
     }
 
+    public void showProfile() {
+        UserProfileDTO profile = new UserProfileDTO();
+        ResponseDTO<UserProfileDTO> response = new ResponseDTO<UserProfileDTO>(null, null, null);
+        response = ApplicationController.readOneUserProfile(profile);
+        if(response.getStatus() != ResponseStatus.OK) {
+            printError(response.getMessage());
+        } else textIO.getTextTerminal().println(response.getMessage());
+        textIO.getTextTerminal().println("Account ID: " + profile.getAccountId());
+        textIO.getTextTerminal().println("Full Name: " + profile.getFullName());
+        textIO.getTextTerminal().println("Sex: " + profile.getSex());
+        textIO.getTextTerminal().println("Student Code: " + profile.getStudentCode());
+        textIO.getTextTerminal().println("Email: " + profile.getEmail());
+        textIO.getTextTerminal().println("Contact Email: " + profile.getContactEmail());
+        textIO.getTextTerminal().println("Generation : " + profile.getGenerationName());
+        textIO.getTextTerminal().println("Date of Birth: " + profile.getDateOfBirth());
+    }
+
 
     public boolean checkContactEmail(String contactEmail) {
         if(contactEmail.length() == 0) 

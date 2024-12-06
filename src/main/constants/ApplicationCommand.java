@@ -1,0 +1,14 @@
+package constants;
+
+public enum ApplicationCommand {
+    UPDATE_ACCOUNT,
+    DELETE_USER_ACCOUNT,
+    YOUR_PROFILE,
+    GET_ALL_USERS_PROFILES_OR_ACCOUNTS,
+    CRUD_ROLE,
+    ADD_PERMISSION_TO_ROLE,
+    CRUD_USER_ROLE,
+    PERMISSION_MANAGEMENT,
+    EVENTS, 
+    BACK
+}
