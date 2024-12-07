@@ -13,8 +13,6 @@ import controllers.GuildController;
 import dto.*;
 import kotlin.Pair;
 import models.*;
-import repositories.permissions.CrewPermissionRepository;
-import repositories.roles.CrewRoleRepository;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 
@@ -111,7 +109,7 @@ public class CrewView extends View {
         viewTitle("Choose Username", textIO);
         List<String> listUserRole = new ArrayList<>();
         for (UserCrewRole data : response.getData()) {
-            listUserRole.add(data.getUsername() + " - " + data.getRole());
+            listUserRole.add(data.getUsername() + " - " + data.getName());
         }
         String selectedUserRole = textIO.newStringInputReader()
                 .withNumberedPossibleValues(listUserRole)
@@ -183,7 +181,7 @@ public class CrewView extends View {
         TextIO textIO = TextIoFactory.getTextIO();
         ResponseDTO<List<String>> listGeneration = CrewController.getAllGeneration();
         viewTitle("Choose Generation", textIO);
-        for(String i : listGeneration.getData())
+        for (String i : listGeneration.getData())
             textIO.getTextTerminal().println(i);
         if (listGeneration.getStatus() != ResponseStatus.OK) {
             printError(listGeneration.getMessage());
@@ -394,7 +392,7 @@ public class CrewView extends View {
             textIO.getTextTerminal().println(response.getMessage());
         }
 
-        if (!response.getData().isEmpty()){
+        if (!response.getData().isEmpty()) {
             for (CrewRole crewRole : response.getData()) {
                 textIO.getTextTerminal().println(crewRole.getName());
             }
@@ -553,7 +551,7 @@ public class CrewView extends View {
         for (UserCrewRole userCrewRoleDto : response.getData()) {
             textIO.getTextTerminal().print(userCrewRoleDto.getUsername());
             textIO.getTextTerminal().print(" | ");
-            textIO.getTextTerminal().print(userCrewRoleDto.getRole());
+            textIO.getTextTerminal().print(userCrewRoleDto.getName());
             textIO.getTextTerminal().println();
         }
         String BackToMenuOrBack = textIO.newStringInputReader()
@@ -1087,7 +1085,7 @@ public class CrewView extends View {
             String generation = getGenerationFromList(connection);
             char[] tmp = generation.toCharArray();
             int generationId = 0;
-            for(int i = 1; i < tmp.length; i++) {
+            for (int i = 1; i < tmp.length; i++) {
                 generationId = generationId * 10 + (tmp[i] - '0');
             }
             String title = textIO.newStringInputReader()
@@ -1137,7 +1135,7 @@ public class CrewView extends View {
             String generation = getGenerationFromList(connection);
             char[] tmp = generation.toCharArray();
             int generationId = 0;
-            for(int i = 1; i < tmp.length; i++) {
+            for (int i = 1; i < tmp.length; i++) {
                 generationId = generationId * 10 + (tmp[i] - '0');
             }
             String title = textIO.newStringInputReader()

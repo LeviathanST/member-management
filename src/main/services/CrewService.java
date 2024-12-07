@@ -237,7 +237,7 @@ public class CrewService {
 			String usr = normalizeName(data.getUsername());
 
 			int crewId = CrewRepository.getIdByName(data.getCrew());
-			data.setCrewRoleId(CrewRoleRepository.getIdByName(crewId, data.getRole()));
+			data.setCrewRoleId(CrewRoleRepository.getIdByName(crewId, data.getName()));
 			data.setAccountId(UserAccountRepository.getIdByUsername(usr));
 			if (checkPermission("CRUDUserCrewRole", data.getCrew())) {
 				UserCrewRoleRepository.insertCrewMember(data.getAccountId(), data.getCrewRoleId());
@@ -271,7 +271,7 @@ public class CrewService {
 
 			newData.setAccountId(UserAccountRepository.getIdByUsername(usr));
 			int newCrewId = CrewRepository.getIdByName(newData.getCrew());
-			newData.setCrewRoleId(CrewRoleRepository.getIdByName(newCrewId, newData.getRole()));
+			newData.setCrewRoleId(CrewRoleRepository.getIdByName(newCrewId, newData.getName()));
 			if (checkPermission("CRUDUserCrewRole", data.getCrew())) {
 				UserCrewRoleRepository.updateCrewMember(newData.getAccountId(), crewId,
 						newData.getCrewRoleId());
@@ -295,7 +295,7 @@ public class CrewService {
 		try {
 			data.setAccountId(UserAccountRepository.getIdByUsername(data.getUsername()));
 			int crewId = CrewRepository.getIdByName(data.getCrew());
-			int crewRoleId = CrewRoleRepository.getIdByName(crewId, data.getRole());
+			int crewRoleId = CrewRoleRepository.getIdByName(crewId, data.getName());
 
 			if (checkPermission("CRUDUserCrewRole", data.getCrew())) {
 				UserCrewRoleRepository.deleteCrewMember(data.getAccountId(), crewRoleId);
