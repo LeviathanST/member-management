@@ -106,7 +106,7 @@ public class AuthView extends View {
     }
 
     public void logOut() {
-        String filePath = "D:\\final\\member-management\\storage.json";
+        String filePath = "storage.json";
 
         File file = new File(filePath);
 
