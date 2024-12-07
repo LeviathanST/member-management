@@ -130,7 +130,7 @@ public class UserProfileRepository {
 	public static List<UserProfile> readAll() throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = """
-						SELECT account_id, full_name, sex, student_code, contact_email,
+						SELECT account_id, full_name, sex, student_code, email, contact_email,
 						generation_id, dob FROM user_profile
 					""";
 			PreparedStatement stmt = con.prepareStatement(query);

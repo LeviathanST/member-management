@@ -288,11 +288,9 @@ public class ApplicationView extends View {
                 case GET_ALL_PERMISSION:
                     permissionView.getAllPermission();
                     break;
-
                 case UPDATE_PERMISSION:
                     permissionView.update(response);
                     break;
-
                 case DELETE_PERMISSION:
                     permissionView.delete(response);
                     break;

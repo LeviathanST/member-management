@@ -36,10 +36,9 @@ public class PermissionView extends View {
     public void update(ResponseDTO<Object> response) {
         viewTitle("| UPDATE PERMISSION |", textIO);
         getAllPermission();
-        String roleName = textIO.newStringInputReader().read("Enter role's name : ");
-        int permissionId = textIO.newIntInputReader().read("Enter old permission's id : ");
-        int newPermission = textIO.newIntInputReader().read("Enter new permission's id : ");
-        response = ApplicationController.updatePermission(roleName, permissionId, newPermission);
+        int permissionId = textIO.newIntInputReader().read("Enter permission's id : ");
+        String newPermission = textIO.newStringInputReader().read("Enter new permission name : ");
+        response = ApplicationController.updatePermission(permissionId, newPermission);
         if (response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else
@@ -49,9 +48,8 @@ public class PermissionView extends View {
     public void delete(ResponseDTO<Object> response) {
         viewTitle("| DELETE PERMISSION |", textIO);
         getAllPermission();
-        String roleName = textIO.newStringInputReader().read("Enter role : ");
         int permissionId = textIO.newIntInputReader().read("Enter permission's id to delete : ");
-        response = ApplicationController.deletePermission(roleName, permissionId);
+        response = ApplicationController.deletePermission(permissionId);
         if (response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else

@@ -14,7 +14,6 @@ public class RoleView extends View {
     }
 
     public void getAllRoles() {
-        clearScreen();
         viewTitle("| GET ALL ROLES |", textIO);
         List<Role> list = ApplicationController.getAllRoles().getData();
         textIO.getTextTerminal().println("There are " + list.size() + " roles.");

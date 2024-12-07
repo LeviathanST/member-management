@@ -253,11 +253,11 @@ public class ApplicationController {
         }
     }
 
-    public static ResponseDTO<Object> deletePermission(String roleName, int permissionId) {
+    public static ResponseDTO<Object> deletePermission(int permissionId) {
         try {
             boolean author = AuthService.AppAuthorization("CrudPermission");
             if (author == true) {
-                ApplicationService.DeletePermissionDto(roleName, permissionId);
+                ApplicationService.DeletePermissionDto(permissionId);
                 return new ResponseDTO<>(ResponseStatus.OK, "Delete permission successfully!", null);
             } else
                 return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST,
@@ -269,11 +269,11 @@ public class ApplicationController {
         }
     }
 
-    public static ResponseDTO<Object> updatePermission(String roleName, int permissionId, int newPermissionID) {
+    public static ResponseDTO<Object> updatePermission(int permissionId, String newPermission) {
         try {
             boolean author = AuthService.AppAuthorization("CrudPermission");
             if (author == true) {
-                ApplicationService.UpdatePermissionDto(roleName, permissionId, newPermissionID);
+                ApplicationService.UpdatePermissionDto(permissionId, newPermission);
                 return new ResponseDTO<>(ResponseStatus.OK, "Update permission successfully!", null);
             } else
                 return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST,
