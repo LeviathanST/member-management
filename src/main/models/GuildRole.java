@@ -1,18 +1,18 @@
 package models;
 
 public class GuildRole {
-	private String role;
+	private String name;
 	private int guildId;
 	private int id;
 	private String guildName;
 
 	public GuildRole(int guildId, String name) {
 		this.guildId = guildId;
-		this.role = name;
+		this.name = name;
 	}
 
 	public GuildRole(String role, String guildName) {
-		this.role = role;
+		this.name = role;
 		this.guildName = guildName;
 	}
 
@@ -24,12 +24,12 @@ public class GuildRole {
 		this.guildName = guildName;
 	}
 
-	public String getRole() {
-		return role;
+	public String getName() {
+		return name;
 	}
 
-	public void setRole(String role) {
-		this.role = role;
+	public void setName(String role) {
+		this.name = role;
 	}
 
 	public int getGuildId() {
@@ -50,9 +50,5 @@ public class GuildRole {
 
 	public int getGuild_id() {
 		return guildId;
-	}
-
-	public String getName() {
-		return role;
 	}
 }

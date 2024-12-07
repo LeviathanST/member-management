@@ -163,7 +163,7 @@ public class CrewController {
             CrewService.addUserToCrew(userCrewRoleDto);
             return new ResponseDTO<>(ResponseStatus.OK,
                     String.format("Add user %s crew role %s to crew %s successfully!",
-                            userCrewRoleDto.getUsername(), userCrewRoleDto.getRole(), userCrewRoleDto.getCrew()),
+                            userCrewRoleDto.getUsername(), userCrewRoleDto.getName(), userCrewRoleDto.getCrew()),
                     null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
@@ -182,7 +182,7 @@ public class CrewController {
             CrewService.updateUserToCrew(userCrewRoleDto, newUserCrewRoleDto);
             return new ResponseDTO<>(ResponseStatus.OK,
                     String.format("Update user %s role %s in crew %s successfully!",
-                            userCrewRoleDto.getUsername(), userCrewRoleDto.getRole(), userCrewRoleDto.getCrew()),
+                            userCrewRoleDto.getUsername(), userCrewRoleDto.getName(), userCrewRoleDto.getCrew()),
                     null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
@@ -200,7 +200,7 @@ public class CrewController {
             CrewService.deleteUserInCrew(userCrewRoleDto);
             return new ResponseDTO<>(ResponseStatus.OK,
                     String.format("Delete user %s role %s in crew %s successfully!",
-                            userCrewRoleDto.getUsername(), userCrewRoleDto.getRole(), userCrewRoleDto.getCrew()),
+                            userCrewRoleDto.getUsername(), userCrewRoleDto.getName(), userCrewRoleDto.getCrew()),
                     null);
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,

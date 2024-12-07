@@ -171,7 +171,7 @@ public class GuildService {
 			} else if (!isValidString(data.getGuildName())) {
 				throw new InvalidDataException("Invalid guild name");
 			}
-			data.setRole(normalizeName(data.getName()));
+			data.setName(normalizeName(data.getName()));
 			data.setGuildId(GuildRepository.getIdByName(data.getGuildName()));
 			if (checkPermission("CRUDGuildRole", data.getGuildName())) {
 				GuildRoleRepository.insertGuildRole(data.getName(), data.getGuildId());
@@ -201,7 +201,7 @@ public class GuildService {
 				throw new InvalidDataException("Invalid role");
 			}
 
-			newData.setRole(normalizeName(newData.getName()));
+			newData.setName(normalizeName(newData.getName()));
 
 			data.setGuildId(GuildRepository.getIdByName(data.getGuildName()));
 			data.setId(GuildRoleRepository.getIdByName(data.getGuildId(), data.getName()));
@@ -561,7 +561,8 @@ public class GuildService {
 	// TODO Crew Event
 	public static void insertGuildEvent(GuildEvent guildEvent, String dateStart, String dateEnd)
 			throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException,
-			DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
+			DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException,
+			ClassNotFoundException {
 		try {
 			if (guildEvent.getTitle().isEmpty()) {
 				throw new DataEmptyException("Title is empty");
@@ -585,7 +586,8 @@ public class GuildService {
 				throw new NotHavePermission("You don't have permission");
 			}
 		} catch (SQLIntegrityConstraintViolationException e) {
-			throw new SQLIntegrityConstraintViolationException(String.format("Your guild event is existed: %s", guildEvent.getTitle()));
+			throw new SQLIntegrityConstraintViolationException(
+					String.format("Your guild event is existed: %s", guildEvent.getTitle()));
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when create guild event: %s",
 					guildEvent.getTitle()));

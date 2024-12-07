@@ -2,7 +2,7 @@ package models;
 
 public class UserCrewRole {
 	private String username;
-	private String role;
+	private String name;
 	private String crew;
 
 	private String accountId;
@@ -11,15 +11,15 @@ public class UserCrewRole {
 	public UserCrewRole(String crew, String username, String role) {
 		this.crew = crew;
 		this.username = username;
-		this.role = role;
+		this.name = role;
 	}
 
 	public String getUsername() {
 		return this.username;
 	}
 
-	public String getRole() {
-		return this.role;
+	public String getName() {
+		return this.name;
 	}
 
 	public String getCrew() {
