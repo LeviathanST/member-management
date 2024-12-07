@@ -561,7 +561,7 @@ public class GuildService {
 	// TODO Crew Event
 	public static void insertGuildEvent(GuildEvent guildEvent, String dateStart, String dateEnd)
 			throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException,
-			DataEmptyException, InvalidDataException, TokenException, NotHavePermission {
+			DataEmptyException, InvalidDataException, TokenException, NotHavePermission, IOException, ClassNotFoundException {
 		try {
 			if (guildEvent.getTitle().isEmpty()) {
 				throw new DataEmptyException("Title is empty");
@@ -584,8 +584,8 @@ public class GuildService {
 			} else {
 				throw new NotHavePermission("You don't have permission");
 			}
-		} catch (SQLIntegrityConstraintViolationException | IOException | ClassNotFoundException e) {
-			throw new SQLException(String.format("Your guild event is existed: %s", guildEvent.getTitle()));
+		} catch (SQLIntegrityConstraintViolationException e) {
+			throw new SQLIntegrityConstraintViolationException(String.format("Your guild event is existed: %s", guildEvent.getTitle()));
 		} catch (SQLException e) {
 			throw new SQLException(String.format("Error occurs when create guild event: %s",
 					guildEvent.getTitle()));
@@ -593,6 +593,10 @@ public class GuildService {
 			throw new RuntimeException(e);
 		} catch (TokenException e) {
 			throw new TokenException("Can't get access token");
+		} catch (IOException e) {
+			throw new IOException(e.getMessage());
+		} catch (ClassNotFoundException e) {
+			throw new ClassNotFoundException(e.getMessage());
 		}
 	}
 

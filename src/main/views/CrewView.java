@@ -12,12 +12,7 @@ import controllers.CrewController;
 import controllers.GuildController;
 import dto.*;
 import kotlin.Pair;
-import models.Crew;
-import models.CrewEvent;
-import models.CrewPermission;
-import models.CrewRole;
-import models.UserCrewRole;
-import models.UserProfile;
+import models.*;
 import repositories.permissions.CrewPermissionRepository;
 import repositories.roles.CrewRoleRepository;
 import org.beryx.textio.TextIO;
@@ -188,14 +183,15 @@ public class CrewView extends View {
         TextIO textIO = TextIoFactory.getTextIO();
         ResponseDTO<List<String>> listGeneration = CrewController.getAllGeneration();
         viewTitle("Choose Generation", textIO);
+        for(String i : listGeneration.getData())
+            textIO.getTextTerminal().println(i);
         if (listGeneration.getStatus() != ResponseStatus.OK) {
             printError(listGeneration.getMessage());
         } else {
             textIO.getTextTerminal().println(listGeneration.getMessage());
         }
-        return textIO.newStringInputReader()
-                .withNumberedPossibleValues(listGeneration.getData())
-                .read("");
+        String generation = textIO.newStringInputReader().read("Enter generation name : ");
+        return generation;
     }
 
     // TODO: View Crew
@@ -235,7 +231,7 @@ public class CrewView extends View {
         if (listMember.getStatus() != ResponseStatus.OK) {
             printError(listMember.getMessage());
         } else if (listMember.getData().isEmpty()) {
-            printError("Not member in this guild");
+            printError("Not member in this crew");
         } else {
             textIO.getTextTerminal().println(listMember.getMessage());
             viewTitle(option.toString(), textIO);
@@ -397,8 +393,13 @@ public class CrewView extends View {
         } else {
             textIO.getTextTerminal().println(response.getMessage());
         }
-        for (CrewRole crewRole : response.getData()) {
-            textIO.getTextTerminal().println(crewRole.getName());
+
+        if (!response.getData().isEmpty()){
+            for (CrewRole crewRole : response.getData()) {
+                textIO.getTextTerminal().println(crewRole.getName());
+            }
+        } else {
+            textIO.getTextTerminal().println("No crew roles found");
         }
         String BackToMenuOrBack = textIO.newStringInputReader()
                 .withNumberedPossibleValues("BACK", "BACK TO MENU")
@@ -517,7 +518,7 @@ public class CrewView extends View {
                 case VIEW_USER_CREW_ROLES:
                     viewListUserCrewRoles(connection, options);
                     break;
-                case ADD_NEW_USER_CREW_ROE:
+                case ADD_NEW_USER_CREW_ROLE:
                     viewAddUserCrewRole(connection, options);
                     break;
                 case UPDATE_INFORMATION_USER_CREW_ROLE:
@@ -1084,6 +1085,11 @@ public class CrewView extends View {
             viewTitle(option.toString(), textIO);
             String crewName = getCrewFromList(connection);
             String generation = getGenerationFromList(connection);
+            char[] tmp = generation.toCharArray();
+            int generationId = 0;
+            for(int i = 1; i < tmp.length; i++) {
+                generationId = generationId * 10 + (tmp[i] - '0');
+            }
             String title = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("INPUT TITLE");
@@ -1099,7 +1105,7 @@ public class CrewView extends View {
             String type = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("TYPE OF EVENT");
-            CrewEvent crewEvent = new CrewEvent(crewName, generation, title, description, type);
+            CrewEvent crewEvent = new CrewEvent(crewName, generationId, title, description, type);
             response = CrewController.addCrewEvent(crewEvent, start, end);
             if (response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
@@ -1129,6 +1135,11 @@ public class CrewView extends View {
             int crewEventId = getCrewEventIDFromList(connection);
             String crewName = getCrewFromList(connection);
             String generation = getGenerationFromList(connection);
+            char[] tmp = generation.toCharArray();
+            int generationId = 0;
+            for(int i = 1; i < tmp.length; i++) {
+                generationId = generationId * 10 + (tmp[i] - '0');
+            }
             String title = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("INPUT TITLE");
@@ -1144,7 +1155,7 @@ public class CrewView extends View {
             String type = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("INPUT TYPE OF EVENT: ");
-            CrewEvent crewEvent = new CrewEvent(crewName, generation, title, description, type);
+            CrewEvent crewEvent = new CrewEvent(crewName, generationId, title, description, type);
             response = CrewController.updateCrewEvent(crewEvent, crewEventId, start, end);
             if (response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());

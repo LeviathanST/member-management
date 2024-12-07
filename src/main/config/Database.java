@@ -18,7 +18,6 @@ public class Database {
                 db_url,
                 "root",
                 db_password);
-        System.out.println("Connection successfully!");
         return connection;
     }
 }

@@ -18,6 +18,9 @@ INSERT INTO guild_permission (name) VALUES ('CRUDGuildEvent');
 INSERT INTO guild_role (name, guild_id) VALUES ('Member', 1);
 INSERT INTO guild_role (name, guild_id) VALUES ('Leader', 1);
 
+INSERT INTO guild_role (name, guild_id) VALUES ('Member', 2);
+INSERT INTO guild_role (name, guild_id) VALUES ('Leader', 2);
+
 INSERT INTO guild_role_permission (guild_role_id, guild_permission_id) VALUES (1, 1);
 INSERT INTO guild_role_permission (guild_role_id, guild_permission_id) VALUES (1, 2);
 
@@ -32,6 +35,11 @@ INSERT INTO crew_permission (name) VALUES ("ViewTask");
 INSERT INTO crew_permission (name) VALUES ("MakeTask"); 
 INSERT INTO crew_permission (name) VALUES ("EditTask"); 
 INSERT INTO crew_permission (name) VALUES ("DeleteTask"); 
+
+INSERT INTO crew_role (name, crew_id) VALUES ('Member', 1);
+INSERT INTO crew_role (name, crew_id) VALUES ('Leader', 1);
+INSERT INTO crew_role (name, crew_id) VALUES ('Member', 2);
+INSERT INTO crew_role (name, crew_id) VALUES ('Leader', 2);
 
 INSERT INTO permission (name) VALUES ("CrudRole"); 
 INSERT INTO permission (name) VALUES ("CrudEvent"); 

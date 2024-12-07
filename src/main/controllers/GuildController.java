@@ -390,7 +390,7 @@ public class GuildController {
         } catch (SQLException e) {
             return new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR,
                     "Error occurs when querying, please try again!" + e, null);
-        } catch (NotFoundException | TokenException e) {
+        } catch (NotFoundException | TokenException | IOException | ClassNotFoundException e) {
             return new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null);
         } catch (DataEmptyException | InvalidDataException | NotHavePermission e) {
             return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
