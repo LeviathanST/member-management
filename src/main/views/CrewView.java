@@ -12,12 +12,7 @@ import controllers.CrewController;
 import controllers.GuildController;
 import dto.*;
 import kotlin.Pair;
-import models.Crew;
-import models.CrewEvent;
-import models.CrewPermission;
-import models.CrewRole;
-import models.UserCrewRole;
-import models.UserProfile;
+import models.*;
 import repositories.permissions.CrewPermissionRepository;
 import repositories.roles.CrewRoleRepository;
 import org.beryx.textio.TextIO;
@@ -70,9 +65,9 @@ public class CrewView extends View {
         TextIO textIO = TextIoFactory.getTextIO();
         ResponseDTO<List<String>> listCrews = CrewController.getAllCrews();
         viewTitle("Choose Crew", textIO);
-        for(String i : listCrews.getData())
-            textIO.getTextTerminal().println(i);
-        String crewOption = textIO.newStringInputReader().read("Enter crew name : ");
+        String crewOption = textIO.newStringInputReader()
+                .withNumberedPossibleValues(listCrews.getData())
+                .read("");
         if (listCrews.getStatus() != ResponseStatus.OK) {
             printError(listCrews.getMessage());
         } else {
@@ -398,8 +393,13 @@ public class CrewView extends View {
         } else {
             textIO.getTextTerminal().println(response.getMessage());
         }
-        for (CrewRole crewRole : response.getData()) {
-            textIO.getTextTerminal().println(crewRole.getName());
+
+        if (!response.getData().isEmpty()){
+            for (CrewRole crewRole : response.getData()) {
+                textIO.getTextTerminal().println(crewRole.getName());
+            }
+        } else {
+            textIO.getTextTerminal().println("No crew roles found");
         }
         String BackToMenuOrBack = textIO.newStringInputReader()
                 .withNumberedPossibleValues("BACK", "BACK TO MENU")

@@ -72,9 +72,9 @@ public class GuildView extends View {
         TextIO textIO = TextIoFactory.getTextIO();
         ResponseDTO<List<String>> listGuilds = GuildController.getAllGuilds();
         viewTitle("CHOOSE GUILD", textIO);
-        for(String i : listGuilds.getData()) 
-            textIO.getTextTerminal().println(i);
-        String guildOption = textIO.newStringInputReader().read("Enter guild name : ");
+        String guildOption = textIO.newStringInputReader()
+                .withNumberedPossibleValues(listGuilds.getData())
+                .read("");
         if (listGuilds.getStatus() != ResponseStatus.OK) {
             printError(listGuilds.getMessage());
         }
@@ -386,11 +386,16 @@ public class GuildView extends View {
         response = GuildController.getAllGuildRoles(getGuildFromList(connection));
         if (response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
-        } else {
+        }
+        else {
             textIO.getTextTerminal().println(response.getMessage());
         }
-        for (GuildRole guild : response.getData()) {
-            textIO.getTextTerminal().println(guild.getName());
+        if (!response.getData().isEmpty()){
+            for (GuildRole guildRole : response.getData()) {
+                textIO.getTextTerminal().println(guildRole.getName());
+            }
+        } else {
+            textIO.getTextTerminal().println("No guild roles found");
         }
         String BackToMenuOrBack = textIO.newStringInputReader()
                 .withNumberedPossibleValues("BACK", "BACK TO MENU")

@@ -7,6 +7,8 @@ import models.CrewEvent;
 import models.CrewPermission;
 import models.CrewRole;
 import models.UserCrewRole;
+import org.beryx.textio.TextIO;
+import org.beryx.textio.TextIoFactory;
 import repositories.CrewRepository;
 import repositories.events.CrewEventRepository;
 import repositories.permissions.CrewPermissionRepository;
@@ -582,7 +584,7 @@ public class CrewService {
 			}
 
 		} catch (SQLIntegrityConstraintViolationException e) {
-			throw new SQLException(
+			throw new SQLIntegrityConstraintViolationException(
 					String.format("Your crew event is existed: %s" + e, crewEvent.getTitle()));
 		} catch (SQLException e) {
 			throw new SQLException(
