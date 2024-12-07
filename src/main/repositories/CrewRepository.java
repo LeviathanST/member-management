@@ -32,8 +32,8 @@ public class CrewRepository {
 		try (Connection con = Database.connection()) {
 			String query = """
 					SELECT ucr.account_id as account_id
-					FROM crew g
-					JOIN crew_role cr ON cr.guild_id = c.id
+					FROM crew c
+					JOIN crew_role cr ON cr.crew_id = c.id
 					JOIN user_crew_role ucr ON ucr.crew_role_id = cr.id
 					WHERE c.id = ?
 					""";

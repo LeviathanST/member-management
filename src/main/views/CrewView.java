@@ -235,7 +235,7 @@ public class CrewView extends View {
         if (listMember.getStatus() != ResponseStatus.OK) {
             printError(listMember.getMessage());
         } else if (listMember.getData().isEmpty()) {
-            printError("Not member in this guild");
+            printError("Not member in this crew");
         } else {
             textIO.getTextTerminal().println(listMember.getMessage());
             viewTitle(option.toString(), textIO);
@@ -517,7 +517,7 @@ public class CrewView extends View {
                 case VIEW_USER_CREW_ROLES:
                     viewListUserCrewRoles(connection, options);
                     break;
-                case ADD_NEW_USER_CREW_ROE:
+                case ADD_NEW_USER_CREW_ROLE:
                     viewAddUserCrewRole(connection, options);
                     break;
                 case UPDATE_INFORMATION_USER_CREW_ROLE:
