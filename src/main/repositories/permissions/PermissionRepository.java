@@ -86,13 +86,13 @@ public class PermissionRepository {
 		}
 	}
 
-	public void update(String oldName, String newName) throws SQLException, IOException, ClassNotFoundException {
+	public static void update(int id, String newName) throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
-			String query = "UPDATE permission SET name = ? where name = ?";
+			String query = "UPDATE permission SET name = ? where id = ?";
 
 			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, oldName);
-			stmt.setString(2, newName);
+			stmt.setString(1, newName);
+			stmt.setInt(2, id);
 
 			int row = stmt.executeUpdate();
 			if (row == 0)
@@ -102,6 +102,7 @@ public class PermissionRepository {
 
 	public static void delete(int permissionId) throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
+			deleteRolePermission(permissionId);
 			String query = "DELETE FROM permission WHERE id = ?";
 
 			PreparedStatement stmt = con.prepareStatement(query);
@@ -144,6 +145,20 @@ public class PermissionRepository {
 		}
 
 	}
+		public static void deleteRolePermission(int permissionID)
+			throws SQLException, IOException, ClassNotFoundException {
+			try (Connection con = Database.connection()) {
+				String query = "DELETE FROM role_permission WHERE permission_id = ? ";
+
+				PreparedStatement stmt = con.prepareStatement(query);
+				stmt.setInt(1, permissionID);
+
+				int row = stmt.executeUpdate();
+				if (row == 0)
+					throw new SQLException("A application role permission is failed when deleting!");
+			}
+	}
+
 
 	public static void deletePermissionRole(int permissionID, int roleID)
 			throws SQLException, IOException, ClassNotFoundException {

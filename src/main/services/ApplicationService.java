@@ -179,11 +179,10 @@ public class ApplicationService extends AuthService {
         }
     }
 
-    public static void UpdatePermissionDto(String roleName, int permisisonId, int newPermissionId)
+    public static void UpdatePermissionDto(int permisisonId, String newPermissionId)
             throws SQLException, NotFoundException, IOException, ClassNotFoundException {
         try {
-            int roleId = RoleRepository.getByName(roleName).getId();
-            PermissionRepository.updatePermissionToRole(roleId, permisisonId, newPermissionId);
+            PermissionRepository.update(permisisonId, newPermissionId);
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new SQLException("Disallow null values");
         } catch (SQLException e) {
@@ -191,15 +190,14 @@ public class ApplicationService extends AuthService {
         }
     }
 
-    public static void DeletePermissionDto(String roleName, int permisisonId)
+    public static void DeletePermissionDto(int permisisonId)
             throws SQLException, NotFoundException, IOException, ClassNotFoundException {
         try {
-            int roleId = RoleRepository.getByName(roleName).getId();
-            PermissionRepository.deletePermissionRole(permisisonId, roleId);
-        } catch (SQLIntegrityConstraintViolationException e) {
+            PermissionRepository.delete(permisisonId);
+        } catch (IOException | ClassNotFoundException e) {
             throw new SQLException("Disallow null values");
         } catch (SQLException e) {
-            throw new SQLException("Error occurs when update user role");
+            throw new SQLException("Error occurs when delete permission.");
         }
     }
 
