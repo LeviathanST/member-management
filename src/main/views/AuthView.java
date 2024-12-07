@@ -8,6 +8,7 @@ import dto.LoginDTO;
 import dto.ResponseDTO;
 import dto.SignUpDTO;
 
+import java.io.File;
 import java.sql.Connection;
 
 public class AuthView extends View {
@@ -68,7 +69,7 @@ public class AuthView extends View {
                     clearScreen();
                     break;
                 case BACK: 
-                    Auth_view();
+                    logOut();
                     break;
                 default:
                     break;
@@ -103,6 +104,18 @@ public class AuthView extends View {
             Auth_view();
         }
     }
+
+    public void logOut() {
+        String filePath = "D:\\final\\member-management\\storage.json";
+
+        File file = new File(filePath);
+
+        if (file.exists()) {
+            file.delete();
+            textIO.getTextTerminal().println("Log out successfully.");
+        } 
+    }
+    
 
     public void logInForm(Connection con, LoginDTO logIn) {
         String userName, password;
