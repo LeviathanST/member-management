@@ -7,10 +7,11 @@ import java.util.List;
 import constants.ResponseStatus;
 import controllers.ApplicationController;
 import dto.ResponseDTO;
-import dto.UserProfileDTO;
-import models.users.UserAccount;
+import models.UserAccount;
+import models.UserProfile;
+import repositories.users.UserAccountRepository;
 
-public class GetAllProfilesAccounts extends View{
+public class GetAllProfilesAccounts extends View {
     public GetAllProfilesAccounts(Connection con) {
         super(con);
     }
@@ -18,13 +19,13 @@ public class GetAllProfilesAccounts extends View{
     public void getAllProfiles() {
         clearScreen();
         viewTitle("| GET ALL USER PROFILES |", textIO);
-        List<UserProfileDTO> list = new ArrayList<>();
-        ResponseDTO<List<UserProfileDTO>> response = ApplicationController.getAllUserProfiles();
+        List<UserProfile> list = new ArrayList<>();
+        ResponseDTO<List<UserProfile>> response = ApplicationController.getAllUserProfiles();
         list = response.getData();
-        if(response.getStatus() != ResponseStatus.OK) {
+        if (response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else {
-            for(UserProfileDTO i : list) {
+            for (UserProfile i : list) {
                 textIO.getTextTerminal().println("Account ID: " + i.getAccountId());
                 textIO.getTextTerminal().println("Full Name: " + i.getFullName());
                 textIO.getTextTerminal().println("Sex: " + i.getSex());
@@ -42,10 +43,10 @@ public class GetAllProfilesAccounts extends View{
         viewTitle("| GET ALL ACCOUNTS |", textIO);
         ResponseDTO<List<UserAccount>> response = ApplicationController.getAllUserAccounts();
         List<UserAccount> list = response.getData();
-        if(response.getStatus() != ResponseStatus.OK) {
+        if (response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else {
-            for(UserAccount i : list)
+            for (UserAccount i : list)
                 textIO.getTextTerminal().println(i.getUsername());
         }
 

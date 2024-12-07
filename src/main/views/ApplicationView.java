@@ -1,10 +1,6 @@
 package views;
 
 import java.sql.Connection;
-import java.sql.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import constants.ApplicationCommand;
@@ -15,24 +11,17 @@ import constants.ProfileCommand;
 import constants.ResponseStatus;
 import constants.RoleCommand;
 import controllers.ApplicationController;
-import dto.EventDto;
 import dto.ResponseDTO;
-import dto.SignUpDTO;
-import dto.UserProfileDTO;
-import constants.Sex;
+import models.Permission;
 import constants.UserRoleCommand;
-import models.permissions.Permission;
-import models.roles.Role;
-import models.users.UserAccount;
 
-
-public class ApplicationView extends View{
+public class ApplicationView extends View {
 
     public ApplicationView(Connection con) {
         super(con);
     }
 
-    public void view( ) {
+    public void view() {
         ApplicationCommand option;
         clearScreen();
         do {
@@ -77,7 +66,7 @@ public class ApplicationView extends View{
                     waitTimeByMessage("Press enter to continue");
                     clearScreen();
                     break;
-                case PERMISSION_MANAGEMENT: 
+                case PERMISSION_MANAGEMENT:
                     crudPermission(con);
                     waitTimeByMessage("Press enter to continue");
                     clearScreen();
@@ -109,17 +98,17 @@ public class ApplicationView extends View{
                     EventView showEvent = new EventView(con);
                     showEvent.show();
                     break;
-    
+
                 case CREATE_EVENT:
                     EventView createEvent = new EventView(con);
                     createEvent.create();
                     break;
-    
+
                 case UPDATE_EVENT:
                     EventView updateEvent = new EventView(con);
                     updateEvent.update();
                     break;
-    
+
                 case DELETE_EVENT:
                     EventView deleteEvent = new EventView(con);
                     deleteEvent.delete();
@@ -198,18 +187,17 @@ public class ApplicationView extends View{
                     RoleView createRole = new RoleView(con);
                     createRole.create(response);
                     break;
-    
+
                 case GET_ALL_ROLES:
                     RoleView getAll = new RoleView(con);
                     getAll.getAllRoles();
                     break;
-    
-    
+
                 case UPDATE_ROLE:
                     RoleView updateRole = new RoleView(con);
                     updateRole.update(response);
                     break;
-    
+
                 case DELETE_ROLE:
                     RoleView deleteRole = new RoleView(con);
                     deleteRole.delete(response);
@@ -228,18 +216,19 @@ public class ApplicationView extends View{
         clearScreen();
         viewTitle("| ADD PERMISSION TO ROLE |", this.textIO);
         viewTitle("ROLES", textIO);
-        RoleView getAll =new RoleView(con);
+        RoleView getAll = new RoleView(con);
         getAll.getAllRoles();
         int roleId = textIO.newIntInputReader().read("Enter role's id : ");
         List<Permission> list = ApplicationController.getAllPermissions().getData();
-        for(Permission i : list)
+        for (Permission i : list)
             textIO.getTextTerminal().println(i.getId() + " : " + i.getName());
         int permissionId = textIO.newIntInputReader().read("Enter permission's id to add : ");
         ResponseDTO<Object> response = new ResponseDTO<Object>(null, null, null);
         response = ApplicationController.AddPermissionToRole(roleId, permissionId);
-        if(response.getStatus() != ResponseStatus.OK) {
+        if (response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
-        } else textIO.getTextTerminal().println(response.getMessage());
+        } else
+            textIO.getTextTerminal().println(response.getMessage());
     }
 
     public void crudUserRole(Connection con) {
@@ -257,22 +246,23 @@ public class ApplicationView extends View{
                     username = textIO.newStringInputReader().read("Enter user name : ");
                     roleName = textIO.newStringInputReader().read("Enter role name : ");
                     response = ApplicationController.SetUserRole(username, roleName);
-                    if(response.getStatus() != ResponseStatus.OK) {
+                    if (response.getStatus() != ResponseStatus.OK) {
                         printError(response.getMessage());
-                    } else textIO.getTextTerminal().println(response.getMessage());
+                    } else
+                        textIO.getTextTerminal().println(response.getMessage());
                     break;
-    
-    
+
                 case UPDATE_USER_ROLE:
                     viewTitle("| UPDATE USER ROLE |", textIO);
                     username = textIO.newStringInputReader().read("Enter user name to updateb :");
                     roleName = textIO.newStringInputReader().read("Enter new role name : ");
                     response = ApplicationController.updateUserRole(username, roleName);
-                    if(response.getStatus() != ResponseStatus.OK) {
+                    if (response.getStatus() != ResponseStatus.OK) {
                         printError(response.getMessage());
-                    } else textIO.getTextTerminal().println(response.getMessage());
+                    } else
+                        textIO.getTextTerminal().println(response.getMessage());
                     break;
-    
+
                 case BACK:
                     this.view();
                     break;
@@ -292,17 +282,17 @@ public class ApplicationView extends View{
         do {
             option = textIO.newEnumInputReader(PermissionCommand.class).read("Enter your choice : ");
             switch (option) {
-                case CREATE_PERMISSION :
+                case CREATE_PERMISSION:
                     permissionView.create(response);
                     break;
                 case GET_ALL_PERMISSION:
                     permissionView.getAllPermission();
                     break;
-    
+
                 case UPDATE_PERMISSION:
                     permissionView.update(response);
                     break;
-    
+
                 case DELETE_PERMISSION:
                     permissionView.delete(response);
                     break;
@@ -315,9 +305,5 @@ public class ApplicationView extends View{
         } while (option != PermissionCommand.BACK);
 
     }
-
-
-
-
 
 }

@@ -3,8 +3,8 @@ import config.Database;
 import dto.SignUpDTO;
 import exceptions.DataEmptyException;
 import exceptions.NotFoundException;
-import models.users.UserAccount;
-import models.users.UserRole;
+import repositories.users.UserAccountRepository;
+import repositories.users.UserRoleRepository;
 import utils.EnvLoader;
 import views.AuthView;
 
@@ -25,17 +25,18 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
-	public static void create_first_account(Connection con) throws SQLException, DataEmptyException, IOException, ClassNotFoundException, NotFoundException {
 
+	public static void create_first_account(Connection con) throws SQLException, DataEmptyException, IOException,
+			ClassNotFoundException, NotFoundException {
 
 		try {
 			SignUpDTO firstAccount = new SignUpDTO();
 			AppConfig config = EnvLoader.load(AppConfig.class);
 			firstAccount.setUsername(config.getAdminUsername());
 			firstAccount.setPassword(hashingPassword(config.getAdminPassword(), config.getRoundHashing()));
-			UserAccount.insert(firstAccount);
-			String adminId = UserAccount.getIdByUsername(firstAccount.getUsername());
-			UserRole.insert(adminId,1);
+			UserAccountRepository.insert(firstAccount);
+			String adminId = UserAccountRepository.getIdByUsername(firstAccount.getUsername());
+			UserRoleRepository.insert(adminId, 1);
 		} catch (SQLException e) {
 			System.out.println("Admin account is created");
 		}

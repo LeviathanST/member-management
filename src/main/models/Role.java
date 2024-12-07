@@ -1,23 +1,19 @@
 package models;
 
-public class Generation {
+public class Role {
 	private int id;
 	private String name;
 
-	public Generation(int id, String name) {
+	public Role(int id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 
-	public Generation(String name) {
-		this.name = name;
-	}
-
 	public int getId() {
-		return id;
+		return this.id;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 }

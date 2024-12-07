@@ -5,21 +5,21 @@ import java.util.List;
 
 import constants.ResponseStatus;
 import controllers.ApplicationController;
-import dto.EventDto;
 import dto.ResponseDTO;
+import models.Event;
 
-public class EventView extends View{
+public class EventView extends View {
     public EventView(Connection con) {
         super(con);
     }
 
-    public List<EventDto> show() {
+    public List<Event> show() {
         clearScreen();
-        ResponseDTO<List<EventDto>> response = ApplicationController.getAllEvent();
-        if(response.getStatus() != ResponseStatus.OK) {
+        ResponseDTO<List<Event>> response = ApplicationController.getAllEvent();
+        if (response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
         } else {
-            for(EventDto i : response.getData()) {
+            for (Event i : response.getData()) {
                 textIO.getTextTerminal().println("ID: " + i.getId());
                 textIO.getTextTerminal().println("Title: " + i.getTitle());
                 textIO.getTextTerminal().println("Description: " + i.getDescription());
@@ -41,18 +41,19 @@ public class EventView extends View{
         int generation = textIO.newIntInputReader().read("Enter generation : ");
         String start = textIO.newStringInputReader().read("Enter date start (dd-MM-yyyy) : ");
         String end = textIO.newStringInputReader().read("Enter date end (dd-MM-yyyy) : ");
-        EventDto event = new EventDto(generation, title, description, type);
-        ResponseDTO<Object> response1 = ApplicationController.addEvent( event, start, end);
-        if(response1.getStatus() != ResponseStatus.OK) {
+        Event event = new Event(generation, title, description, type);
+        ResponseDTO<Object> response1 = ApplicationController.addEvent(event, start, end);
+        if (response1.getStatus() != ResponseStatus.OK) {
             printError(response1.getMessage());
-        } else textIO.getTextTerminal().println(response1.getMessage());
+        } else
+            textIO.getTextTerminal().println(response1.getMessage());
     }
 
     public void update() {
         clearScreen();
-        List<EventDto> list = show();
+        List<Event> list = show();
         int id = textIO.newIntInputReader().read("Enter id to update : ");
-        if(id <= 0 || id > list.size()) {
+        if (id <= 0 || id > list.size()) {
             printError("Invalid value.");
         } else {
             String title = textIO.newStringInputReader().read("Enter new title's event : ");
@@ -61,9 +62,9 @@ public class EventView extends View{
             int generation = textIO.newIntInputReader().read("Enter generation : ");
             String start = textIO.newStringInputReader().read("Enter new date start (dd-MM-yyyy) : ");
             String end = textIO.newStringInputReader().read("Enter new date end (dd-MM-yyyy) : ");
-            EventDto event = new EventDto(generation, title, description, type);
+            Event event = new Event(generation, title, description, type);
             ResponseDTO<Object> response = ApplicationController.updateEvent(event, id, start, end);
-            if(response.getStatus() != ResponseStatus.OK) {
+            if (response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
             }
         }
@@ -71,13 +72,13 @@ public class EventView extends View{
 
     public void delete() {
         clearScreen();
-        List<EventDto> list = show();
+        List<Event> list = show();
         int id = textIO.newIntInputReader().read("Enter id to update : ");
-        if(id <= 0 || id > list.size()) {
+        if (id <= 0 || id > list.size()) {
             printError("Invalid value.");
         } else {
-            ResponseDTO<Object> response = ApplicationController.deleteEvent( id);
-            if(response.getStatus() != ResponseStatus.OK) {
+            ResponseDTO<Object> response = ApplicationController.deleteEvent(id);
+            if (response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
             }
         }

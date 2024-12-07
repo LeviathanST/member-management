@@ -13,10 +13,9 @@ import controllers.ApplicationController;
 import java.lang.Object;
 import dto.ResponseDTO;
 import dto.SignUpDTO;
-import dto.UserProfileDTO;
+import models.UserProfile;
 
-
-public class UserProfileView extends View{
+public class UserProfileView extends View {
     public UserProfileView(Connection con) {
         super(con);
     }
@@ -26,7 +25,7 @@ public class UserProfileView extends View{
         ResponseDTO<Object> response = new ResponseDTO<Object>(null, null, null);
         do {
             viewTitle("| INSERT YOUR PROFILE |", textIO);
-            UserProfileDTO user_profile = new UserProfileDTO();
+            UserProfile user_profile = new UserProfile();
             do {
                 fullName = textIO.newStringInputReader().read("Enter your full name : ");
             } while (isValidFullName(fullName) == false);
@@ -38,7 +37,8 @@ public class UserProfileView extends View{
                 email = textIO.newStringInputReader().read("Enter your email : ");
             } while (isValidEmail(email) == false);
             do {
-                contactEmail = textIO.newStringInputReader().withMinLength(0).read("Enter your contact email (enter to skip): ");
+                contactEmail = textIO.newStringInputReader().withMinLength(0)
+                        .read("Enter your contact email (enter to skip): ");
             } while (checkContactEmail(contactEmail) == false);
 
             user_profile.setFullName(fullName);
@@ -48,20 +48,20 @@ public class UserProfileView extends View{
             user_profile.setDateOfBirth(setDob());
 
             response = ApplicationController.createOneUserProfile(user_profile);
-            if(response.getStatus() != ResponseStatus.OK) {
+            if (response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
-            } else textIO.getTextTerminal().println(response.getMessage());
+            } else
+                textIO.getTextTerminal().println(response.getMessage());
         } while (response.getStatus() != ResponseStatus.OK);
         clearScreen();
     }
-
 
     public void updateProfile() {
         String fullName, studentCode, email, contactEmail;
         ResponseDTO<Object> response = new ResponseDTO<Object>(null, null, null);
         do {
             viewTitle("| UPDATE YOUR PROFILE |", textIO);
-            UserProfileDTO user_profile = new UserProfileDTO();
+            UserProfile user_profile = new UserProfile();
             do {
                 fullName = textIO.newStringInputReader().read("Enter your full name : ");
             } while (isValidFullName(fullName) == false);
@@ -83,20 +83,22 @@ public class UserProfileView extends View{
             user_profile.setDateOfBirth(setDob());
 
             response = ApplicationController.updateUserProfile(user_profile);
-            if(response.getStatus() != ResponseStatus.OK) {
+            if (response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
-            } else textIO.getTextTerminal().println(response.getMessage());
+            } else
+                textIO.getTextTerminal().println(response.getMessage());
         } while (response.getStatus() != ResponseStatus.OK);
         clearScreen();
     }
 
     public void showProfile() {
-        UserProfileDTO profile = new UserProfileDTO();
-        ResponseDTO<UserProfileDTO> response = new ResponseDTO<UserProfileDTO>(null, null, null);
+        UserProfile profile = new UserProfile();
+        ResponseDTO<UserProfile> response = new ResponseDTO<UserProfile>(null, null, null);
         response = ApplicationController.readOneUserProfile(profile);
-        if(response.getStatus() != ResponseStatus.OK) {
+        if (response.getStatus() != ResponseStatus.OK) {
             printError(response.getMessage());
-        } else textIO.getTextTerminal().println(response.getMessage());
+        } else
+            textIO.getTextTerminal().println(response.getMessage());
         textIO.getTextTerminal().println("Account ID: " + profile.getAccountId());
         textIO.getTextTerminal().println("Full Name: " + profile.getFullName());
         textIO.getTextTerminal().println("Sex: " + profile.getSex());
@@ -107,11 +109,10 @@ public class UserProfileView extends View{
         textIO.getTextTerminal().println("Date of Birth: " + profile.getDateOfBirth());
     }
 
-
     public boolean checkContactEmail(String contactEmail) {
-        if(contactEmail.length() == 0) 
+        if (contactEmail.length() == 0)
             return true;
-        else if(isValidEmail(contactEmail) == false)
+        else if (isValidEmail(contactEmail) == false)
             return false;
         return true;
     }
@@ -119,7 +120,7 @@ public class UserProfileView extends View{
     public java.sql.Date setDob() {
         boolean check = false;
         java.sql.Date sqlDate = new Date(0);
-        do {          
+        do {
             String date = textIO.newStringInputReader().read("Enter your birthday (dd-MM-yyy) : ");
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             dateFormat.setLenient(false);
@@ -138,33 +139,35 @@ public class UserProfileView extends View{
         String regex = "[Ss][ASEase]\\d{6}";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(student_code);
-        if(matcher.matches() == false) {
+        if (matcher.matches() == false) {
             printError("Invalid student code.");
             return false;
-        } else return true;
+        } else
+            return true;
     }
 
     public boolean isValidEmail(String email) {
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-        
+
         Pattern pattern = Pattern.compile(emailRegex);
-        
+
         if (email == null) {
             printError("Email can not be null.");
             return false;
         }
-        
+
         Matcher matcher = pattern.matcher(email);
-        if(matcher.matches() == false) {
+        if (matcher.matches() == false) {
             printError("Invalid email.");
             return false;
-        } else return true;
+        } else
+            return true;
     }
 
     public boolean isValidFullName(String fullName) {
 
         String[] words = fullName.trim().split("\\s+");
-        
+
         // Full name must not contain special character
         for (String word : words) {
             if (!word.matches("[a-zA-Z]+")) {
@@ -172,8 +175,8 @@ public class UserProfileView extends View{
                 return false;
             }
         }
-        
-        // Full name has at least 2 
+
+        // Full name has at least 2
         if (words.length < 2) {
             printError("Full name must has contains at least 2 words.");
             return false;
@@ -181,5 +184,4 @@ public class UserProfileView extends View{
         return true;
     }
 
-   
 }
