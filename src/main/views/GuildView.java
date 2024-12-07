@@ -72,9 +72,9 @@ public class GuildView extends View {
         TextIO textIO = TextIoFactory.getTextIO();
         ResponseDTO<List<String>> listGuilds = GuildController.getAllGuilds();
         viewTitle("CHOOSE GUILD", textIO);
-        String guildOption = textIO.newStringInputReader()
-                .withNumberedPossibleValues(listGuilds.getData())
-                .read("");
+        for(String i : listGuilds.getData()) 
+            textIO.getTextTerminal().println(i);
+        String guildOption = textIO.newStringInputReader().read("Enter guild name : ");
         if (listGuilds.getStatus() != ResponseStatus.OK) {
             printError(listGuilds.getMessage());
         }
@@ -181,9 +181,10 @@ public class GuildView extends View {
         if (listGeneration.getStatus() != ResponseStatus.OK) {
             printError(listGeneration.getMessage());
         }
-        return textIO.newStringInputReader()
-                .withNumberedPossibleValues(listGeneration.getData())
-                .read("");
+        for(String i : listGeneration.getData())
+            textIO.getTextTerminal().println(i);
+        String gen = textIO.newStringInputReader().read("Enter generation name : ");
+        return gen;
     }
 
     // TODO: View Guild
@@ -505,7 +506,7 @@ public class GuildView extends View {
                 case VIEW_USER_GUILD_ROLES:
                     viewListUserGuildRoles(connection, options);
                     break;
-                case ADD_NEW_USER_GUIOLD_ROLE:
+                case ADD_NEW_USER_GUILD_ROLE:
                     viewAddUserGuildRole(connection, options);
                     break;
                 case UPDATE_INFORMATION_USER_GUILD_ROLE:
@@ -1038,6 +1039,12 @@ public class GuildView extends View {
             viewTitle(option.toString(), textIO);
             String guildName = getGuildFromList(connection);
             String generation = getGenerationFromList(connection);
+            char[] tmp = generation.toCharArray();
+            int generationId = 0;
+            for(int i = 1; i < tmp.length; i++) {
+                generationId = generationId * 10 + (tmp[i] - '0');
+            }
+
             String title = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("INPUT TITLE: ");
@@ -1053,7 +1060,7 @@ public class GuildView extends View {
             String type = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("INPUT TYPE OF EVENT: ");
-            GuildEvent guildEvent = new GuildEvent(guildName, generation, title, description, type);
+            GuildEvent guildEvent = new GuildEvent(guildName, generationId, title, description, type);
             response = GuildController.addGuildEvent(guildEvent, start, end);
             if (response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
@@ -1084,6 +1091,11 @@ public class GuildView extends View {
 
             String guildName = getGuildFromList(connection);
             String generation = getGenerationFromList(connection);
+            char[] tmp = generation.toCharArray();
+            int generationId = 0;
+            for(int i = 1; i < tmp.length; i++) {
+                generationId = generationId * 10 + (tmp[i] - '0');
+            }
             String title = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("INPUT TITLE: ");
@@ -1099,7 +1111,7 @@ public class GuildView extends View {
             String type = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("INPUT TYPE OF EVENT: ");
-            GuildEvent guildEvent = new GuildEvent(guildName, generation, title, description, type);
+            GuildEvent guildEvent = new GuildEvent(guildName, generationId, title, description, type);
             response = GuildController.updateGuildEvent(guildEvent, guildEventId, start, end);
             if (response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());

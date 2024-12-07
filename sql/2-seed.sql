@@ -18,6 +18,9 @@ INSERT INTO guild_permission (name) VALUES ('CRUDGuildEvent');
 INSERT INTO guild_role (name, guild_id) VALUES ('Member', 1);
 INSERT INTO guild_role (name, guild_id) VALUES ('Leader', 1);
 
+INSERT INTO guild_role (name, guild_id) VALUES ('Member', 2);
+INSERT INTO guild_role (name, guild_id) VALUES ('Leader', 2);
+
 INSERT INTO guild_role_permission (guild_role_id, guild_permission_id) VALUES (1, 1);
 INSERT INTO guild_role_permission (guild_role_id, guild_permission_id) VALUES (1, 2);
 

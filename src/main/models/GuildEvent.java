@@ -47,6 +47,13 @@ public class GuildEvent {
 		this.description = description;
 		this.type = type;
 	}
+	public GuildEvent(String guildName, int generationId, String title, String description, String type) {
+		this.guildName = guildName;
+		this.generationId = generationId;
+		this.title = title;
+		this.description = description;
+		this.type = type;
+	}
 
 	public int getId() {
 		return id;

@@ -99,7 +99,6 @@ public class CrewPermissionRepository {
 			if (row == 0)
 				throw new SQLException("A permission is failed when adding!");
 
-			System.out.println("Add a permission successfully!");
 		}
 
 	}
@@ -117,7 +116,6 @@ public class CrewPermissionRepository {
 			if (row == 0)
 				throw new SQLException("A permission is failed when update!");
 
-			System.out.println("Update a permission successfully!");
 		}
 
 	}
@@ -133,7 +131,6 @@ public class CrewPermissionRepository {
 			if (row == 0)
 				throw new SQLException("A permission is failed when deleting!");
 
-			System.out.println("Delete a permission successfully!");
 		}
 
 	}

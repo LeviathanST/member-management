@@ -101,6 +101,8 @@ public class UserCrewRoleRepository {
 			stmt.setString(1, accountId);
 			stmt.setInt(2, crewId);
 			int row = stmt.executeUpdate();
+			if(row == 0)
+				throw new SQLException("Delete crew member failured.");
 		}
 	}
 

@@ -70,9 +70,9 @@ public class CrewView extends View {
         TextIO textIO = TextIoFactory.getTextIO();
         ResponseDTO<List<String>> listCrews = CrewController.getAllCrews();
         viewTitle("Choose Crew", textIO);
-        String crewOption = textIO.newStringInputReader()
-                .withNumberedPossibleValues(listCrews.getData())
-                .read("");
+        for(String i : listCrews.getData())
+            textIO.getTextTerminal().println(i);
+        String crewOption = textIO.newStringInputReader().read("Enter crew name : ");
         if (listCrews.getStatus() != ResponseStatus.OK) {
             printError(listCrews.getMessage());
         } else {
@@ -188,14 +188,15 @@ public class CrewView extends View {
         TextIO textIO = TextIoFactory.getTextIO();
         ResponseDTO<List<String>> listGeneration = CrewController.getAllGeneration();
         viewTitle("Choose Generation", textIO);
+        for(String i : listGeneration.getData())
+            textIO.getTextTerminal().println(i);
         if (listGeneration.getStatus() != ResponseStatus.OK) {
             printError(listGeneration.getMessage());
         } else {
             textIO.getTextTerminal().println(listGeneration.getMessage());
         }
-        return textIO.newStringInputReader()
-                .withNumberedPossibleValues(listGeneration.getData())
-                .read("");
+        String generation = textIO.newStringInputReader().read("Enter generation name : ");
+        return generation;
     }
 
     // TODO: View Crew
@@ -1084,6 +1085,11 @@ public class CrewView extends View {
             viewTitle(option.toString(), textIO);
             String crewName = getCrewFromList(connection);
             String generation = getGenerationFromList(connection);
+            char[] tmp = generation.toCharArray();
+            int generationId = 0;
+            for(int i = 1; i < tmp.length; i++) {
+                generationId = generationId * 10 + (tmp[i] - '0');
+            }
             String title = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("INPUT TITLE");
@@ -1099,7 +1105,7 @@ public class CrewView extends View {
             String type = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("TYPE OF EVENT");
-            CrewEvent crewEvent = new CrewEvent(crewName, generation, title, description, type);
+            CrewEvent crewEvent = new CrewEvent(crewName, generationId, title, description, type);
             response = CrewController.addCrewEvent(crewEvent, start, end);
             if (response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
@@ -1129,6 +1135,11 @@ public class CrewView extends View {
             int crewEventId = getCrewEventIDFromList(connection);
             String crewName = getCrewFromList(connection);
             String generation = getGenerationFromList(connection);
+            char[] tmp = generation.toCharArray();
+            int generationId = 0;
+            for(int i = 1; i < tmp.length; i++) {
+                generationId = generationId * 10 + (tmp[i] - '0');
+            }
             String title = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("INPUT TITLE");
@@ -1144,7 +1155,7 @@ public class CrewView extends View {
             String type = textIO.newStringInputReader()
                     .withDefaultValue(null)
                     .read("INPUT TYPE OF EVENT: ");
-            CrewEvent crewEvent = new CrewEvent(crewName, generation, title, description, type);
+            CrewEvent crewEvent = new CrewEvent(crewName, generationId, title, description, type);
             response = CrewController.updateCrewEvent(crewEvent, crewEventId, start, end);
             if (response.getStatus() != ResponseStatus.OK) {
                 printError(response.getMessage());
