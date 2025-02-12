@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   mysql:
+    container_name: mysql-be3
     image: mysql:latest
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD} 
@@ -10,6 +11,8 @@ services:
       - ${DB_PORT}:${DB_PORT} 
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
+    networks:
+      - member-management
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -21,3 +24,23 @@ services:
       - ${MYADMIN_PORT}:80 
     depends_on:
       - mysql
+    networks:
+      - member-management
+  web:
+    build: .
+    ports:
+      - "8080:8080"
+    networks:
+      - member-management
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_DATABASE}
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD}
+
+networks:
+  member-management:
+    driver: bridge
