@@ -3,43 +3,33 @@ import config.Database;
 import dto.SignUpDTO;
 import exceptions.DataEmptyException;
 import exceptions.NotFoundException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import repositories.users.UserAccountRepository;
 import repositories.users.UserRoleRepository;
 import utils.EnvLoader;
-import views.AuthView;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import static services.AuthService.hashingPassword;
 
-public class Main {
-	public static void main(String[] args) {
+@WebServlet("/")
+public class Main extends HttpServlet {
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		try {
-			Connection con = Database.connection();
-			create_first_account(con);
-			AuthView view = new AuthView(con);
-			view.Auth_view();
+			res.setContentType("text/html");
+			try (PrintWriter out = res.writer) {
+				out.print("Hello");
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			// TODO: handle exception
 		}
 	}
-
-	public static void create_first_account(Connection con) throws SQLException, DataEmptyException, IOException,
-			ClassNotFoundException, NotFoundException {
-
-		try {
-			SignUpDTO firstAccount = new SignUpDTO();
-			AppConfig config = EnvLoader.load(AppConfig.class);
-			firstAccount.setUsername(config.getAdminUsername());
-			firstAccount.setPassword(hashingPassword(config.getAdminPassword(), config.getRoundHashing()));
-			UserAccountRepository.insert(firstAccount);
-			String adminId = UserAccountRepository.getIdByUsername(firstAccount.getUsername());
-			UserRoleRepository.insert(adminId, 1);
-		} catch (SQLException e) {
-			System.out.println("Admin account is created");
-		}
-	}
-
 }
