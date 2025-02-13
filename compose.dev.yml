@@ -2,10 +2,12 @@ version: '3.8'
 
 services:
   app:
-    image: leviathanst/member-management:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: member_management
     ports:
-      - 8080:8080
+      - ${APP_PORT}:${APP_PORT}
     networks:
       - member-management
     restart: unless-stopped
@@ -14,12 +16,14 @@ services:
     image: mysql:latest
     container_name: member_management_db
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: member-management
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
     ports:
-      - 3306:3306
+      - ${DB_PORT}:3306
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
+    networks:
+      - member-management
     restart: unless-stopped
 
   phpmyadmin:
@@ -28,12 +32,16 @@ services:
     environment:
       PMA_HOST: db
       PMA_USER: root
-      PMA_PASSWORD: root
+      PMA_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
-      - 9090:80
+      - ${PMA_PORT}:80
     depends_on:
       - db
+    networks:
+      - member-management
     restart: unless-stopped
+    
 
 networks:
   member-management:
+
