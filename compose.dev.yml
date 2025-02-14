@@ -6,6 +6,12 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: member_management
+    environment:
+      ROUND_HASHING: ${ROUND_HASHING}
+      SECRET_KEY: ${SECRET_KEY}
+      DB_URL: ${DB_URL}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
       - ${APP_PORT}:${APP_PORT}
     networks:
@@ -44,4 +50,3 @@ services:
 
 networks:
   member-management:
-

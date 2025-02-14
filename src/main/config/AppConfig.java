@@ -9,12 +9,6 @@ public class AppConfig {
     @EnvVar("ROUND_HASHING")
     private Integer roundHashing;
 
-    @EnvVar("ADMIN_PASSWORD")
-    private String adminPassword;
-
-    @EnvVar("ADMIN_USERNAME")
-    private String adminUsername;
-
     public AppConfig() {
     }
 
@@ -25,7 +19,4 @@ public class AppConfig {
     public int getRoundHashing() {
         return this.roundHashing;
     }
-
-    public String getAdminPassword() {return this.adminPassword;}
-    public String getAdminUsername() {return this.adminUsername;}
 }
