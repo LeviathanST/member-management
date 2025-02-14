@@ -35,7 +35,6 @@ public class AuthController extends HttpServlet {
 
 	private Gson gson = new Gson();
 	private Logger logger = LoggerFactory.getLogger(AuthController.class);
-	private String redirectPage;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -78,14 +77,18 @@ public class AuthController extends HttpServlet {
 									"Sign up successfully!", null)));
 					break;
 				default:
-					redirectPage = NOTFOUND_VIEW;
+					req.getRequestDispatcher(NOTFOUND_VIEW).forward(req, res);
 					break;
 			}
-		} catch (AuthException | DataEmptyException | IllegalArgumentException
-				| SQLIntegrityConstraintViolationException e) {
+		} catch (AuthException | DataEmptyException | IllegalArgumentException e) {
 			logger.error("[Line 81]: " + e.getMessage());
 			res.getWriter().write(gson
 					.toJson(new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null)));
+		} catch (SQLIntegrityConstraintViolationException e) {
+			res.getWriter().write(gson
+					.toJson(new ResponseDTO<>(ResponseStatus.BAD_REQUEST,
+							"Username is already exist!",
+							null)));
 		} catch (NotFoundException e) {
 			logger.error("[Line 85]: " + e.getMessage());
 			res.getWriter().write(gson
