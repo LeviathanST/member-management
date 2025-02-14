@@ -33,7 +33,7 @@ public class AuthService {
 			throws InvalidPasswordException, AuthException, DataEmptyException, SQLException,
 			SQLIntegrityConstraintViolationException, NotFoundException, IOException,
 			ClassNotFoundException {
-		if (data.getPassword() == null || data.getUsername() == null) {
+		if (data.getPassword().trim().isEmpty() || data.getUsername().trim().isEmpty()) {
 			throw new DataEmptyException("Your username or password is empty");
 		}
 
@@ -56,7 +56,6 @@ public class AuthService {
 		if (!result.verified) {
 			throw new AuthException("Wrong password!");
 		} else {
-			Path path = Paths.get("storage.json");
 			String account_id = UserAccountRepository.getIdByUsername(data.getUsername());
 			int userRoleId = UserRoleRepository.getIdByAccountId(account_id);
 			List<Integer> userGuildRoleId = UserGuildRoleRepository.getIdByAccountId(account_id);
@@ -64,8 +63,8 @@ public class AuthService {
 
 			ClaimsDTO claimsData = new ClaimsDTO(account_id, userRoleId, userGuildRoleId,
 					userCrewRole);
+			// TODO: save token
 			TokenPairDTO tokenData = TokenPairDTO.GenerateNew(claimsData);
-			TokenService.saveToFile(path, tokenData);
 		}
 
 	}
