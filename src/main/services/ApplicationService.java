@@ -6,7 +6,6 @@ import exceptions.*;
 import models.Event;
 import models.Permission;
 import models.Role;
-import models.UserAccount;
 import models.UserProfile;
 import repositories.GenerationRepository;
 import repositories.events.EventRepository;
