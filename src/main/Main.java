@@ -11,13 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class Main extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		try {
-			res.setContentType("text/html");
-			try (PrintWriter out = res.getWriter()) {
-				out.print("Hello");
-			}
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+		req.getRequestDispatcher("view/main.jsp").forward(req, res);
+		;
 	}
 }

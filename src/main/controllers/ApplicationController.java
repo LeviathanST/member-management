@@ -4,6 +4,11 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import constants.ResponseStatus;
 import dto.ResponseDTO;
 import exceptions.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import models.Event;
 import models.Permission;
 import models.Role;
@@ -18,7 +23,8 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
 
-public class ApplicationController {
+@WebServlet("/app/*")
+public class ApplicationController extends HttpServlet {
 
     // Update user profile
     public static ResponseDTO<Object> updateUserProfile(UserProfile data) {
