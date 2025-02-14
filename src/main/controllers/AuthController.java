@@ -28,8 +28,8 @@ import services.AuthService;
 
 @WebServlet("/auth/*")
 public class AuthController extends HttpServlet {
-	private final String SIGNUP_VIEW = "/view/signup.jsp";
-	private final String LOGIN_VIEW = "/view/login.jsp";
+	private final String SIGNUP_VIEW = "/view/auth/signup.jsp";
+	private final String LOGIN_VIEW = "/view/auth/login.jsp";
 	private final String NOTFOUND_VIEW = "/view/notfound.jsp";
 
 	private Gson gson = new Gson();
@@ -80,7 +80,8 @@ public class AuthController extends HttpServlet {
 					redirectPage = NOTFOUND_VIEW;
 					break;
 			}
-		} catch (AuthException | DataEmptyException | IllegalArgumentException e) {
+		} catch (AuthException | DataEmptyException | IllegalArgumentException
+				| SQLIntegrityConstraintViolationException e) {
 			logger.error("[Line 81]: " + e.getMessage());
 			res.getWriter().write(gson
 					.toJson(new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null)));
