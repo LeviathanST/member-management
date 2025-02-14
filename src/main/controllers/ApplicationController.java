@@ -48,24 +48,6 @@ public class ApplicationController {
         }
     }
 
-    // ResponseData<UserAccount> getAllUserAccounts()
-    public static ResponseDTO<List<UserAccount>> getAllUserAccounts() {
-        try {
-            boolean author = AuthService.AppAuthorization("ViewUserInformation");
-            if (author == true) {
-                List<UserAccount> listAccounts = ApplicationService.getAllUserAccounts();
-                return new ResponseDTO<List<UserAccount>>(ResponseStatus.OK,
-                        "Get all user accounts successfully!",
-                        listAccounts);
-            } else
-                return new ResponseDTO<List<UserAccount>>(ResponseStatus.BAD_REQUEST, "Dont have permission!",
-                        null);
-        } catch (SQLException | TokenException | NotFoundException | IOException | ClassNotFoundException e) {
-            return new ResponseDTO<List<UserAccount>>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
-                    null);
-        }
-    }
-
     public static ResponseDTO<Object> updateUserAccount(String username, String password) {
         try {
 

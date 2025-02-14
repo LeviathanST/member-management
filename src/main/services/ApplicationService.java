@@ -208,13 +208,6 @@ public class ApplicationService extends AuthService {
         return list;
     }
 
-    public static List<UserAccount> getAllUserAccounts()
-            throws SQLException, IOException, ClassNotFoundException {
-        List<UserAccount> list = new ArrayList<>();
-        list = UserAccountRepository.getAllUserAccounts();
-        return list;
-    }
-
     public static void updateUserAccount(String username, String password)
             throws SQLException, TokenException, IOException, ClassNotFoundException {
 

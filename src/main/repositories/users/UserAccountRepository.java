@@ -43,24 +43,6 @@ public class UserAccountRepository {
 
 	}
 
-	public static List<UserAccount> getAllUserAccounts()
-			throws SQLException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			List<UserAccount> list = new ArrayList<>();
-			String query = """
-					SELECT username FROM user_account
-					""";
-			PreparedStatement stmt = con.prepareStatement(query);
-			ResultSet rs = stmt.executeQuery();
-
-			while (rs.next()) {
-				list.add(new UserAccount(rs.getString("username")));
-			}
-			return list;
-		}
-
-	}
-
 	public static String getIdByUsername(String username)
 			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
