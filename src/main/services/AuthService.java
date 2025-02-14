@@ -33,6 +33,9 @@ public class AuthService {
 			throws InvalidPasswordException, AuthException, DataEmptyException, SQLException,
 			SQLIntegrityConstraintViolationException, NotFoundException, IOException,
 			ClassNotFoundException {
+		if (data.getPassword() == null || data.getUsername() == null) {
+			throw new DataEmptyException("Your username or password is empty");
+		}
 
 		AppConfig appConfig = EnvLoader.load(AppConfig.class);
 		int round = appConfig.getRoundHashing();

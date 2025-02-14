@@ -88,11 +88,6 @@ public class UserAccountRepository {
 			ClassNotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = "INSERT INTO user_account (username, hashed_password) VALUES (?, ?)";
-
-			if (data.getPassword() == null || data.getUsername() == null) {
-				throw new DataEmptyException("Your username or password is empty");
-			}
-
 			PreparedStatement stmt = con.prepareStatement(query);
 
 			stmt.setString(1, data.getUsername());
