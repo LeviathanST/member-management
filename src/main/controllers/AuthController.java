@@ -28,9 +28,9 @@ import services.AuthService;
 
 @WebServlet("/auth/*")
 public class AuthController extends HttpServlet {
-	private final String SIGNUP_VIEW = "view/signup.jsp";
-	private final String LOGIN_VIEW = "view/login.jsp";
-	private final String NOTFOUND_VIEW = "view/notfound.jsp";
+	private final String SIGNUP_VIEW = "/view/signup.jsp";
+	private final String LOGIN_VIEW = "/view/login.jsp";
+	private final String NOTFOUND_VIEW = "/view/notfound.jsp";
 
 	private Gson gson = new Gson();
 	private Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -42,17 +42,18 @@ public class AuthController extends HttpServlet {
 		try {
 			switch (route) {
 				case "signup":
-					req.getRequestDispatcher(SIGNUP_VIEW);
+					req.getRequestDispatcher(SIGNUP_VIEW).forward(req, res);
 					break;
 				case "login":
-					req.getRequestDispatcher(LOGIN_VIEW);
+					req.getRequestDispatcher(LOGIN_VIEW).forward(req, res);
 					break;
 				default:
-					req.getRequestDispatcher(NOTFOUND_VIEW);
+					req.getRequestDispatcher(NOTFOUND_VIEW).forward(req, res);
 					break;
 			}
 		} catch (Exception e) {
-			logger.error("[Line 55]: " + e.getMessage());
+			logger.error("[Line 55]: ");
+			e.printStackTrace();
 		}
 	}
 
@@ -62,16 +63,18 @@ public class AuthController extends HttpServlet {
 		try {
 			switch (route) {
 				case "login":
-					redirectPage = SIGNUP_VIEW;
 					LoginDTO loginDTO = HttpUtil.getBodyContentFromReq(req, LoginDTO.class);
 					AuthService.loginInternal(loginDTO);
-					req.getRequestDispatcher(redirectPage);
+					res.getWriter().write(gson
+							.toJson(new ResponseDTO<>(ResponseStatus.OK,
+									"Login successfully!", null)));
 					break;
 				case "signup":
-					redirectPage = LOGIN_VIEW;
 					SignUpDTO signUpDTO = HttpUtil.getBodyContentFromReq(req, SignUpDTO.class);
 					AuthService.signUpInternal(signUpDTO);
-					req.getRequestDispatcher(redirectPage);
+					res.getWriter().write(gson
+							.toJson(new ResponseDTO<>(ResponseStatus.OK,
+									"Sign up successfully!", null)));
 					break;
 				default:
 					redirectPage = NOTFOUND_VIEW;
@@ -90,8 +93,6 @@ public class AuthController extends HttpServlet {
 			res.getWriter().write(gson
 					.toJson(new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
 							null)));
-		} finally {
-			req.getRequestDispatcher(redirectPage).forward(req, res);
 		}
 	}
 
