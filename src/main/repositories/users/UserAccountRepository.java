@@ -31,13 +31,15 @@ public class UserAccountRepository {
 	}
 
 	public static String getHashPasswordByUsername(LoginDTO data)
-			throws SQLException, IOException, ClassNotFoundException {
+			throws SQLException, IOException, NotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = "SELECT hashed_password FROM user_account WHERE username = ?";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, data.getUsername());
 			ResultSet rs = stmt.executeQuery();
-			rs.next();
+			if (!rs.next()) {
+				throw new NotFoundException("Username is not found!");
+			}
 			return rs.getString("hashed_password");
 		}
 

@@ -46,8 +46,6 @@ public class TokenPairDTO {
 				.withIssuedAt(new Date())
 				.withClaim("account_id", data.getAccountId())
 				.withClaim("user_role_id", data.getUserRoleId())
-				.withClaim("user_guild_role_ids", data.getUserGuildRoleId())
-				.withClaim("user_crew_role_ids", data.getUserCrewRoleId())
 				.sign(algo);
 
 		String refreshToken = JWT.create().withIssuedAt(new Date()).sign(algo);

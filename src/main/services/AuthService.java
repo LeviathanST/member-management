@@ -2,6 +2,7 @@ package services;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import config.AppConfig;
+import constants.RoleContext;
 import constants.RoleType;
 import dto.ClaimsDTO;
 import dto.LoginDTO;
@@ -16,8 +17,6 @@ import repositories.permissions.GuildPermissionRepository;
 import repositories.permissions.PermissionRepository;
 import repositories.roles.RoleRepository;
 import repositories.users.UserAccountRepository;
-import repositories.users.UserCrewRoleRepository;
-import repositories.users.UserGuildRoleRepository;
 import repositories.users.UserRoleRepository;
 import utils.EnvLoader;
 
@@ -46,9 +45,13 @@ public class AuthService {
 		UserRoleRepository.insert(account_id, role_id);
 	}
 
-	public static void loginInternal(LoginDTO data)
+	// Update for refresh token
+	public static String loginInternal(LoginDTO data)
 			throws AuthException, TokenException, SQLException, NotFoundException, IOException,
-			ClassNotFoundException {
+			ClassNotFoundException, DataEmptyException {
+		if (data.getPassword().trim().isEmpty() || data.getUsername().trim().isEmpty()) {
+			throw new DataEmptyException("Your username or password is empty");
+		}
 		String hashPassword = UserAccountRepository.getHashPasswordByUsername(data);
 		BCrypt.Result result = BCrypt
 				.verifyer()
@@ -58,13 +61,10 @@ public class AuthService {
 		} else {
 			String account_id = UserAccountRepository.getIdByUsername(data.getUsername());
 			int userRoleId = UserRoleRepository.getIdByAccountId(account_id);
-			List<Integer> userGuildRoleId = UserGuildRoleRepository.getIdByAccountId(account_id);
-			List<Integer> userCrewRole = UserCrewRoleRepository.getIdByAccountId(account_id);
 
-			ClaimsDTO claimsData = new ClaimsDTO(account_id, userRoleId, userGuildRoleId,
-					userCrewRole);
-			// TODO: save token
+			ClaimsDTO claimsData = new ClaimsDTO(account_id, userRoleId);
 			TokenPairDTO tokenData = TokenPairDTO.GenerateNew(claimsData);
+			return tokenData.getAccessToken();
 		}
 
 	}
@@ -73,9 +73,7 @@ public class AuthService {
 			throws TokenException, SQLException, NotFoundException, IOException, ClassNotFoundException {
 		Path path = (Path) Paths.get("storage.json");
 		String accountId = UserAccountRepository.getIdByUsername(data.getUsername());
-		List<Integer> userGuildRoleId = UserGuildRoleRepository.getIdByAccountId(accountId);
-		List<Integer> userCrewRole = UserCrewRoleRepository.getIdByAccountId(accountId);
-		ClaimsDTO claimsData = new ClaimsDTO(accountId, 2, userGuildRoleId, userCrewRole);
+		ClaimsDTO claimsData = new ClaimsDTO(accountId, 2);
 		TokenPairDTO tokenData = TokenPairDTO.GenerateNew(claimsData);
 		TokenService.saveToFile(path, tokenData);
 	}
@@ -183,5 +181,13 @@ public class AuthService {
 		} catch (NotFoundException e) {
 			throw new NotFoundException(e.getMessage());
 		}
+	}
+
+	// TODO: Authenticate user with multiple roles and multiple context
+	public static boolean CheckPermissionWithContext(RoleContext ctx, String permission, String accessToken)
+			throws SQLException {
+		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
+		boolean checked = RoleRepository.existPermissionWithContext(ctx, permission, accountId);
+		return checked;
 	}
 }
