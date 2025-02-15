@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: leviathanst/member-management:latest
     container_name: member_management
     environment:
       ROUND_HASHING: ${ROUND_HASHING}
@@ -22,7 +20,7 @@ services:
     image: mysql:latest
     container_name: member_management_db
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
     ports:
       - ${DB_PORT}:3306
