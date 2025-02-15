@@ -82,8 +82,8 @@
 	<div class="login-container">
             <h1>Log In</h1>
             <form id="myForm">
-                <input type="text" name="username" placeholder="Username" required>
-                <input type="password" name="password" placeholder="Password" required>
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
                 <button type="button" onclick="sendData()" class="login-button">Log In</button>
             </form>
 </form>
