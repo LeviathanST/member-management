@@ -8,12 +8,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+
 import config.Database;
+import constants.RoleContext;
 import exceptions.NotFoundException;
 import models.Role;
 import repositories.permissions.PermissionRepository;
 
 public class RoleRepository {
+
 	public static List<Role> getAll() throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = "SELECT * FROM role";
@@ -134,6 +138,46 @@ public class RoleRepository {
 			int row = stmt.executeUpdate();
 			if (row == 0)
 				throw new SQLException("Add permission to role is failed : no row is affected!");
+		}
+	}
+
+	public static boolean existPermissionWithContext(RoleContext ctx, String permission, String accountId)
+			throws SQLException {
+		String context = switch (ctx) {
+			case RoleContext.APP -> "app";
+			case RoleContext.GUILD -> "guild";
+			case RoleContext.CREW -> "crew";
+			default -> throw new IllegalArgumentException("Role context not found!");
+		};
+
+		String query = """
+				SELECT EXISTS (
+					SELECT 1 FROM permission p
+							JOIN role_permission rp ON rp.permission_id = p.id
+							JOIN user_role ur ON ur.role_id = rp.role_id
+							WHERE ur.account_id = ?
+							AND p.name = ?
+							AND p.context = ?
+							LIMIT 1
+				)
+
+						""";
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, accountId);
+			stmt.setString(2, permission);
+			stmt.setString(3, context);
+			ResultSet checked = stmt.executeQuery();
+
+			Logger logger = org.slf4j.LoggerFactory.getLogger(RoleRepository.class);
+			if (checked.next()) {
+				logger.info("Bool" + checked.getBoolean(1));
+				return checked.getBoolean(1);
+			} else {
+				return false;
+			}
+
 		}
 	}
 }
