@@ -1,8 +1,6 @@
 package controllers;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 
@@ -12,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 
 import constants.ResponseStatus;
+import constants.RoleContext;
 import utils.HttpUtil;
 import dto.LoginDTO;
 import dto.ResponseDTO;
@@ -22,6 +21,7 @@ import exceptions.NotFoundException;
 import exceptions.TokenException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -47,6 +47,32 @@ public class AuthController extends HttpServlet {
 				case "login":
 					req.getRequestDispatcher(LOGIN_VIEW).forward(req, res);
 					break;
+				// TODO: remove it
+				case "ping":
+					Cookie[] cookies = req.getCookies();
+					if (cookies.length != 0) {
+						for (Cookie cuckie : cookies) {
+							if ("access_token".equals(cuckie.getName())) {
+								String accessToken = cuckie.getValue();
+								boolean checked = AuthService
+										.CheckPermissionWithContext(
+												RoleContext.APP,
+												"app.role.crud",
+												accessToken);
+								if (checked) {
+									req.setAttribute("status", "Yeh");
+								} else {
+									req.setAttribute("status", "Nah");
+								}
+							}
+						}
+
+					} else {
+						req.setAttribute("status", "Cookie Not Found");
+					}
+
+					req.getRequestDispatcher("/view/ping.jsp").forward(req, res);
+					break;
 				default:
 					req.getRequestDispatcher(NOTFOUND_VIEW).forward(req, res);
 					break;
@@ -64,7 +90,14 @@ public class AuthController extends HttpServlet {
 			switch (route) {
 				case "login":
 					LoginDTO loginDTO = HttpUtil.getBodyContentFromReq(req, LoginDTO.class);
-					AuthService.loginInternal(loginDTO);
+					String at = AuthService.loginInternal(loginDTO);
+
+					Cookie cookie = new Cookie("access_token", at);
+					cookie.setHttpOnly(true);
+					cookie.setSecure(true);
+					cookie.setPath("/");
+					res.addCookie(cookie);
+
 					res.getWriter().write(gson
 							.toJson(new ResponseDTO<>(ResponseStatus.OK,
 									"Login successfully!", null)));
