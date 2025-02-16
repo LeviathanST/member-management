@@ -1,7 +1,7 @@
 package constants;
 
 public enum Sex {
-    MALE,
-    FEMALE
+	MALE,
+	FEMALE,
+	NONE
 }
-
