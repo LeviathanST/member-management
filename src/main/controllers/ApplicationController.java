@@ -1,11 +1,18 @@
 package controllers;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.google.gson.Gson;
+
+import ch.qos.logback.core.subst.Token;
 import constants.ResponseStatus;
 import dto.ResponseDTO;
 import exceptions.*;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import models.Event;
 import models.Permission;
 import models.Role;
@@ -19,8 +26,53 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @WebServlet("/app/*")
 public class ApplicationController extends HttpServlet {
+    private final String PROFILE_VIEW = "/view/user/profile.jsp";
+    private final String NOTFOUND_VIEW = "/view/notfound.jsp";
+
+    private Gson gson = new Gson();
+    private Logger logger = LoggerFactory.getLogger(ApplicationController.class);
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String route = (req.getPathInfo() != null) ? req.getPathInfo().substring(1) : "";
+        try {
+            switch (route) {
+                case "profile":
+                    Cookie[] cookies = req.getCookies();
+                    if (cookies.length != 0) {
+                        for (Cookie cuckie : cookies) {
+                            if ("access_token".equals(cuckie.getName())) {
+                                String accessToken = cuckie.getValue();
+                                UserProfile userProfile = ApplicationService.readUserProfileInternal(accessToken);
+                                req.setAttribute("profile", userProfile);
+                            }
+                        }
+                    } else {
+                        req.setAttribute("message", "Please login and try again!");
+                    }
+                    req.getRequestDispatcher(PROFILE_VIEW).forward(req, res);
+                    break;
+                default:
+                    req.getRequestDispatcher(NOTFOUND_VIEW).forward(req, res);
+                    break;
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error(e.getStackTrace().toString());
+            res.getWriter().write(gson.toJson(
+                    new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
+                            null)));
+        } catch (TokenException | NotFoundException e) {
+            logger.error(e.getStackTrace().toString());
+            res.getWriter().write(gson.toJson(
+                    new ResponseDTO<UserProfile>(ResponseStatus.BAD_REQUEST, e.getMessage(),
+                            null)));
+        }
+    }
 
     // Update user profile
     public static ResponseDTO<Object> updateUserProfile(UserProfile data) {
@@ -108,18 +160,21 @@ public class ApplicationController extends HttpServlet {
         }
     }
 
-    public static ResponseDTO<UserProfile> readOneUserProfile(UserProfile data) {
-        try {
-            ApplicationService.readUserProfileInternal(data);
-            return new ResponseDTO<UserProfile>(ResponseStatus.OK, "Read user profile successfully!", data);
-        } catch (SQLException e) {
-            return new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch (NotFoundException e) {
-            return new ResponseDTO<UserProfile>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        } catch (TokenException | IOException | ClassNotFoundException e) {
-            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        }
-    }
+    // public static ResponseDTO<UserProfile> readOneUserProfile(UserProfile data) {
+    // try {
+    // ApplicationService.readUserProfileInternal(data);
+    // return new ResponseDTO<UserProfile>(ResponseStatus.OK, "Read user profile
+    // successfully!", data);
+    // } catch (SQLException e) {
+    // return new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR,
+    // e.getMessage(), null);
+    // } catch (NotFoundException e) {
+    // return new ResponseDTO<UserProfile>(ResponseStatus.BAD_REQUEST,
+    // e.getMessage(), null);
+    // } catch (TokenException | IOException | ClassNotFoundException e) {
+    // return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+    // }
+    // }
 
     public static ResponseDTO<List<Role>> getAllRoles() {
         try {
