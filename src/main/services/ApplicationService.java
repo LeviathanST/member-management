@@ -47,21 +47,18 @@ public class ApplicationService extends AuthService {
             throws TokenException, ClassNotFoundException, SQLException, IOException {
         try {
             UserProfile data = new UserProfile();
-            readUserProfileInternal(data);
+            // readUserProfileInternal(data);
             return true;
-        } catch (NotFoundException e) {
+        } catch (Exception e) {
             return false;
         }
 
     }
 
-    public static void readUserProfileInternal(UserProfile data)
+    public static UserProfile readUserProfileInternal(String at)
             throws SQLException, NotFoundException, TokenException, IOException, ClassNotFoundException {
-        Path path = (Path) Paths.get("storage.json");
-        String accessToken = TokenService.loadFromFile(path).getAccessToken();
-        String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
-        data.setAccountId(accountId);
-        UserProfileRepository.read(data);
+        String accountId = TokenPairDTO.Verify(at).getClaim("account_id").asString();
+        return UserProfileRepository.read(accountId);
     }
 
     public static void updateUserProfile(UserProfile data)

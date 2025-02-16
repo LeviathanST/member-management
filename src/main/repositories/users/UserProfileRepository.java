@@ -7,6 +7,7 @@ import models.UserProfile;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,19 +18,18 @@ public class UserProfileRepository {
 	public static void insert(UserProfile data)
 			throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
-			String query = "INSERT INTO user_profile (account_id, full_name, sex, student_code, email, contact_email, generation_id, dob) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+			String query = "INSERT INTO user_profile (account_id, full_name, student_code, email, contact_email, generation_id, dob) VALUES (?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, data.getAccountId());
 			stmt.setString(2, data.getFullName());
-			stmt.setString(3, data.getSex().name());
-			stmt.setString(4, data.getStudentCode());
-			stmt.setString(5, data.getEmail());
-			stmt.setString(6, data.getContactEmail());
-			stmt.setInt(7, data.getGenerationId());
-			stmt.setDate(8, data.getDateOfBirth());
+			stmt.setString(3, data.getStudentCode());
+			stmt.setString(4, data.getEmail());
+			stmt.setString(5, data.getContactEmail());
+			stmt.setInt(6, data.getGenerationId());
+			stmt.setDate(7, data.getDateOfBirth());
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected == 0) {
-				throw new SQLException("Insert failed : No rows affected.");
+				throw new SQLException("Insert failed: No rows effected.");
 			}
 		}
 
@@ -100,7 +100,7 @@ public class UserProfileRepository {
 		}
 	}
 
-	public static void read(UserProfile user_profile)
+	public static UserProfile read(String accountId)
 			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = """
@@ -108,22 +108,22 @@ public class UserProfileRepository {
 						generation_id, dob FROM user_profile WHERE account_id = ?
 					""";
 			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, user_profile.getAccountId());
+			stmt.setString(1, accountId);
 			ResultSet rs = stmt.executeQuery();
 			if (!rs.next())
 				throw new NotFoundException("User profile is not existed.");
-			StringBuilder gen = new StringBuilder();
-			gen.append("F");
-			gen.append(rs.getInt("generation_id"));
-			String generation = gen.toString();
-			user_profile.setAccountId(rs.getString("account_id"));
-			user_profile.setFullName(rs.getString("full_name"));
-			user_profile.setSex(Sex.valueOf(rs.getString("sex")));
-			user_profile.setEmail(rs.getString("email"));
-			user_profile.setContactEmail(rs.getString("contact_email"));
-			user_profile.setStudentCode(rs.getString("student_code"));
-			user_profile.setDateOfBirth(rs.getDate("dob"));
-			user_profile.setGenerationName(generation);
+
+			UserProfile userProfile = new UserProfile(
+					rs.getString("account_id"),
+					rs.getString("full_name"),
+					Sex.valueOf(rs.getString("sex")),
+					rs.getString("student_code"),
+					rs.getString("email"),
+					rs.getString("contact_email"),
+					rs.getInt("generation_id"),
+					rs.getDate("dob") != null ? rs.getDate("dob")
+							: new java.sql.Date(System.currentTimeMillis()));
+			return userProfile;
 		}
 	}
 
