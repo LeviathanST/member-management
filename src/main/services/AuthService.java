@@ -4,28 +4,36 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 import config.AppConfig;
 import constants.RoleContext;
 import constants.RoleType;
+import constants.Sex;
 import dto.ClaimsDTO;
 import dto.LoginDTO;
 import dto.SignUpDTO;
 import dto.TokenPairDTO;
 import exceptions.*;
 import models.CrewPermission;
+import models.Generation;
 import models.GuildPermission;
 import models.Permission;
+import models.UserProfile;
 import repositories.permissions.CrewPermissionRepository;
 import repositories.permissions.GuildPermissionRepository;
 import repositories.permissions.PermissionRepository;
 import repositories.roles.RoleRepository;
 import repositories.users.UserAccountRepository;
+import repositories.users.UserProfileRepository;
 import repositories.users.UserRoleRepository;
 import utils.EnvLoader;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuthService {
 	public static void signUpInternal(SignUpDTO data)
@@ -42,6 +50,19 @@ public class AuthService {
 		UserAccountRepository.insert(data);
 		String account_id = UserAccountRepository.getIdByUsername(data.getUsername());
 		int role_id = RoleRepository.getByName("Member").getId();
+		Logger logger = LoggerFactory.getLogger(AuthService.class);
+		logger.info("Before");
+		UserProfile userProfile = new UserProfile(
+				account_id,
+				"Empty",
+				Sex.NONE,
+				"Empty",
+				"Empty",
+				"Empty",
+				ApplicationService.getMaxGenerationId(),
+				null);
+		UserProfileRepository.insert(userProfile);
+		logger.info("After");
 		UserRoleRepository.insert(account_id, role_id);
 	}
 
