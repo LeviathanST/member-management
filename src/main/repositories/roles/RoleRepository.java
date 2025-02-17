@@ -170,9 +170,7 @@ public class RoleRepository {
 			stmt.setString(3, context);
 			ResultSet checked = stmt.executeQuery();
 
-			Logger logger = org.slf4j.LoggerFactory.getLogger(RoleRepository.class);
 			if (checked.next()) {
-				logger.info("Bool" + checked.getBoolean(1));
 				return checked.getBoolean(1);
 			} else {
 				return false;
