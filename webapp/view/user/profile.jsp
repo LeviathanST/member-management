@@ -221,13 +221,8 @@
             <select id="gender">
                 <option value="male" <%= userProfile != null && "male".equalsIgnoreCase(userProfile.getSex().name()) ? "selected" : "" %>>Male</option>
                 <option value="female" <%= userProfile != null && "female".equalsIgnoreCase(userProfile.getSex().name()) ? "selected" : "" %>>Female</option>
+                <option value="none" <%= userProfile != null && "none".equalsIgnoreCase(userProfile.getSex().name()) ? "selected" : "" %>>None</option>
             </select>
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label>Student Code</label>
-            <input type="text" id="student-id" placeholder="SE123456" value="<%= userProfile != null ? userProfile.getStudentCode() : "" %>" />
         </div>
     </div>
     <div class="form-row">
@@ -244,47 +239,30 @@
 </div>
     </div>
     <script>
-document.addEventListener("DOMContentLoaded", function () {
-    fetch("<%=request.getContextPath()%>/app/getProfile")
-        .then(res => {
-            const text = res.text()
-            return text
-            })
-        .then(text => {
-            let json = JSON.parse(text);
-            document.getElementById("full-name").textContent = json.data.full_name;
-            document.getElementById("dob").textContent = json.data.dob ?? "Empty";
-            document.getElementById("sex").textContent = json.data.sex;
-            document.getElementById("student-code").textContent = json.data.student_code;
-            document.getElementById("personal-email").textContent = json.data.email;
-            document.getElementById("contact-email").textContent = json.data.contact_email;
-            document.getElementById("generation").textContent = json.data.generation_id;
-        });
-})        .catch(error => {
-            alert(error);
-        });
         function saveChanges() {
             const data = {
                 fullName: document.getElementById("full-name").value,
-                dob: document.getElementById("dob").value,
-                sex: document.getElementById("sex").value,
-                studentId: document.getElementById("student-id").value,
-                personalEmail: document.getElementById("personal-email").value,
+                dateOfBirth: document.getElementById("dob").value,
+                sex: document.getElementById("gender").value,
+                email: document.getElementById("personal-email").value,
                 contactEmail: document.getElementById("contact-email").value,
             };
-            fetch("<%=request.getContextPath()%>/user/profile", {
-                method: "",
+
+            fetch("<%=request.getContextPath()%>/app/profile", {
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(data)
             })
-                    .then((response) => response.json())
-                    .then((result) => {
-                        if (result.success) {
-                            alert("Update Success!");
+                    .then((response) => response.text())
+                    .then((text) => {
+                        let json = JSON.parse(text);
+                        if (json.status != "OK") {
+                            alert(json.message);
+                            location.reload
                         } else {
-                            alert("Update Fail");
+                            alert(json.message);
                         }
                     });
             }
