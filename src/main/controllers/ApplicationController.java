@@ -1,11 +1,22 @@
 package controllers;
 
+import utils.HttpUtil;
+import dto.UpdateProfileDTO;
+
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.google.gson.Gson;
+
+import ch.qos.logback.core.subst.Token;
 import constants.ResponseStatus;
+import constants.RoleContext;
 import dto.ResponseDTO;
 import exceptions.*;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import models.Event;
 import models.Permission;
 import models.Role;
@@ -19,18 +30,131 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @WebServlet("/app/*")
 public class ApplicationController extends HttpServlet {
+    private final String PROFILE_VIEW = "/view/user/profile.jsp";
+    private final String NOTIFYERROR_VIEW = "/view/notifyError.jsp";
+    private final String NOTFOUND_VIEW = "/view/notfound.jsp";
 
-    // Update user profile
-    public static ResponseDTO<Object> updateUserProfile(UserProfile data) {
+    private Gson gson = new Gson();
+    private Logger logger = LoggerFactory.getLogger(ApplicationController.class);
+    private String redirectView;
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String route = (req.getPathInfo() != null) ? req.getPathInfo().substring(1) : "";
         try {
+            switch (route) {
+                case "profile":
+                    Cookie[] cookies = req.getCookies();
+                    boolean tokenFound = false;
 
-            ApplicationService.updateUserProfile(data);
-            return new ResponseDTO<Object>(ResponseStatus.OK, "Update profile successfully!", data);
+                    if (cookies != null) {
+                        for (Cookie cookie : cookies) {
+                            if ("access_token".equals(cookie.getName())) {
+                                String accessToken = cookie.getValue();
+                                UserProfile userProfile = ApplicationService.readUserProfileInternal(accessToken);
+                                req.setAttribute("profile", userProfile);
+                                redirectView = PROFILE_VIEW;
+                                tokenFound = true;
+                                break; // Exit loop early since token is found
+                            }
+                        }
+                    }
 
-        } catch (Exception e) {
-            return new ResponseDTO<Object>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+                    if (!tokenFound) {
+                        throw new AuthException("LOGIN AND TRY AGAIN, PLEASE!");
+                    }
+                    break;
+                default:
+                    redirectView = NOTFOUND_VIEW;
+                    break;
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error(e.getStackTrace().toString());
+            req.setAttribute("response", gson.toJson(
+                    new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
+                            null)));
+            redirectView = NOTIFYERROR_VIEW;
+        } catch (TokenException | NotFoundException e) {
+            logger.error(e.getStackTrace().toString());
+            req.setAttribute("response", gson.toJson(
+                    new ResponseDTO<UserProfile>(ResponseStatus.BAD_REQUEST, e.getMessage(),
+                            null)));
+            redirectView = NOTIFYERROR_VIEW;
+        } catch (AuthException e) {
+            logger.error(e.getStackTrace().toString());
+            req.setAttribute("response", gson.toJson(
+                    new ResponseDTO<UserProfile>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
+                            null)));
+            redirectView = NOTIFYERROR_VIEW;
+        } finally {
+            req.getRequestDispatcher(redirectView).forward(req, res);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String route = (req.getPathInfo() != null) ? req.getPathInfo().substring(1) : "";
+        try {
+            switch (route) {
+                case "profile":
+                    Cookie[] cookies = req.getCookies();
+                    boolean tokenFound = false;
+
+                    if (cookies != null) {
+                        for (Cookie cookie : cookies) {
+                            if ("access_token".equals(cookie.getName())) {
+                                String accessToken = cookie.getValue();
+                                boolean checked = AuthService
+                                        .CheckPermissionWithContext(
+                                                RoleContext.APP,
+                                                "app.user.profile.update",
+                                                accessToken);
+                                tokenFound = true;
+                                if (checked) {
+                                    UpdateProfileDTO data = HttpUtil.getBodyContentFromReq(req,
+                                            UpdateProfileDTO.class);
+
+                                    ApplicationService.updateUserProfile(data, accessToken);
+                                    res.getWriter().write(gson.toJson(
+                                            new ResponseDTO<UserProfile>(ResponseStatus.OK,
+                                                    "Your profile is updated!",
+                                                    null)));
+                                    break;
+                                } else {
+                                    throw new AuthException("FORBIDDEN");
+                                }
+                            }
+                        }
+                    }
+
+                    if (!tokenFound) {
+                        throw new AuthException("LOGIN AND TRY AGAIN, PLEASE!");
+                    }
+                    break;
+                default:
+                    req.getRequestDispatcher(NOTFOUND_VIEW).forward(req, res);
+                    break;
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error(e.getStackTrace().toString());
+            res.getWriter().write(gson.toJson(
+                    new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
+                            null)));
+        } catch (TokenException | NotFoundException | IllegalArgumentException e) {
+            logger.error(e.getStackTrace().toString());
+            res.getWriter().write(gson.toJson(
+                    new ResponseDTO<UserProfile>(ResponseStatus.BAD_REQUEST, e.getMessage(),
+                            null)));
+        } catch (AuthException e) {
+            logger.error(e.getStackTrace().toString());
+            res.getWriter().write(gson.toJson(
+                    new ResponseDTO<UserProfile>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
+                            null)));
         }
     }
 
@@ -108,18 +232,21 @@ public class ApplicationController extends HttpServlet {
         }
     }
 
-    public static ResponseDTO<UserProfile> readOneUserProfile(UserProfile data) {
-        try {
-            ApplicationService.readUserProfileInternal(data);
-            return new ResponseDTO<UserProfile>(ResponseStatus.OK, "Read user profile successfully!", data);
-        } catch (SQLException e) {
-            return new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-        } catch (NotFoundException e) {
-            return new ResponseDTO<UserProfile>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        } catch (TokenException | IOException | ClassNotFoundException e) {
-            return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
-        }
-    }
+    // public static ResponseDTO<UserProfile> readOneUserProfile(UserProfile data) {
+    // try {
+    // ApplicationService.readUserProfileInternal(data);
+    // return new ResponseDTO<UserProfile>(ResponseStatus.OK, "Read user profile
+    // successfully!", data);
+    // } catch (SQLException e) {
+    // return new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR,
+    // e.getMessage(), null);
+    // } catch (NotFoundException e) {
+    // return new ResponseDTO<UserProfile>(ResponseStatus.BAD_REQUEST,
+    // e.getMessage(), null);
+    // } catch (TokenException | IOException | ClassNotFoundException e) {
+    // return new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null);
+    // }
+    // }
 
     public static ResponseDTO<List<Role>> getAllRoles() {
         try {

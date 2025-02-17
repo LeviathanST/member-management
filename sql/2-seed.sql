@@ -18,6 +18,7 @@ INSERT INTO permission (name) VALUES ('app.user_role.update');
 INSERT INTO permission (name) VALUES ('app.user.view_information'); -- Can view any account information
 INSERT INTO permission (name) VALUES ('app.user.view_information_self'); -- Just see self information 
 INSERT INTO permission (name) VALUES ('app.user.delete_account'); -- Can delete any account
+INSERT INTO permission (name) VALUES ('app.user.profile.update'); -- Can delete any account
 
 INSERT INTO role (name) VALUES ('President');
 INSERT INTO role (name) VALUES ('Member');
@@ -25,6 +26,7 @@ INSERT INTO role (name) VALUES ('Member');
 INSERT INTO role_permission (role_id, permission_id) VALUES (1, 1);
 INSERT INTO role_permission (role_id, permission_id) VALUES (2, 2);
 INSERT INTO role_permission (role_id, permission_id) VALUES (2, 1);
+INSERT INTO role_permission (role_id, permission_id) VALUES (2, 10);
 
 -- Guild
 INSERT INTO permission (name) VALUES ('guild.view');

@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS user_account (
 CREATE TABLE IF NOT EXISTS user_profile (
 	account_id CHAR(36) PRIMARY KEY,
 	full_name VARCHAR(255) NOT NULL,
-	sex ENUM ('MALE', 'FEMALE') NOT NULL,
+	sex ENUM ('MALE', 'FEMALE', 'NONE') NOT NULL DEFAULT 'NONE',
 	student_code VARCHAR(8) NOT NULL,
 	email VARCHAR(255) NOT NULL,
  	contact_email VARCHAR(255),

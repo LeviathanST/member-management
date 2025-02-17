@@ -139,20 +139,24 @@ public class GuildService {
 	}
 
 	public static UserProfile getUserProfile(String username)
-			throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException,
+			throws SQLException, SQLIntegrityConstraintViolationException,
+			NotFoundException,
 			DataEmptyException, InvalidDataException, TokenException {
 		try {
 			String accountId = UserAccountRepository.getIdByUsername(username);
 			UserProfile userProfile = new UserProfile();
 			userProfile.setAccountId(accountId);
-			UserProfileRepository.read(userProfile);
+			// TODO:
+			// UserProfileRepository.read(userProfile);
 			userProfile.setGenerationName(GenerationRepository.getNameById(userProfile.getGenerationId()));
 			return userProfile;
 		} catch (SQLIntegrityConstraintViolationException e) {
 
-			throw new SQLException(String.format("Disallow null values id %s", username));
+			throw new SQLException(String.format("Disallow null values id %s",
+					username));
 		} catch (SQLException | IOException | ClassNotFoundException e) {
-			throw new SQLException(String.format("Error occurs when delete guild: %s", username));
+			throw new SQLException(String.format("Error occurs when delete guild: %s",
+					username));
 		}
 	}
 
