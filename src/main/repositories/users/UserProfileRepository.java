@@ -1,6 +1,7 @@
 package repositories.users;
 
 import config.Database;
+import dto.UpdateProfileDTO;
 import constants.Sex;
 import exceptions.NotFoundException;
 import models.UserProfile;
@@ -35,18 +36,18 @@ public class UserProfileRepository {
 
 	}
 
-	public static void update(UserProfile data) throws SQLException, IOException, ClassNotFoundException {
+	public static void update(UpdateProfileDTO data, String accountId)
+			throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
-			String query = "UPDATE user_profile SET full_name = ?, sex = ?, student_code = ?, email = ?, contact_email = ?, generation_id = ?, dob = ? WHERE account_id = ?";
+			String query = "UPDATE user_profile SET full_name = ?, sex = ?, email = ?, contact_email = ?, dob = ? WHERE account_id = ?";
 			PreparedStatement stmt = con.prepareStatement(query);
+
 			stmt.setString(1, data.getFullName());
 			stmt.setString(2, data.getSex().name());
-			stmt.setString(3, data.getStudentCode());
-			stmt.setString(4, data.getEmail());
-			stmt.setString(5, data.getContactEmail());
-			stmt.setInt(6, data.getGenerationId());
-			stmt.setDate(7, data.getDateOfBirth());
-			stmt.setString(8, data.getAccountId());
+			stmt.setString(3, data.getEmail());
+			stmt.setString(4, data.getContactEmail());
+			stmt.setDate(5, data.getDateOfBirth());
+			stmt.setString(6, accountId);
 
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected == 0) {

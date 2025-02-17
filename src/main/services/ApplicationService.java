@@ -2,6 +2,7 @@ package services;
 
 import config.Database;
 import dto.TokenPairDTO;
+import dto.UpdateProfileDTO;
 import exceptions.*;
 import models.Event;
 import models.Permission;
@@ -61,17 +62,15 @@ public class ApplicationService extends AuthService {
         return UserProfileRepository.read(accountId);
     }
 
-    public static void updateUserProfile(UserProfile data)
-            throws SQLException, TokenException, NotFoundException, UserProfileException, IOException,
-            ClassNotFoundException {
-        Path path = (Path) Paths.get("storage.json");
-        String accessToken = TokenService.loadFromFile(path).getAccessToken();
-        String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
-        data.setAccountId(accountId);
-        data.setStudentCode((data.getStudentCode().toUpperCase()));
-        data.setGenerationId(getMaxGenerationId());
-        data.setFullName(normalizeFullname(data.getFullName()));
-        UserProfileRepository.update(data);
+    public static void updateUserProfile(UpdateProfileDTO data, String at)
+            throws SQLException, TokenException, NotFoundException, IOException,
+            ClassNotFoundException, IllegalArgumentException {
+        if (data.hasNullFields()) {
+            throw new IllegalArgumentException(
+                    "Hey, you have something is empty, check again your information, please?");
+        }
+        String accountId = TokenPairDTO.Verify(at).getClaim("account_id").asString();
+        UserProfileRepository.update(data, accountId);
     }
 
     // TODO: Role
