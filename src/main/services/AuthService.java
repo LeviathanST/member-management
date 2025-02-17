@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public class AuthService {
 				"Empty",
 				"Empty",
 				ApplicationService.getMaxGenerationId(),
-				null);
+				Date.valueOf(LocalDate.now()));
 		UserProfileRepository.insert(userProfile);
 		logger.info("After");
 		UserRoleRepository.insert(account_id, role_id);
