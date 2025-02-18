@@ -249,7 +249,7 @@
             };
 
             fetch("<%=request.getContextPath()%>/app/profile", {
-                method: "POST",
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
                 },
