@@ -1,6 +1,5 @@
 package services;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -47,7 +46,7 @@ public class TokenService {
 		}
 	}
 
-	public static TokenPairDTO loadFromFile(Path savingFilePath) throws TokenException, IOException {
+	public static TokenPairDTO loadFromFile(Path savingFilePath) throws TokenException {
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
@@ -62,7 +61,7 @@ public class TokenService {
 					tokenNode.path("accessToken").asText(),
 					tokenNode.path("refreshToken").asText());
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new TokenException("Error occurs when loading token");
 		}
 	}
