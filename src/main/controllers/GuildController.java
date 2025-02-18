@@ -1,7 +1,14 @@
 package controllers;
 
 import dto.*;
+import dto.role.DeletePermissionDTO;
 import exceptions.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import models.Guild;
 import models.GuildEvent;
 import models.GuildPermission;
@@ -13,14 +20,125 @@ import repositories.GuildRepository;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+
 import constants.ResponseStatus;
+import constants.RoleContext;
 import repositories.permissions.GuildPermissionRepository;
 import repositories.roles.GuildRoleRepository;
+import repositories.roles.RoleRepository;
+import services.AuthService;
 import services.GuildService;
+import utils.HttpUtil;
 
-public class GuildController {
+@WebServlet("/guild/*")
+public class GuildController extends HttpServlet {
+    private final String NOTIFYERROR_VIEW = "/view/notifyError.jsp";
+    private final String ROLE_VIEW = "/view/guild/role.jsp";
+
+    private Gson gson = new Gson();
+    private Logger logger = LoggerFactory.getLogger(ApplicationController.class);
+    private String redirectView;
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String route = (req.getPathInfo() != null) ? req.getPathInfo().substring(1) : "";
+        try {
+            switch (route) {
+                case "roles":
+                    Cookie[] cookies = req.getCookies();
+                    String name = req.getParameter("name");
+                    String accountId = AuthService.handleCookieAndGetAccountId(cookies);
+                    boolean checked = AuthService.checkRoleAndPermission(accountId, name, RoleContext.GUILD,
+                            "role.crud");
+                    if (checked) {
+                        List<String> roles = RoleRepository.getAllByPrefix(req.getParameter("name"));
+                        req.setAttribute("roles", roles);
+
+                        List<String> permissions = RoleRepository
+                                .getAllPermissionByContext(RoleContext.GUILD);
+                        req.setAttribute("permissions", permissions);
+                        redirectView = ROLE_VIEW;
+                    } else {
+                        req.setAttribute("response", gson.toJson(
+                                new ResponseDTO<UserProfile>(ResponseStatus.UNAUTHORIZED,
+                                        "FORBIDDEN",
+                                        null)));
+                        redirectView = NOTIFYERROR_VIEW;
+                    }
+                    break;
+                default:
+                    req.setAttribute("response", gson.toJson(
+                            new ResponseDTO<UserProfile>(ResponseStatus.NOT_FOUND,
+                                    "NOT FOUND!",
+                                    null)));
+                    redirectView = NOTIFYERROR_VIEW;
+                    break;
+            }
+        } catch (SQLException e) {
+            logger.error(e.getStackTrace().toString());
+            req.setAttribute("response", gson.toJson(
+                    new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
+                            null)));
+            redirectView = NOTIFYERROR_VIEW;
+        } catch (AuthException e) {
+            logger.error(e.getStackTrace().toString());
+            req.setAttribute("response", gson.toJson(
+                    new ResponseDTO<UserProfile>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
+                            null)));
+            redirectView = NOTIFYERROR_VIEW;
+        } finally {
+            req.getRequestDispatcher(redirectView).forward(req, res);
+        }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String route = (req.getPathInfo() != null) ? req.getPathInfo().substring(1) : "";
+        try {
+            switch (route) {
+                case "roles":
+                    Cookie[] cookies = req.getCookies();
+                    String name = req.getParameter("name");
+                    String accountId = AuthService.handleCookieAndGetAccountId(cookies);
+                    boolean checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.GUILD,
+                            "role.crud");
+                    if (checked) {
+                        DeletePermissionDTO dto = HttpUtil.getBodyContentFromReq(req, DeletePermissionDTO.class);
+                        RoleRepository.deletePermission(dto.getRoleName(), dto.getPermissions());
+                    } else {
+                        res.getWriter().write(gson.toJson(
+                                new ResponseDTO<UserProfile>(ResponseStatus.UNAUTHORIZED,
+                                        "FORBIDDEN",
+                                        null)));
+                    }
+                    break;
+                default:
+                    res.getWriter().write(gson.toJson(
+                            new ResponseDTO<UserProfile>(ResponseStatus.NOT_FOUND,
+                                    "NOT FOUND!",
+                                    null)));
+                    break;
+            }
+        } catch (AuthException e) {
+            res.getWriter().write(gson.toJson(
+                    new ResponseDTO<UserProfile>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
+                            null)));
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.info(e.getStackTrace().toString());
+            res.getWriter().write(gson.toJson(
+                    new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
+                            null)));
+        }
+    }
+
     // TODO: CRUD Guild
     public static ResponseDTO<Object> addGuild(Guild guildDTO) {
         try {

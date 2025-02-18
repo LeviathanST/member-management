@@ -6,7 +6,6 @@ import dto.UpdateProfileDTO;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.google.gson.Gson;
 
-import ch.qos.logback.core.subst.Token;
 import constants.ResponseStatus;
 import constants.RoleContext;
 import dto.ResponseDTO;
@@ -22,6 +21,7 @@ import models.Permission;
 import models.Role;
 import models.UserProfile;
 import repositories.GenerationRepository;
+import repositories.users.UserProfileRepository;
 import services.ApplicationService;
 import services.AuthService;
 
@@ -50,24 +50,10 @@ public class ApplicationController extends HttpServlet {
             switch (route) {
                 case "profile":
                     Cookie[] cookies = req.getCookies();
-                    boolean tokenFound = false;
-
-                    if (cookies != null) {
-                        for (Cookie cookie : cookies) {
-                            if ("access_token".equals(cookie.getName())) {
-                                String accessToken = cookie.getValue();
-                                UserProfile userProfile = ApplicationService.readUserProfileInternal(accessToken);
-                                req.setAttribute("profile", userProfile);
-                                redirectView = PROFILE_VIEW;
-                                tokenFound = true;
-                                break; // Exit loop early since token is found
-                            }
-                        }
-                    }
-
-                    if (!tokenFound) {
-                        throw new AuthException("LOGIN AND TRY AGAIN, PLEASE!");
-                    }
+                    String accountId = AuthService.handleCookieAndGetAccountId(cookies);
+                    UserProfile userProfile = UserProfileRepository.read(accountId);
+                    req.setAttribute("profile", userProfile);
+                    redirectView = PROFILE_VIEW;
                     break;
                 default:
                     redirectView = NOTFOUND_VIEW;
@@ -79,7 +65,7 @@ public class ApplicationController extends HttpServlet {
                     new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
                             null)));
             redirectView = NOTIFYERROR_VIEW;
-        } catch (TokenException | NotFoundException e) {
+        } catch (NotFoundException e) {
             logger.error(e.getStackTrace().toString());
             req.setAttribute("response", gson.toJson(
                     new ResponseDTO<UserProfile>(ResponseStatus.BAD_REQUEST, e.getMessage(),
@@ -97,45 +83,29 @@ public class ApplicationController extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String route = (req.getPathInfo() != null) ? req.getPathInfo().substring(1) : "";
         try {
             switch (route) {
                 case "profile":
                     Cookie[] cookies = req.getCookies();
-                    boolean tokenFound = false;
-
-                    if (cookies != null) {
-                        for (Cookie cookie : cookies) {
-                            if ("access_token".equals(cookie.getName())) {
-                                String accessToken = cookie.getValue();
-                                boolean checked = AuthService
-                                        .CheckPermissionWithContext(
-                                                RoleContext.APP,
-                                                "app.user.profile.update",
-                                                accessToken);
-                                tokenFound = true;
-                                if (checked) {
-                                    UpdateProfileDTO data = HttpUtil.getBodyContentFromReq(req,
-                                            UpdateProfileDTO.class);
-
-                                    ApplicationService.updateUserProfile(data, accessToken);
-                                    res.getWriter().write(gson.toJson(
-                                            new ResponseDTO<UserProfile>(ResponseStatus.OK,
-                                                    "Your profile is updated!",
-                                                    null)));
-                                    break;
-                                } else {
-                                    throw new AuthException("FORBIDDEN");
-                                }
-                            }
-                        }
+                    String accountId = AuthService.handleCookieAndGetAccountId(cookies);
+                    boolean checked = AuthService.checkPermissionWithContext(
+                            accountId,
+                            RoleContext.APP,
+                            "app.user.profile.update");
+                    if (checked) {
+                        UpdateProfileDTO data = HttpUtil.getBodyContentFromReq(req,
+                                UpdateProfileDTO.class);
+                        ApplicationService.updateUserProfile(data, accountId);
+                        res.getWriter().write(gson.toJson(
+                                new ResponseDTO<UserProfile>(ResponseStatus.OK,
+                                        "Your profile is updated!",
+                                        null)));
+                        break;
+                    } else {
+                        throw new AuthException("FORBIDDEN");
                     }
-
-                    if (!tokenFound) {
-                        throw new AuthException("LOGIN AND TRY AGAIN, PLEASE!");
-                    }
-                    break;
                 default:
                     req.getRequestDispatcher(NOTFOUND_VIEW).forward(req, res);
                     break;

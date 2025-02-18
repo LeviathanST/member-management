@@ -62,14 +62,13 @@ public class ApplicationService extends AuthService {
         return UserProfileRepository.read(accountId);
     }
 
-    public static void updateUserProfile(UpdateProfileDTO data, String at)
+    public static void updateUserProfile(UpdateProfileDTO data, String accountId)
             throws SQLException, TokenException, NotFoundException, IOException,
             ClassNotFoundException, IllegalArgumentException {
         if (data.hasNullFields()) {
             throw new IllegalArgumentException(
                     "Hey, you have something is empty, check again your information, please?");
         }
-        String accountId = TokenPairDTO.Verify(at).getClaim("account_id").asString();
         UserProfileRepository.update(data, accountId);
     }
 
@@ -86,7 +85,7 @@ public class ApplicationService extends AuthService {
             ClassNotFoundException {
         try {
             name = normalizedRolePermission(name);
-            RoleRepository.createRole(name);
+            RoleRepository.create(name);
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new SQLIntegrityConstraintViolationException(String.format("Your role is existed: %s", name));
         } catch (SQLException e) {
@@ -99,7 +98,7 @@ public class ApplicationService extends AuthService {
             ClassNotFoundException {
         try {
             newName = normalizedRolePermission(newName);
-            RoleRepository.updateRole(roleId, newName);
+            RoleRepository.update(roleId, newName);
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new SQLException(String.format("Disallow null values %s", newName));
         } catch (SQLException e) {
@@ -111,7 +110,7 @@ public class ApplicationService extends AuthService {
             throws SQLException, SQLIntegrityConstraintViolationException, NotFoundException, IOException,
             ClassNotFoundException {
         try {
-            RoleRepository.deleteRole(roleId);
+            RoleRepository.delete(roleId);
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new SQLException(String.format("Disallow null values %d", roleId));
         } catch (SQLException e) {

@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 
 import constants.ResponseStatus;
-import constants.RoleContext;
 import utils.HttpUtil;
 import dto.LoginDTO;
 import dto.ResponseDTO;
@@ -31,10 +30,11 @@ import services.AuthService;
 public class AuthController extends HttpServlet {
 	private final String SIGNUP_VIEW = "/view/auth/signup.jsp";
 	private final String LOGIN_VIEW = "/view/auth/login.jsp";
-	private final String NOTFOUND_VIEW = "/view/notfound.jsp";
+	private final String NOTIFYERROR_VIEW = "/view/notifyError.jsp";
 
 	private Gson gson = new Gson();
 	private Logger logger = LoggerFactory.getLogger(AuthController.class);
+	private String redirectView;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -47,39 +47,17 @@ public class AuthController extends HttpServlet {
 				case "login":
 					req.getRequestDispatcher(LOGIN_VIEW).forward(req, res);
 					break;
-				// TODO: remove it
-				case "ping":
-					Cookie[] cookies = req.getCookies();
-					if (cookies.length != 0) {
-						for (Cookie cuckie : cookies) {
-							if ("access_token".equals(cuckie.getName())) {
-								String accessToken = cuckie.getValue();
-								boolean checked = AuthService
-										.CheckPermissionWithContext(
-												RoleContext.APP,
-												"app.role.crud",
-												accessToken);
-								if (checked) {
-									req.setAttribute("status", "Yeh");
-								} else {
-									req.setAttribute("status", "Nah");
-								}
-							}
-						}
-
-					} else {
-						req.setAttribute("status", "Cookie Not Found");
-					}
-
-					req.getRequestDispatcher("/view/ping.jsp").forward(req, res);
-					break;
 				default:
-					req.getRequestDispatcher(NOTFOUND_VIEW).forward(req, res);
+					req.setAttribute("response", gson.toJson(
+							new ResponseDTO<>(
+									ResponseStatus.NOT_FOUND,
+									"NOT FOUND YOUR SPECIFIED PAGE!",
+									null)));
+					redirectView = NOTIFYERROR_VIEW;
 					break;
 			}
-		} catch (Exception e) {
-			logger.error("[Line 55]: ");
-			e.printStackTrace();
+		} finally {
+			req.getRequestDispatcher(redirectView).forward(req, res);
 		}
 	}
 
@@ -110,7 +88,9 @@ public class AuthController extends HttpServlet {
 									"Sign up successfully!", null)));
 					break;
 				default:
-					req.getRequestDispatcher(NOTFOUND_VIEW).forward(req, res);
+					res.getWriter().write(gson
+							.toJson(new ResponseDTO<>(ResponseStatus.NOT_FOUND,
+									"NOT FOUND YOUR SPECIFIED PAGE!", null)));
 					break;
 			}
 		} catch (AuthException | DataEmptyException | IllegalArgumentException e) {

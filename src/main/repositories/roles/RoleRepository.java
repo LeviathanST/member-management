@@ -7,8 +7,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import config.Database;
 import constants.RoleContext;
@@ -17,7 +19,6 @@ import models.Role;
 import repositories.permissions.PermissionRepository;
 
 public class RoleRepository {
-
 	public static List<Role> getAll() throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = "SELECT * FROM role";
@@ -54,31 +55,7 @@ public class RoleRepository {
 
 	}
 
-	public static Role getByAccountId(String account_id)
-			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = """
-					SELECT r.id as id, r.name as name
-					FROM user_role ur
-					JOIN role r ON r.id = ur.role_id
-					WHERE ur.account_id = ?
-					""";
-
-			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, account_id);
-
-			ResultSet rs = stmt.executeQuery();
-
-			while (rs.next()) {
-				return new Role(rs.getInt("id"), rs.getString("name"));
-			}
-
-			throw new NotFoundException("This account is not have any role in application!");
-		}
-
-	}
-
-	public static void createRole(String nameRole) throws SQLException, IOException, ClassNotFoundException {
+	public static void create(String nameRole) throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = """
 					INSERT INTO role (name) VALUES (?)
@@ -92,7 +69,7 @@ public class RoleRepository {
 
 	}
 
-	public static void updateRole(int roleId, String newNameRole)
+	public static void update(int roleId, String newNameRole)
 			throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = """
@@ -110,7 +87,7 @@ public class RoleRepository {
 
 	}
 
-	public static void deleteRole(int roleId) throws SQLException, IOException, ClassNotFoundException {
+	public static void delete(int roleId) throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = """
 					DELETE FROM role
@@ -121,6 +98,42 @@ public class RoleRepository {
 			int row = stmt.executeUpdate();
 			if (row == 0)
 				throw new SQLException("Delete role failed : now row is affected!");
+		}
+	}
+
+	/// NOTE:
+	/// @param permissions
+	/// Using for multiple deleted permissions
+	public static void deletePermission(String roleName, List<String> permissions)
+			throws SQLException, IOException, ClassNotFoundException {
+		String placeholders = permissions.stream()
+				.map(p -> "?")
+				.collect(Collectors.joining(", "));
+
+		try (Connection con = Database.connection()) {
+			String query = """
+					DELETE
+					FROM role_permission rp
+						JOIN role r ON r.id = rp.role_id
+					WHERE
+						r.name = ?
+						AND EXISTS (
+							SELECT 1
+							FROM permission
+							WHERE name IN (%s)
+						)
+					""".formatted(placeholders);
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, roleName);
+
+			int i = 1;
+			for (String permission : permissions) {
+				stmt.setString(i++, permission);
+			}
+
+			int row = stmt.executeUpdate();
+			if (row == 0)
+				throw new SQLException("Delete role failed");
 		}
 	}
 
@@ -137,37 +150,28 @@ public class RoleRepository {
 			stmt.setInt(2, permissionId);
 			int row = stmt.executeUpdate();
 			if (row == 0)
-				throw new SQLException("Add permission to role is failed : no row is affected!");
+				throw new SQLException("Add permission to role failed");
 		}
 	}
 
 	public static boolean existPermissionWithContext(RoleContext ctx, String permission, String accountId)
 			throws SQLException {
-		String context = switch (ctx) {
-			case RoleContext.APP -> "app";
-			case RoleContext.GUILD -> "guild";
-			case RoleContext.CREW -> "crew";
-			default -> throw new IllegalArgumentException("Role context not found!");
-		};
 
 		String query = """
-				SELECT EXISTS (
-					SELECT 1 FROM permission p
-							JOIN role_permission rp ON rp.permission_id = p.id
-							JOIN user_role ur ON ur.role_id = rp.role_id
-							WHERE ur.account_id = ?
-							AND p.name = ?
-							AND p.context = ?
-							LIMIT 1
-				)
-
-						""";
+				SELECT 1
+				FROM permission p
+					JOIN role_permission rp ON rp.permission_id = p.id
+					JOIN user_role ur ON ur.role_id = rp.role_id
+				WHERE ur.account_id = ?
+					AND p.name = ?
+					AND p.context = ?
+				""";
 
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
 			stmt.setString(1, accountId);
 			stmt.setString(2, permission);
-			stmt.setString(3, context);
+			stmt.setString(3, ctx.name().toLowerCase());
 			ResultSet checked = stmt.executeQuery();
 
 			if (checked.next()) {
@@ -176,6 +180,86 @@ public class RoleRepository {
 				return false;
 			}
 
+		}
+	}
+
+	/// NOTE:
+	/// @param prefix
+	/// Sample: BE1, Technical, Media
+	public static List<String> getAllByPrefix(String prefix) throws SQLException {
+		List<String> list = new ArrayList<>();
+		String query = """
+					SELECT name from role
+					WHERE name LIKE ?
+				""";
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, prefix + "%");
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				list.add(rs.getString("name"));
+			}
+			return list;
+		}
+	}
+
+	public static List<String> getAllPermissionByContext(RoleContext ctx) throws SQLException {
+		List<String> list = new ArrayList<>();
+		String query = """
+					SELECT name from permission
+					WHERE context = ?
+				""";
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, ctx.name().toLowerCase());
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				list.add(rs.getString("name"));
+			}
+			return list;
+		}
+	}
+
+	/// NOTE:
+	/// Use for crew and guild
+	/// @param prefix
+	/// Sample: BE1, FE1, IA1
+	/// @param ctx: route context
+	/// Prevent guild/name=BE1 and crew/name=technical
+	public static boolean existPermissionWithPrefix(String prefix, RoleContext ctx, String permission,
+			String accountId)
+			throws SQLException {
+		String query = """
+				SELECT 1
+				FROM role r
+					JOIN user_role ur ON ur.role_id = r.id
+					JOIN role_permission rp ON rp.role_id = ur.role_id
+					JOIN permission p ON p.id = rp.permission_id
+				WHERE
+					p.name = ?
+					AND p.context = ?
+					AND r.name like ?
+					AND ur.account_id = ?
+				""";
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, permission);
+			stmt.setString(2, ctx.name().toLowerCase());
+			stmt.setString(3, prefix + "%");
+			stmt.setString(4, accountId);
+
+			ResultSet rs = stmt.executeQuery();
+			Logger logger = LoggerFactory.getLogger(RoleRepository.class);
+
+			if (rs.next()) {
+				logger.info("Hi");
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 }

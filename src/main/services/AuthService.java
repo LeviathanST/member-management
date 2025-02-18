@@ -10,8 +10,8 @@ import dto.LoginDTO;
 import dto.SignUpDTO;
 import dto.TokenPairDTO;
 import exceptions.*;
+import jakarta.servlet.http.Cookie;
 import models.CrewPermission;
-import models.Generation;
 import models.GuildPermission;
 import models.Permission;
 import models.UserProfile;
@@ -32,6 +32,7 @@ import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -205,11 +206,63 @@ public class AuthService {
 		}
 	}
 
-	// TODO: Authenticate user with multiple roles and multiple context
-	public static boolean CheckPermissionWithContext(RoleContext ctx, String permission, String accessToken)
-			throws SQLException {
-		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
-		boolean checked = RoleRepository.existPermissionWithContext(ctx, permission, accountId);
+	// NOTE: Authenticate user with multiple roles and multiple context
+	public static boolean checkPermissionWithContext(String accountId, RoleContext ctx, String permission)
+			throws SQLException, AuthException {
+
+		boolean checked = RoleRepository.existPermissionWithContext(ctx,
+				permission,
+				accountId);
 		return checked;
 	}
+
+	/// @param f:
+	/// a function that will be received access token as parameter
+	/// then run Consumer if cond = true
+	public static String handleCookieAndGetAccountId(Cookie[] cookies, Boolean cond, Consumer<String> f)
+			throws AuthException {
+		for (Cookie cookie : cookies) {
+			if ("access_token".equals(cookie.getName())) {
+				String accessToken = cookie.getValue();
+				String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id")
+						.asString();
+				f.accept(accessToken);
+				return accountId;
+			}
+		}
+
+		throw new AuthException("Your credentials is not found!");
+	}
+
+	public static String handleCookieAndGetAccountId(Cookie[] cookies) throws AuthException {
+		for (Cookie cookie : cookies) {
+			if ("access_token".equals(cookie.getName())) {
+				String accessToken = cookie.getValue();
+				String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id")
+						.asString();
+				return accountId;
+			}
+		}
+
+		throw new AuthException("Your credentials is not found!");
+	}
+
+	/// NOTE:
+	/// This method is used for check specified guild, crew role in user_role
+	/// @param name:
+	/// - It can be guild or crew name which is determined by @param ctx.
+	/// Sample: BE, BE1, FE, FE1
+	/// HACK: It will be return false when guild, crew or specified level not found!
+	/// TODO: Making exception can be more context
+	/// - NOT FOUND GUILD, CREW
+	/// - NOT FOUND SPECIFIED LEVEL OF CREW
+	public static boolean checkRoleAndPermission(String accountId, String name, RoleContext ctx, String permission)
+			throws SQLException, AuthException {
+
+		boolean checked = RoleRepository.existPermissionWithPrefix(name, ctx,
+				permission,
+				accountId);
+		return checked;
+	}
+
 }
