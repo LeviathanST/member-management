@@ -389,12 +389,4 @@ public class ApplicationService extends AuthService {
         }
         return result.toString();
     }
-
-    public static String removePrefix(String input) {
-        int index = input.indexOf('_');
-        if (index != -1) {
-            return input.substring(index + 1);
-        }
-        return input;
-    }
 }
