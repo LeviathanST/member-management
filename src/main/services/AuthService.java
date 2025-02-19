@@ -256,10 +256,11 @@ public class AuthService {
 	/// TODO: Making exception can be more context
 	/// - NOT FOUND GUILD, CREW
 	/// - NOT FOUND SPECIFIED LEVEL OF CREW
-	public static boolean checkRoleAndPermission(String accountId, String name, RoleContext ctx, String permission)
+	public static boolean checkRoleAndPermission(String accountId, String name, RoleContext ctx,
+			String permission)
 			throws SQLException, AuthException {
-
-		boolean checked = RoleRepository.existPermissionWithPrefix(name, ctx,
+		String prefix = ApplicationService.getCodeFromName(name);
+		boolean checked = RoleRepository.existPermissionWithPrefix(prefix, ctx,
 				permission,
 				accountId);
 		return checked;
