@@ -184,7 +184,7 @@ public class RoleRepository {
 	}
 
 	/// NOTE:
-	/// @param prefix
+	/// @param prefix: determine by @param ctx
 	/// Sample: BE1, Technical, Media
 	public static List<String> getAllByPrefix(String prefix) throws SQLException {
 		List<String> list = new ArrayList<>();
@@ -214,6 +214,34 @@ public class RoleRepository {
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
 			stmt.setString(1, ctx.name().toLowerCase());
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				list.add(rs.getString("name"));
+			}
+			return list;
+		}
+	}
+
+	/// NOTE:
+	/// @param ctx:
+	/// - Prevent from crew but not from another guild
+	public static List<String> getAllPermissionOfARole(String name)
+			throws SQLException {
+		Logger logger = LoggerFactory.getLogger(RoleRepository.class);
+		logger.info("Role: " + name);
+		List<String> list = new ArrayList<>();
+		String query = """
+				SELECT p.name
+				FROM role r
+					JOIN role_permission rp ON rp.role_id = r.id
+					JOIN permission p ON p.id = rp.permission_id
+				WHERE
+					r.name = ?
+				""";
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, name);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				list.add(rs.getString("name"));

@@ -13,6 +13,7 @@ import repositories.GuildRepository;
 import repositories.events.GuildEventRepository;
 import repositories.permissions.GuildPermissionRepository;
 import repositories.roles.GuildRoleRepository;
+import repositories.roles.RoleRepository;
 import repositories.users.UserAccountRepository;
 import repositories.users.UserGuildRoleRepository;
 import repositories.users.UserProfileRepository;
@@ -29,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GuildService {
 
@@ -776,4 +778,11 @@ public class GuildService {
 		}
 	}
 
+	public static List<String> getAllRolesByGuildName(String name) throws SQLException, NotFoundException {
+		String prefix = GuildRepository.GetCodeByName(name);
+		return RoleRepository.getAllByPrefix(prefix)
+				.stream()
+				.map(role -> role.replaceFirst("^[^_]+_", ""))
+				.collect(Collectors.toList());
+	}
 }

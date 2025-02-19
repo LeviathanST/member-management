@@ -19,9 +19,11 @@ import repositories.GenerationRepository;
 import repositories.GuildRepository;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,7 @@ import constants.RoleContext;
 import repositories.permissions.GuildPermissionRepository;
 import repositories.roles.GuildRoleRepository;
 import repositories.roles.RoleRepository;
+import services.ApplicationService;
 import services.AuthService;
 import services.GuildService;
 import utils.HttpUtil;
@@ -43,58 +46,83 @@ public class GuildController extends HttpServlet {
     private final String ROLE_VIEW = "/view/guild/role.jsp";
 
     private Gson gson = new Gson();
-    private Logger logger = LoggerFactory.getLogger(ApplicationController.class);
+    private Logger logger = LoggerFactory.getLogger(GuildController.class);
     private String redirectView;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String route = (req.getPathInfo() != null) ? req.getPathInfo().substring(1) : "";
+        Cookie[] cookies = req.getCookies();
+        String name = req.getParameter("name");
+        PrintWriter out = res.getWriter();
+        boolean checked;
+
         try {
+            String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
                 case "roles":
-                    Cookie[] cookies = req.getCookies();
-                    String name = req.getParameter("name");
-                    String accountId = AuthService.handleCookieAndGetAccountId(cookies);
-                    boolean checked = AuthService.checkRoleAndPermission(accountId, name, RoleContext.GUILD,
+                    checked = AuthService.checkRoleAndPermission(accountId, name, RoleContext.GUILD,
                             "role.crud");
                     if (checked) {
-                        List<String> roles = RoleRepository.getAllByPrefix(req.getParameter("name"));
+                        List<String> roles = GuildService.getAllRolesByGuildName(name);
                         req.setAttribute("roles", roles);
 
                         List<String> permissions = RoleRepository
                                 .getAllPermissionByContext(RoleContext.GUILD);
-                        req.setAttribute("permissions", permissions);
+                        req.setAttribute("permissions", gson.toJson(permissions));
                         redirectView = ROLE_VIEW;
+                        break;
                     } else {
-                        req.setAttribute("response", gson.toJson(
-                                new ResponseDTO<UserProfile>(ResponseStatus.UNAUTHORIZED,
-                                        "FORBIDDEN",
-                                        null)));
-                        redirectView = NOTIFYERROR_VIEW;
+                        throw new AuthException("FORBIDDEN!");
                     }
-                    break;
+                case "permission":
+                    checked = AuthService.checkRoleAndPermission(accountId, name, RoleContext.GUILD,
+                            "role.crud");
+                    if (checked) {
+                        String roleName = req.getParameter("role");
+                        if (roleName != null && !roleName.isBlank()) {
+                            List<String> permissionsOfRole = RoleRepository
+                                    .getAllPermissionOfARole(ApplicationService.getCodeFromName(name) + "_" + roleName);
+                            res.setContentType("application/json");
+                            out.write(gson.toJson(
+                                    new ResponseDTO<List<String>>(ResponseStatus.OK,
+                                            "Get all permissions of " + roleName,
+                                            permissionsOfRole)));
+                            redirectView = null;
+                            break;
+                        } else {
+                            throw new IllegalArgumentException("Role is null or empty!");
+                        }
+                    } else {
+                        throw new AuthException("FORBIDDEN!");
+                    }
                 default:
-                    req.setAttribute("response", gson.toJson(
-                            new ResponseDTO<UserProfile>(ResponseStatus.NOT_FOUND,
-                                    "NOT FOUND!",
-                                    null)));
-                    redirectView = NOTIFYERROR_VIEW;
-                    break;
+                    throw new NotFoundException("A page is not found!");
             }
         } catch (SQLException e) {
             logger.error(e.getStackTrace().toString());
             req.setAttribute("response", gson.toJson(
-                    new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
+                    new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
                             null)));
             redirectView = NOTIFYERROR_VIEW;
         } catch (AuthException e) {
             logger.error(e.getStackTrace().toString());
             req.setAttribute("response", gson.toJson(
-                    new ResponseDTO<UserProfile>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
+                    new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
+                            null)));
+            redirectView = NOTIFYERROR_VIEW;
+        } catch (NotFoundException e) {
+            logger.error(e.getStackTrace().toString());
+            req.setAttribute("response", gson.toJson(
+                    new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(),
                             null)));
             redirectView = NOTIFYERROR_VIEW;
         } finally {
-            req.getRequestDispatcher(redirectView).forward(req, res);
+            if (redirectView != null) {
+                req.getRequestDispatcher(redirectView).forward(req, res);
+                out.flush();
+                out.close();
+            }
         }
     }
 
@@ -115,26 +143,26 @@ public class GuildController extends HttpServlet {
                         RoleRepository.deletePermission(dto.getRoleName(), dto.getPermissions());
                     } else {
                         res.getWriter().write(gson.toJson(
-                                new ResponseDTO<UserProfile>(ResponseStatus.UNAUTHORIZED,
+                                new ResponseDTO<>(ResponseStatus.UNAUTHORIZED,
                                         "FORBIDDEN",
                                         null)));
                     }
                     break;
                 default:
                     res.getWriter().write(gson.toJson(
-                            new ResponseDTO<UserProfile>(ResponseStatus.NOT_FOUND,
+                            new ResponseDTO<>(ResponseStatus.NOT_FOUND,
                                     "NOT FOUND!",
                                     null)));
                     break;
             }
         } catch (AuthException e) {
             res.getWriter().write(gson.toJson(
-                    new ResponseDTO<UserProfile>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
+                    new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
                             null)));
         } catch (SQLException | ClassNotFoundException e) {
             logger.info(e.getStackTrace().toString());
             res.getWriter().write(gson.toJson(
-                    new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
+                    new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
                             null)));
         }
     }
