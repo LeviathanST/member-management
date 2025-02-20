@@ -491,11 +491,7 @@ async function applyChange() {
             "Content-Type":"application/json"
         },
         body: JSON.stringify(data1)
-    }).then(res => {
-        const text = res.text()
-        console.log(text)
-        return text
-    }).then(text => JSON.parse(text))
+    }).then(res => res.text()).then(text => JSON.parse(text))
 
     const data2 = {
         roleName: role,
@@ -508,11 +504,7 @@ async function applyChange() {
             "Content-Type":"application/json"
         },
         body: JSON.stringify(data2)
-    }).then(res => {
-        const text = res.text()
-        console.log(text)
-        return text
-    }).then(text => JSON.parse(text))
+    }).then(res => res.text()).then(text => JSON.parse(text))
 
     if (res1.status == "OK") {
         permissionForAdding.clear()
