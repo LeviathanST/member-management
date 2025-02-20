@@ -1,6 +1,7 @@
 package controllers;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 
@@ -64,6 +65,7 @@ public class AuthController extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		String route = (req.getPathInfo() != null) ? req.getPathInfo().substring(1) : "";
+		PrintWriter out = res.getWriter();
 		try {
 			switch (route) {
 				case "login":
@@ -76,42 +78,42 @@ public class AuthController extends HttpServlet {
 					cookie.setPath("/");
 					res.addCookie(cookie);
 
-					res.getWriter().write(gson
+					out.write(gson
 							.toJson(new ResponseDTO<>(ResponseStatus.OK,
 									"Login successfully!", null)));
 					break;
 				case "signup":
 					SignUpDTO signUpDTO = HttpUtil.getBodyContentFromReq(req, SignUpDTO.class);
 					AuthService.signUpInternal(signUpDTO);
-					res.getWriter().write(gson
+					out.write(gson
 							.toJson(new ResponseDTO<>(ResponseStatus.OK,
 									"Sign up successfully!", null)));
 					break;
 				default:
-					res.getWriter().write(gson
-							.toJson(new ResponseDTO<>(ResponseStatus.NOT_FOUND,
-									"NOT FOUND YOUR SPECIFIED PAGE!", null)));
-					break;
+					throw new NotFoundException("Not found the page!");
 			}
 		} catch (AuthException | DataEmptyException | IllegalArgumentException e) {
 			logger.error(e.getMessage());
-			res.getWriter().write(gson
+			out.write(gson
 					.toJson(new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(), null)));
 		} catch (SQLIntegrityConstraintViolationException e) {
 			logger.error(e.getMessage());
-			res.getWriter().write(gson
+			out.write(gson
 					.toJson(new ResponseDTO<>(ResponseStatus.BAD_REQUEST,
 							"Username is already exist!",
 							null)));
 		} catch (NotFoundException e) {
 			logger.error(e.getMessage());
-			res.getWriter().write(gson
+			out.write(gson
 					.toJson(new ResponseDTO<>(ResponseStatus.NOT_FOUND, e.getMessage(), null)));
 		} catch (SQLException | TokenException | IOException | ClassNotFoundException e) {
 			logger.error(e.getMessage());
-			res.getWriter().write(gson
+			out.write(gson
 					.toJson(new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
 							null)));
+		} finally {
+			out.flush();
+			out.close();
 		}
 	}
 
