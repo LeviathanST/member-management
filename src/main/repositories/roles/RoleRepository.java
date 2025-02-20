@@ -104,54 +104,67 @@ public class RoleRepository {
 	/// NOTE:
 	/// @param permissions
 	/// Using for multiple deleted permissions
-	public static void deletePermission(String roleName, List<String> permissions)
-			throws SQLException, IOException, ClassNotFoundException {
-		String placeholders = permissions.stream()
-				.map(p -> "?")
-				.collect(Collectors.joining(", "));
+	/// @return listError:
+	/// Exception without preventing other permissions is deleted
+	public static List<String> deletePermission(String roleName, List<String> permissions)
+			throws SQLException, IOException {
+		List<String> listError = new ArrayList<>();
+		if (permissions.isEmpty()) {
+			return listError;
+		}
+		String query = """
+				DELETE
+				FROM role_permission rp
+				WHERE
+					role_id = (SELECT id FROM role WHERE name = ?)
+					AND permission_id = (SELECT id FROM permission WHERE name = ?)
+				""";
 
 		try (Connection con = Database.connection()) {
-			String query = """
-					DELETE
-					FROM role_permission rp
-						JOIN role r ON r.id = rp.role_id
-					WHERE
-						r.name = ?
-						AND EXISTS (
-							SELECT 1
-							FROM permission
-							WHERE name IN (%s)
-						)
-					""".formatted(placeholders);
-			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, roleName);
-
-			int i = 1;
 			for (String permission : permissions) {
-				stmt.setString(i++, permission);
-			}
+				PreparedStatement stmt = con.prepareStatement(query);
+				stmt.setString(1, roleName);
+				stmt.setString(2, permission);
 
-			int row = stmt.executeUpdate();
-			if (row == 0)
-				throw new SQLException("Delete role failed");
+				int row = stmt.executeUpdate();
+				if (row == 0)
+					listError.add("%s is failed to delete for %s".formatted(permission, roleName));
+			}
 		}
+		return listError;
 	}
 
-	public static void addPermissionRole(String namePermission, String nameRole)
-			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			Role role = getByName(nameRole);
-			int permissionId = PermissionRepository.getIdByName(namePermission);
-			String query = """
-					INSERT INTO role_permission(role_id, permission_id) VALUES (?, ?)
-					""";
-			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setInt(1, role.getId());
-			stmt.setInt(2, permissionId);
-			int row = stmt.executeUpdate();
-			if (row == 0)
-				throw new SQLException("Add permission to role failed");
+	/// NOTE:
+	/// @param permissions
+	/// Using for multiple inserted permissions
+	/// @return listError:
+	/// Exception without preventing other permissions is inserted
+	public static List<String> insertPermissionRole(String roleName, List<String> permissions)
+			throws SQLException, IOException {
+		List<String> listError = new ArrayList<>();
+		if (permissions.isEmpty()) {
+			return listError;
 		}
+		String query = """
+				INSERT INTO role_permission (role_id, permission_id)
+				VALUES (
+					(SELECT id FROM role WHERE name = ?),
+					(SELECT id FROM permission WHERE name = ?)
+				)
+				""";
+
+		try (Connection con = Database.connection()) {
+			for (String permission : permissions) {
+				PreparedStatement stmt = con.prepareStatement(query);
+				stmt.setString(1, roleName);
+				stmt.setString(2, permission);
+
+				int row = stmt.executeUpdate();
+				if (row == 0)
+					listError.add("%s is failed to insert for %s".formatted(permission, roleName));
+			}
+		}
+		return listError;
 	}
 
 	public static boolean existPermissionWithContext(RoleContext ctx, String permission, String accountId)

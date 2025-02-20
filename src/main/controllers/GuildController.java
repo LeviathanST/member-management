@@ -1,7 +1,7 @@
 package controllers;
 
 import dto.*;
-import dto.role.DeletePermissionDTO;
+import dto.role.CDPermissionDTO;
 import exceptions.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -127,43 +127,100 @@ public class GuildController extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String route = (req.getPathInfo() != null) ? req.getPathInfo().substring(1) : "";
+        Cookie[] cookies = req.getCookies();
+        String name = req.getParameter("name");
+        PrintWriter out = res.getWriter();
+        boolean checked;
         try {
+            String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
-                case "roles":
-                    Cookie[] cookies = req.getCookies();
-                    String name = req.getParameter("name");
-                    String accountId = AuthService.handleCookieAndGetAccountId(cookies);
-                    boolean checked = AuthService.checkRoleAndPermission(accountId, name,
+                case "permission":
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.GUILD,
                             "role.crud");
                     if (checked) {
-                        DeletePermissionDTO dto = HttpUtil.getBodyContentFromReq(req, DeletePermissionDTO.class);
-                        RoleRepository.deletePermission(dto.getRoleName(), dto.getPermissions());
-                    } else {
-                        res.getWriter().write(gson.toJson(
-                                new ResponseDTO<>(ResponseStatus.UNAUTHORIZED,
-                                        "FORBIDDEN",
+                        CDPermissionDTO dto = HttpUtil.getBodyContentFromReq(req, CDPermissionDTO.class);
+                        RoleRepository.insertPermissionRole(
+                                GuildRepository.GetCodeByName(name) + "_" + dto.getRoleName(),
+                                dto.getPermissions());
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Add permission to %s successfully!".formatted(dto.getRoleName()),
                                         null)));
+                    } else {
+                        throw new AuthException("FORBIDDEN");
                     }
                     break;
                 default:
-                    res.getWriter().write(gson.toJson(
-                            new ResponseDTO<>(ResponseStatus.NOT_FOUND,
-                                    "NOT FOUND!",
-                                    null)));
-                    break;
+                    throw new NotFoundException("Not found the page!");
             }
         } catch (AuthException e) {
-            res.getWriter().write(gson.toJson(
+            out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
                             null)));
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             logger.info(e.getStackTrace().toString());
-            res.getWriter().write(gson.toJson(
+            out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
                             null)));
+        } catch (NotFoundException e) {
+            out.write(gson.toJson(
+                    new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(),
+                            null)));
+        } finally {
+            out.flush();
+            out.close();
+        }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String route = (req.getPathInfo() != null) ? req.getPathInfo().substring(1) : "";
+        Cookie[] cookies = req.getCookies();
+        String name = req.getParameter("name");
+        PrintWriter out = res.getWriter();
+        boolean checked;
+        try {
+            String accountId = AuthService.handleCookieAndGetAccountId(cookies);
+            switch (route) {
+                case "permission":
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.GUILD,
+                            "role.crud");
+                    if (checked) {
+                        CDPermissionDTO dto = HttpUtil.getBodyContentFromReq(req, CDPermissionDTO.class);
+                        RoleRepository.deletePermission(
+                                GuildRepository.GetCodeByName(name) + "_" + dto.getRoleName(),
+                                dto.getPermissions());
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Delete permission to %s successfully!".formatted(dto.getRoleName()),
+                                        null)));
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
+                    break;
+                default:
+                    throw new NotFoundException("Not found the page!");
+            }
+        } catch (AuthException e) {
+            out.write(gson.toJson(
+                    new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
+                            null)));
+        } catch (SQLException e) {
+            logger.info(e.getStackTrace().toString());
+            out.write(gson.toJson(
+                    new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
+                            null)));
+        } catch (NotFoundException e) {
+            out.write(gson.toJson(
+                    new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(),
+                            null)));
+        } finally {
+            out.flush();
+            out.close();
         }
     }
 
