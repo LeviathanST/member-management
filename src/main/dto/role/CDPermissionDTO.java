@@ -4,7 +4,9 @@ import java.util.List;
 
 import lombok.Getter;
 
-public class DeletePermissionDTO {
+/// NOTE:
+/// Create and Delete permission for role
+public class CDPermissionDTO {
 	@Getter
 	String roleName;
 
