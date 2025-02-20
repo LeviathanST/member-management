@@ -242,14 +242,14 @@ button {
     background-color: #e64a19;
   }
 
-  .add-permission {
+  .update-permission {
     margin-bottom: 15px;
   }
   .role-container{
     display: flex;
     justify-content: space-between;
   }
-  .add-permission button {
+  .update-permission button {
     padding: 10px 15px;
     font-size: 16px;
     background-color: #4caf50;
@@ -259,7 +259,7 @@ button {
     cursor: pointer;
   }
 
-  .add-permission button:hover {
+  .update-permission button:hover {
     background-color: #388e3c;
   }
 </style>
@@ -322,8 +322,8 @@ button {
                 <option value="" selected disabled >None</option>
             </select>
         </div>
-            <div class="add-permission">
-                <button onclick="addNewPermission()">Add New Permission</button>
+            <div class="update-permission">
+                <button onclick="applyChange()">Apply Changes</button>
               </div>
             </div>
                 <div class="permissions-wrapper">
@@ -342,22 +342,21 @@ button {
     </div>
     <script>
 let permissions = JSON.parse('<%=request.getAttribute("permissions")%>');
-                            console.log(permissions)
 let name = '<%=request.getParameter("name")%>';
+let permissionForAdding = new Set(); 
+let permissionForDeleting = new Set();
 
 async function fetchPermissionsOfRole() {
     const role = document.getElementById("role-select").value;
     const route = "<%=request.getContextPath()%>/guild/permission?name=" + name +"&role=" + role;
-        const res = await fetch(route, {
+    const res = await fetch(route, {
         headers: {
             "Accept":"application/json", 
             "Content-Type":"application/json"
     }
         })
         .then(res => res.text())
-        .then(text => {
-            return JSON.parse(text);
-        });
+        .then(text => JSON.parse(text));
     if (res.status != "OK") {
         throw new Error("Failed to fetch permission of role")
     }
@@ -371,44 +370,155 @@ async function fetchPermissionsOfRole() {
     currentPermissions.forEach(permission => {
         const listItem = document.createElement("li");
         listItem.textContent = permission;
+        listItem.dataset.permission = permission;
         const removeButton = document.createElement("button");
         removeButton.textContent = "X";
-        removeButton.onclick = () => removePermission(role, permission);
+        removeButton.onclick = () => removePermission(permission, true);
         listItem.appendChild(removeButton);
         currentList.appendChild(listItem);
     });
     availablePermissions.forEach(permission => {
         const listItem = document.createElement("li");
         listItem.textContent = permission;
+        listItem.dataset.permission = permission;
         const addButton = document.createElement("button");
         addButton.textContent = "+";
-        addButton.onclick = () => addPermission(role, permission);
+        addButton.onclick = () => addPermission(permission, true);
         listItem.appendChild(addButton);
         availableList.appendChild(listItem);
     });
 }
+function fetchPermissions() {
+    const currentList = document.getElementById("current-permissions-list")
+    const currentItem= [...currentList.children].map(item => item);
 
-function addPermission(role, permission) {
-    rolePermissions[role].current.push(permission);
-    rolePermissions[role].available = rolePermissions[role].available.filter(
-        perm => perm !== permission
-    );
-    fetchPermissions();
+    const availableList = document.getElementById("available-permissions-list")
+    let availableItem = [...availableList.children].map(item => item);
+
+    currentList.innerHTML = ""
+    availableList.innerHTML = ""
+    
+    currentItem.forEach(item => {
+        currentList.appendChild(item)
+    })
+
+    availableItem = availableItem.filter(item => !currentItem.includes(item))
+    availableItem.forEach(item => {
+        availableList.appendChild(item)
+    })
+}
+function addPermission(permission, notsaved) {
+    if (notsaved) {
+        permissionForAdding.add(permission);
+    } else {
+        permissionForDeleting.delete(permission);
+    }
+
+    const currentList = document.getElementById("current-permissions-list");
+    const availableList = document.getElementById("available-permissions-list");
+    const itemToRemove = [...availableList.children].find(item => item.dataset.permission === permission);
+
+    if (itemToRemove) {
+        availableList.removeChild(itemToRemove);
+    }
+
+    const listItem = document.createElement("li");
+    listItem.textContent = permission;
+    listItem.dataset.permission = permission;
+
+    if (notsaved) {
+        const notSavingLabel = document.createElement("span");
+        notSavingLabel.textContent = "Not Saved";
+        notSavingLabel.style.color = "red";
+        notSavingLabel.style.marginLeft = "10px";
+        listItem.appendChild(notSavingLabel);
+    }
+
+    const removeButton = document.createElement("button");
+    removeButton.textContent = "X";
+    removeButton.onclick = () => removePermission(permission, !notsaved);
+    listItem.appendChild(removeButton);
+
+    currentList.appendChild(listItem);
 }
 
-function removePermission(role, permission) {
-    rolePermissions[role].available.push(permission);
-    rolePermissions[role].current = rolePermissions[role].current.filter(
-        perm => perm !== permission
-    );
-    fetchPermissions();
+function removePermission(permission, notsaved) {
+    if (notsaved) {
+        permissionForDeleting.add(permission);
+    } else {
+        permissionForAdding.delete(permission);
+    }
+
+    const currentList = document.getElementById("current-permissions-list");
+    const availableList = document.getElementById("available-permissions-list");
+    const itemToRemove = [...currentList.children].find(item => item.dataset.permission === permission);
+
+    if (itemToRemove) {
+        currentList.removeChild(itemToRemove);
+    }
+
+    const listItem = document.createElement("li");
+    listItem.textContent = permission;
+    listItem.dataset.permission = permission;
+
+    if (notsaved) {
+        const notSavingLabel = document.createElement("span");
+        notSavingLabel.textContent = "Not Saved";
+        notSavingLabel.style.color = "red";
+        notSavingLabel.style.marginLeft = "10px";
+        listItem.appendChild(notSavingLabel);
+    }
+
+    const addButton = document.createElement("button");
+    addButton.textContent = "+";
+    addButton.onclick = () => addPermission(permission, !notsaved);
+    listItem.appendChild(addButton);
+
+    availableList.appendChild(listItem);
 }
-function addNewPermission() {
-    const newPermission = prompt("Enter the new permission name:");
-    if (newPermission) {
-      const role = document.getElementById("role-select").value;
-      rolePermissions[role].available.push(newPermission);
-      fetchPermissions();
+async function applyChange() {
+    const role = document.getElementById("role-select").value;
+    const route = "<%=request.getContextPath()%>/guild/permission?name=" + name;
+
+    const data1 = {
+        roleName: role,
+        permissions: Array.from(permissionForAdding)
+    }
+    const res1 = await fetch(route, {
+        method: "POST",
+        headers: {
+            "Accept":"application/json", 
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify(data1)
+    }).then(res => {
+        const text = res.text()
+        console.log(text)
+        return text
+    }).then(text => JSON.parse(text))
+
+    const data2 = {
+        roleName: role,
+        permissions: Array.from(permissionForDeleting)
+    }
+    const res2 = await fetch(route, {
+        method: "DELETE",
+        headers: {
+            "Accept":"application/json", 
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify(data2)
+    }).then(res => {
+        const text = res.text()
+        console.log(text)
+        return text
+    }).then(text => JSON.parse(text))
+
+    if (res1.status == "OK") {
+        permissionForAdding.clear()
+    }
+    if (res2.status == "OK") {
+        permissionForDeleting.clear()
     }
   }
     </script>
