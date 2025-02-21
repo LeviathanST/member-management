@@ -2,6 +2,7 @@ package controllers;
 
 import dto.*;
 import dto.role.CDPermissionDTO;
+import dto.role.AddUserRoleDTO;
 import exceptions.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -136,6 +137,23 @@ public class GuildController extends HttpServlet {
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
+                case "member":
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.GUILD,
+                            "member.crud");
+                    if (checked) {
+                        AddUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, AddUserRoleDTO.class);
+                        RoleRepository.addDefaultForUserByPrefix(dto.getUsername(),
+                                ApplicationService.getCodeFromName(name),
+                                "LIKE");
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Add user %s to %s guild successful!".formatted(dto.getUsername(), name),
+                                        null)));
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
+                    break;
                 case "permission":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.GUILD,
@@ -148,6 +166,55 @@ public class GuildController extends HttpServlet {
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Add permission to %s successfully!".formatted(dto.getRoleName()),
+                                        null)));
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
+                    break;
+                default:
+                    throw new NotFoundException("Not found the page!");
+            }
+        } catch (AuthException e) {
+            out.write(gson.toJson(
+                    new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
+                            null)));
+        } catch (SQLException e) {
+            logger.info(e.getStackTrace().toString());
+            out.write(gson.toJson(
+                    new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
+                            null)));
+        } catch (NotFoundException e) {
+            out.write(gson.toJson(
+                    new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(),
+                            null)));
+        } finally {
+            out.flush();
+            out.close();
+        }
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String route = (req.getPathInfo() != null) ? req.getPathInfo().substring(1) : "";
+        Cookie[] cookies = req.getCookies();
+        String name = req.getParameter("name");
+        PrintWriter out = res.getWriter();
+        boolean checked;
+        try {
+            String accountId = AuthService.handleCookieAndGetAccountId(cookies);
+            switch (route) {
+                case "permission":
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.GUILD,
+                            "role.crud");
+                    if (checked) {
+                        CDPermissionDTO dto = HttpUtil.getBodyContentFromReq(req, CDPermissionDTO.class);
+                        RoleRepository.deletePermission(
+                                GuildRepository.GetCodeByName(name) + "_" + dto.getRoleName(),
+                                dto.getPermissions());
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Delete permission to %s successfully!".formatted(dto.getRoleName()),
                                         null)));
                     } else {
                         throw new AuthException("FORBIDDEN");
