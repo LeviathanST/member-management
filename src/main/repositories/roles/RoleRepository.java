@@ -13,8 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import config.Database;
 import constants.RoleContext;
+import dto.role.GetUserFromPrefixDTO;
 import exceptions.NotFoundException;
 import models.Role;
+import utils.Pressessor;
 
 public class RoleRepository {
 	public static List<Role> getAll() throws SQLException, IOException, ClassNotFoundException {
@@ -108,14 +110,14 @@ public class RoleRepository {
 					INSERT INTO user_role (account_id, role_id)
 					VALUES (
 						(SELECT id FROM user_account WHERE username = ?),
-						(SELECT id FROM role WHERE name %s ? AND default = true),
+						(SELECT id FROM role WHERE name %s ? AND is_default = true)
 					)
 				""".formatted(ctx);
 
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
 			stmt.setString(1, username);
-			stmt.setString(2, prefix);
+			stmt.setString(2, prefix + "_%");
 
 			int row = stmt.executeUpdate();
 			if (row <= 0) {
@@ -183,22 +185,25 @@ public class RoleRepository {
 		}
 	}
 
-	public static List<String> getUsersByPrefix(String prefix) throws SQLException {
+	public static List<GetUserFromPrefixDTO> getUsersByPrefix(String prefix) throws SQLException {
 		String query = """
-					SELECT up.full_name
+					SELECT up.full_name AS full_name, r.name AS role
 					FROM user_profile up
 						JOIN user_role ur ON ur.account_id = up.account_id
 						JOIN role r ON r.id = ur.role_id
 					WHERE r.name LIKE ?
 				""";
-		List<String> list = new ArrayList<>();
+		List<GetUserFromPrefixDTO> list = new ArrayList<>();
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
-			stmt.setString(1, prefix);
+			stmt.setString(1, prefix + "_%");
 
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
-				list.add(rs.getString("full_name"));
+				GetUserFromPrefixDTO user = new GetUserFromPrefixDTO();
+				user.setFullName(rs.getString("full_name"));
+				user.setRole(Pressessor.removePrefixFromRole(rs.getString("role")));
+				list.add(user);
 			}
 		}
 		return list;
