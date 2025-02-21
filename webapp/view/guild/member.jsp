@@ -1,0 +1,300 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="java.util.List" %>
+<%@ page import="dto.role.GetUserFromPrefixDTO" %>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JSP Page</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #1c1c1c;
+                color: #fff;
+            }
+
+            .navbar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem;
+                background-color: #222;
+            }
+
+            .navbar-logo {
+                color: #e32b2b;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .navbar-links {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+            }
+
+            .navbar-links li {
+                margin-left: 1rem;
+                position: relative;
+            }
+
+            .dropdown .drop-btn {
+                background-color: #444;
+                color: white;
+                margin-right: 20px;
+                padding: 1rem 1rem;
+                border: none;
+                cursor: pointer;
+                border-radius: 0.5rem;
+            }
+
+            .dropdown-content {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                min-width: 170px;
+                background-color: #333;
+                box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+                z-index: 1;
+                border-radius: 0.5rem;
+            }
+
+            .dropdown-content a {
+                padding: 0.5rem 1rem;
+                display: block;
+                color: #fff;
+                text-decoration: none;
+            }
+
+            .dropdown-content a:hover {
+                background-color: #e32b2b;
+            }
+
+            .dropdown:hover .dropdown-content {
+                display: block;
+            }
+            .container {
+                display: flex;
+                width: 100%;
+            }
+
+            .sidebar {
+                width: 250px;
+                height: 100vh;
+                background-color: #222222;
+                top: 0;
+                left: 0;
+                padding-top: 20px;
+                box-sizing: border-box;
+            }
+
+            .sidebar ul {
+                list-style-type: none;
+                padding: 0;
+            }
+
+            .sidebar ul li {
+                margin: 15px 0;
+            }
+
+            .sidebar ul li a {
+                color: #844A4D;
+                text-decoration: none;
+                font-weight: normal;
+                display: block;
+                padding: 10px;
+                border-radius: 5px;
+                font-size: 28px;
+                transition: background-color 0.3s, font-weight 0.3s;
+            }
+            .sidebar ul li a:hover {
+                background-color: #714545;
+                color: #EA4850;
+            }
+
+            .sidebar ul li a.active {
+                font-weight: bold;
+                background-color: #714545;
+                color: #EA4850;
+            }
+            .member-list-container {
+                width: 60%;
+                padding: 20px;
+                background-color: #F5F5F5;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin: auto;
+            }
+            h1 {
+                text-align: left;
+                color: red;
+            }
+
+            .member-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                border-bottom: 1px solid #ddd;
+            }
+
+            .member-info {
+                display: flex;
+                flex-direction: column;
+                color: #1c1c1c;
+            }
+
+            .member-actions button {
+                margin-left: 10px;
+                padding: 5px 10px;
+                border: none;
+                border-radius: 4px;
+                color: white;
+                cursor: pointer;
+            }
+
+            .btn-ban {
+                background-color: #ff9800;
+            }
+
+            .btn-edit {
+                background-color: #007bff;
+            }
+
+            .btn-delete {
+                background-color: #dc3545;
+            }
+
+            .add-member {
+                text-align: left;
+                margin-bottom: 20px;
+            }
+
+            .add-member button {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                background-color: #28a745;
+                color: white;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar">
+            <div class="navbar-logo">
+                <img class="logo" height="70px" width="70px"
+                     src="https://fosigrz.stripocdn.email/content/guids/CABINET_4c786d105fcb845e57f209bb30d51b9deb985ec5526bfc650f087fefc6ca16f6/images/logo_new.png"
+                     alt="Logo" />
+            </div>
+            <ul class="navbar-links">
+                <li class="dropdown">
+                    <button class="drop-btn">Quản lý tài khoản</button>
+                    <div class="dropdown-content">
+                        <a href="userList.jsp">Danh sách tài khoản</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <button class="drop-btn">Quản lý sự kiện</button>
+                    <div class="dropdown-content">
+                        <a href="roleList.jsp">Danh sách sự kiện</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <button class="drop-btn">Quản lý khóa học</button>
+                    <div class="dropdown-content">
+                        <a href="courseList.jsp">Danh sách khóa học</a>
+                    </div>
+                </li>
+                <li class="dropdown"> <a href="main.jsp" class="logout"><button class="drop-btn">Đăng xuất</button></a></li>
+            </ul>
+        </nav>
+        <div class="container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <ul>
+                    <li><a href="#"class="active">Member</a></li>
+                    <li><a href="#">Role</a></li>
+                    <li><a href="#" >Event</a></li>
+                    <li><a href="#" >Information</a></li>
+                </ul>
+            </div>
+            <div class="member-list-container">
+                <h1>Member List</h1>
+
+                <div class="add-member">
+                    <button onclick="addMember()">Add Member</button>
+                </div>
+        <div id="member-list">
+            <% 
+                List<GetUserFromPrefixDTO> members = (List<GetUserFromPrefixDTO>) request.getAttribute("members");
+                if (!members.isEmpty()) {
+                    for (GetUserFromPrefixDTO member : members) {
+                        String fullName = member.getFullName();
+                        String role = member.getRole();
+
+            %>
+                <div class="member-item">
+                    <div class="member-info">
+                        <p><strong>FullName:</strong> <%= fullName %></p>
+                        <p><strong>Role:</strong> <%= role %></p>
+                    </div>
+                    <div class="member-actions">
+                        <button class="btn-ban" onclick="banMember('<%= fullName %>')">Ban</button>
+                        <button class="btn-edit" onclick="editMember('<%= fullName %>')">Edit</button>
+                        <button class="btn-delete" onclick="deleteMember('<%= fullName %>')">Delete</button>
+                    </div>
+                </div>
+            <% 
+                    }
+                } else { 
+            %>
+                <p>No members found.</p>
+            <% } %>
+        </div>
+            </div>
+
+            <script>
+            const name = '<%=request.getParameter("name")%>'
+        async function addMember() {
+        const route = "<%=request.getContextPath()%>/guild/members?name=" + name;
+        const username = prompt("Enter the username:");
+        if (username) {
+        const data = {
+            username: username
+        }
+        const res = await fetch(route, {
+            method: "POST",
+            headers: {
+            "Accept":"application/json", 
+            "Content-Type":"application/json"
+            },
+            body: JSON.stringify(data)
+        }).then(res => res.text()).then(text => JSON.parse(text))
+        console.log(res)
+        alert(res.message);
+        } else {
+            alert("Username cannot be empty.");
+        }}
+        function banMember(studentCode) {
+            alert(`Banning student: ${studentCode}`);
+        }
+
+        function editMember(studentCode) {
+            alert(`Editing student: ${studentCode}`);
+        }
+
+        function deleteMember(studentCode) {
+            if (confirm(`Are you sure you want to delete member with student code ${studentCode}?`)) {
+                alert(`Member with student code ${studentCode} has been deleted.`);
+            }
+        }
+            </script>
+    </body>
+</html>
+
