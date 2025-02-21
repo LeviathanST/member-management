@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,6 @@ import config.Database;
 import constants.RoleContext;
 import exceptions.NotFoundException;
 import models.Role;
-import repositories.permissions.PermissionRepository;
 
 public class RoleRepository {
 	public static List<Role> getAll() throws SQLException, IOException, ClassNotFoundException {
@@ -99,6 +97,111 @@ public class RoleRepository {
 			if (row == 0)
 				throw new SQLException("Delete role failed : now row is affected!");
 		}
+	}
+
+	// -----------------------------------------------------------------------------------
+	/// NOTE:
+	/// @param ctx:
+	/// LIKE or NOTE LIKE for filter
+	public static void addDefaultForUserByPrefix(String username, String prefix, String ctx) throws SQLException {
+		String query = """
+					INSERT INTO user_role (account_id, role_id)
+					VALUES (
+						(SELECT id FROM user_account WHERE username = ?),
+						(SELECT id FROM role WHERE name %s ? AND default = true),
+					)
+				""".formatted(ctx);
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, username);
+			stmt.setString(2, prefix);
+
+			int row = stmt.executeUpdate();
+			if (row <= 0) {
+				throw new SQLException("Add default role for user is failed");
+			}
+		}
+	}
+
+	/// NOTE:
+	/// @param prefix:
+	/// - We need remove all previous role in the same guild, crew, application
+	/// before insert new one for updating.
+	/// @param roleName:
+	/// - Specified role is assigned for user.
+	public static void updateForUserByName(String username, String prefix, String roleName) throws SQLException {
+		String query = """
+					DELETE FROM user_role
+					WHERE
+						account_id = (SELECT id FROM user_account WHERE username = ?)
+						AND role_id IN (SELECT id FROM role WHERE name LIKE ?);
+
+					INSERT INTO user_role (account_id, role_id)
+					VALUES (
+						(SELECT id FROM user_account WHERE username = ?),
+						(SELECT id FROM role WHERE name = ?)
+					);
+				""";
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, username);
+			stmt.setString(2, prefix);
+			stmt.setString(3, username);
+			stmt.setString(4, roleName);
+
+			int row = stmt.executeUpdate();
+			if (row <= 0) {
+				throw new SQLException("Add default role for user is failed");
+			}
+		}
+	}
+
+	/// NOTE:
+	/// - Delete a user from guild, crew even application by prefix.
+	/// - Because we use the prefix in the role to determine whether the user can
+	/// access the specified resource or not.
+	public static void deleteUserFromPrefix(String username, String prefix) throws SQLException {
+		String query = """
+					DELETE FROM user_role
+					WHERE
+						account_id = (SELECT id FROM user_account WHERE username = ?)
+						AND role_id IN (SELECT id FROM role WHERE name LIKE ?);
+
+				""";
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, username);
+			stmt.setString(2, prefix);
+
+			int row = stmt.executeUpdate();
+			if (row <= 0) {
+				throw new SQLException("Add default role for user is failed");
+			}
+		}
+	}
+
+	public static List<String> getUsersByPrefix(String prefix) throws SQLException {
+		String query = """
+					SELECT up.full_name
+					FROM user_profile up
+						JOIN user_role ur ON ur.account_id = up.account_id
+						JOIN role r ON r.id = ur.role_id
+					WHERE r.name LIKE ?
+				""";
+		List<String> list = new ArrayList<>();
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, prefix);
+
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				list.add(rs.getString("full_name"));
+			}
+		}
+		return list;
 	}
 
 	/// NOTE:
