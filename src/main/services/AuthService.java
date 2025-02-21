@@ -15,6 +15,7 @@ import models.CrewPermission;
 import models.GuildPermission;
 import models.Permission;
 import models.UserProfile;
+import repositories.GuildRepository;
 import repositories.permissions.CrewPermissionRepository;
 import repositories.permissions.GuildPermissionRepository;
 import repositories.permissions.PermissionRepository;
@@ -256,10 +257,11 @@ public class AuthService {
 	/// TODO: Making exception can be more context
 	/// - NOT FOUND GUILD, CREW
 	/// - NOT FOUND SPECIFIED LEVEL OF CREW
-	public static boolean checkRoleAndPermission(String accountId, String name, RoleContext ctx, String permission)
-			throws SQLException, AuthException {
-
-		boolean checked = RoleRepository.existPermissionWithPrefix(name, ctx,
+	public static boolean checkRoleAndPermission(String accountId, String name, RoleContext ctx,
+			String permission)
+			throws SQLException, AuthException, NotFoundException {
+		String prefix = GuildRepository.GetCodeByName(name);
+		boolean checked = RoleRepository.existPermissionWithPrefix(prefix, ctx,
 				permission,
 				accountId);
 		return checked;

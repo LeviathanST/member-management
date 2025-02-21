@@ -62,19 +62,19 @@ public class ApplicationController extends HttpServlet {
         } catch (SQLException | ClassNotFoundException e) {
             logger.error(e.getStackTrace().toString());
             req.setAttribute("response", gson.toJson(
-                    new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
+                    new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
                             null)));
             redirectView = NOTIFYERROR_VIEW;
         } catch (NotFoundException e) {
             logger.error(e.getStackTrace().toString());
             req.setAttribute("response", gson.toJson(
-                    new ResponseDTO<UserProfile>(ResponseStatus.BAD_REQUEST, e.getMessage(),
+                    new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(),
                             null)));
             redirectView = NOTIFYERROR_VIEW;
         } catch (AuthException e) {
             logger.error(e.getStackTrace().toString());
             req.setAttribute("response", gson.toJson(
-                    new ResponseDTO<UserProfile>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
+                    new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
                             null)));
             redirectView = NOTIFYERROR_VIEW;
         } finally {
@@ -93,7 +93,7 @@ public class ApplicationController extends HttpServlet {
                     boolean checked = AuthService.checkPermissionWithContext(
                             accountId,
                             RoleContext.APP,
-                            "app.user.profile.update");
+                            "user.profile.update");
                     if (checked) {
                         UpdateProfileDTO data = HttpUtil.getBodyContentFromReq(req,
                                 UpdateProfileDTO.class);
@@ -113,17 +113,17 @@ public class ApplicationController extends HttpServlet {
         } catch (SQLException | ClassNotFoundException e) {
             logger.error(e.getStackTrace().toString());
             res.getWriter().write(gson.toJson(
-                    new ResponseDTO<UserProfile>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
+                    new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
                             null)));
         } catch (TokenException | NotFoundException | IllegalArgumentException e) {
             logger.error(e.getStackTrace().toString());
             res.getWriter().write(gson.toJson(
-                    new ResponseDTO<UserProfile>(ResponseStatus.BAD_REQUEST, e.getMessage(),
+                    new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(),
                             null)));
         } catch (AuthException e) {
             logger.error(e.getStackTrace().toString());
             res.getWriter().write(gson.toJson(
-                    new ResponseDTO<UserProfile>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
+                    new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
                             null)));
         }
     }

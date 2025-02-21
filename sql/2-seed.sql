@@ -2,6 +2,20 @@ INSERT INTO user_account (username, hashed_password) VALUES
 	('president', '$2a$04$JPF2tFVm7Ag1mRiSA36dzufKFtEjodBKixhtkm6bifpKPWd5QTS42'),
 	('member', '$2a$04$JPF2tFVm7Ag1mRiSA36dzufKFtEjodBKixhtkm6bifpKPWd5QTS42');
 
+INSERT INTO generation(id) VALUES (19);
+
+INSERT INTO user_profile (account_id, full_name, sex, student_code, email, contact_email, generation_id, dob) 
+VALUES (
+	(SELECT id FROM user_account WHERE username = "member"),
+	'Nguyen Van Test',
+	'male',
+	'SE000000',
+	'test@gmail.com',
+	'test@gmail.com',
+	(SELECT MAX(id) FROM generation),
+	(SELECT CURRENT_TIMESTAMP)
+);
+
 -- Application
 INSERT INTO permission (name) VALUES ('role.crud'); 
 INSERT INTO permission (name) VALUES ('role.add_permission'); 
@@ -33,23 +47,29 @@ INSERT INTO guild (code, name) VALUES ('T','Technical');
 INSERT INTO guild (code, name) VALUES ('HR','Human Resources');
 INSERT INTO guild (code, name) VALUES ('P','Plan');
 
-INSERT INTO role (name) VALUES ('Technical_Leader');
+INSERT INTO role (name) VALUES ('T_Leader');
+INSERT INTO role (name) VALUES ('T_Member');
+INSERT INTO role (name) VALUES ('M_Member');
+INSERT INTO role (name) VALUES ('HR_Member');
 
 INSERT INTO permission (context, name) VALUES ('guild', 'role.crud');
+INSERT INTO permission (context, name) VALUES ('guild', 'event.crud');
+INSERT INTO permission (context, name) VALUES ('guild', 'edit_name'); -- edit guild name
+INSERT INTO permission (context, name) VALUES ('guild', 'delete'); -- delete guild 
 INSERT INTO role_permission (role_id, permission_id) VALUES (
-	(SELECT id FROM role WHERE name = 'Technical_Leader'), 
+	(SELECT id FROM role WHERE name = 'T_Leader'), 
 	(SELECT id FROM permission WHERE name = 'role.crud' AND context = 'guild')
 );
 INSERT INTO user_role (account_id, role_id) VALUES (
 		(SELECT id FROM user_account WHERE username = 'member'),
-		(SELECT id FROM role WHERE name = 'Technical_Leader')
+		(SELECT id FROM role WHERE name = 'T_Leader')
 );
 
 -- Crew
-INSERT INTO crew (code, name) VALUES ('BE1', 'Backend 1');
-INSERT INTO crew (code, name) VALUES ('BE2', 'Backend 2');
-INSERT INTO crew (code, name) VALUES ('BE3', 'Backend 3');
-INSERT INTO crew (code, name) VALUES ('BE4', 'Backend 4');
+INSERT INTO crew (code, name) VALUES ('BE1', 'BackEnd 1');
+INSERT INTO crew (code, name) VALUES ('BE2', 'BackEnd 2');
+INSERT INTO crew (code, name) VALUES ('BE3', 'BackEnd 3');
+INSERT INTO crew (code, name) VALUES ('BE4', 'BackEnd 4');
 
 INSERT INTO permission (context, name) VALUES ('crew', 'view');
 INSERT INTO permission (context, name) VALUES ('crew', 'role.crud');
@@ -69,6 +89,5 @@ INSERT INTO user_role (account_id, role_id) VALUES (
 );
 
 
-INSERT INTO generation(id) VALUES (19);
 
 

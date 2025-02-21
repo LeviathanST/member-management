@@ -376,4 +376,17 @@ public class ApplicationService extends AuthService {
         return new Timestamp(parsedDate.getTime());
     }
 
+    /// NOTE:
+    /// Using to get code from guild or crew name
+    /// Sample: Technical -> T, BackEnd -> BE
+    public static String getCodeFromName(String name) {
+        StringBuilder result = new StringBuilder();
+
+        for (char c : name.toCharArray()) {
+            if (Character.isUpperCase(c)) {
+                result.append(c);
+            }
+        }
+        return result.toString();
+    }
 }

@@ -171,4 +171,19 @@ public class GuildRepository {
 			return guildNames;
 		}
 	}
+
+	public static String GetCodeByName(String name) throws SQLException, NotFoundException {
+		String query = "SELECT code FROM guild WHERE name = ?";
+		try (Connection con = Database.connection()) {
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, name);
+			ResultSet rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				return rs.getString("code");
+			}
+
+			throw new NotFoundException("Not found guild code of: " + name);
+		}
+	}
 }
