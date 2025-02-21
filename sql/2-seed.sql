@@ -45,6 +45,7 @@ INSERT INTO guild (code, name) VALUES ('P','Plan');
 INSERT INTO role (name) VALUES ('T_Leader');
 INSERT INTO role (is_default, name) VALUES (true, 'T_Member');
 
+INSERT INTO permission (context, name) VALUES ('guild', 'view');
 INSERT INTO permission (context, name) VALUES ('guild', 'delete');
 INSERT INTO permission (context, name) VALUES ('guild', 'update');
 INSERT INTO permission (context, name) VALUES ('guild', 'role.crud');
@@ -56,17 +57,16 @@ INSERT INTO role_permission (role_id, permission_id) VALUES (
 ), (
 	(SELECT id FROM role WHERE name = 'T_Leader'), 
 	(SELECT id FROM permission WHERE name = 'member.crud' AND context = 'guild')
+), (
+	(SELECT id FROM role WHERE name = 'T_Leader'), 
+	(SELECT id FROM permission WHERE name = 'view' AND context = 'guild')
+);
+INSERT INTO role_permission (role_id, permission_id) VALUES (
+	(SELECT id FROM role WHERE name = 'T_Member'), 
+	(SELECT id FROM permission WHERE name = 'view' AND context = 'guild')
 );
 INSERT INTO user_role (account_id, role_id) VALUES (
 		(SELECT id FROM user_account WHERE username = 'member'),
-		(SELECT id FROM role WHERE name = 'T_Leader')
-);
-INSERT INTO user_role (account_id, role_id) VALUES (
-		(SELECT id FROM user_account WHERE username = 'member1'),
-		(SELECT id FROM role WHERE name = 'T_Leader')
-);
-INSERT INTO user_role (account_id, role_id) VALUES (
-		(SELECT id FROM user_account WHERE username = 'member2'),
 		(SELECT id FROM role WHERE name = 'T_Leader')
 );
 
