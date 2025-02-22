@@ -2,7 +2,7 @@ package dto.role;
 
 import lombok.Getter;
 
-public class AddUserRoleDTO {
+public class CDUserRoleDTO {
 	@Getter
 	String username;
 }
