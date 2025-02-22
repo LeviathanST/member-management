@@ -13,6 +13,46 @@
                 background-color: #1c1c1c;
                 color: #fff;
             }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 20px;
+        width: 30%;
+        border-radius: 10px;
+        text-align: center;
+        color: #000;
+    }
+
+    .close {
+        float: right;
+        font-size: 28px;
+        cursor: pointer;
+    }
+
+    .modal-content button {
+        margin-top: 10px;
+        padding: 10px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .modal-content button:hover {
+        background-color: #0056b3;
+    }
 
             .navbar {
                 display: flex;
@@ -230,11 +270,23 @@
                 <div class="add-member">
                     <button onclick="addMember()">Add Member</button>
                 </div>
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h2>Edit Member Role</h2>
+        <p><strong>Full Name:</strong> <span id="modalFullName"></span></p>
+        <p><strong>Current Role:</strong> <span id="modalCurrentRole"></span></p>
+        <label for="roleSelect">Select New Role:</label>
+        <select id="roleSelect"></select>
+        <button onclick='confirmEdit()'>Apply Changes</button>
+    </div>
+</div>
         <div id="member-list">
             <% 
                 List<GetUserFromPrefixDTO> members = (List<GetUserFromPrefixDTO>) request.getAttribute("members");
                 if (!members.isEmpty()) {
                     for (GetUserFromPrefixDTO member : members) {
+                        String username = member.getUsername();
                         String fullName = member.getFullName();
                         String role = member.getRole();
 
@@ -246,7 +298,7 @@
                     </div>
                     <div class="member-actions">
                         <button class="btn-ban" onclick="banMember('<%= fullName %>')">Ban</button>
-                        <button class="btn-edit" onclick="editMember('<%= fullName %>')">Edit</button>
+                        <button class="btn-edit" onclick="editMember('<%= username %>', '<%= fullName %>', '<%= role %>')">Edit</button>
                         <button class="btn-delete" onclick="deleteMember('<%= fullName %>')">Delete</button>
                     </div>
                 </div>
@@ -260,40 +312,94 @@
             </div>
 
             <script>
+            const roles = JSON.parse('<%=request.getAttribute("roles")%>')
             const name = '<%=request.getParameter("name")%>'
-        async function addMember() {
-        const route = "<%=request.getContextPath()%>/guild/members?name=" + name;
-        const username = prompt("Enter the username:");
-        if (username) {
-        const data = {
-            username: username
-        }
-        const res = await fetch(route, {
-            method: "POST",
-            headers: {
-            "Accept":"application/json", 
-            "Content-Type":"application/json"
-            },
-            body: JSON.stringify(data)
-        }).then(res => res.text()).then(text => JSON.parse(text))
-        console.log(res)
-        alert(res.message);
-        } else {
-            alert("Username cannot be empty.");
-        }}
-        function banMember(studentCode) {
-            alert(`Banning student: ${studentCode}`);
-        }
-
-        function editMember(studentCode) {
-            alert(`Editing student: ${studentCode}`);
-        }
-
-        function deleteMember(studentCode) {
-            if (confirm(`Are you sure you want to delete member with student code ${studentCode}?`)) {
-                alert(`Member with student code ${studentCode} has been deleted.`);
+            let selectedUsername = "";
+            async function addMember() {
+                const route = "<%=request.getContextPath()%>/guild/members?name=" + name;
+                const username = prompt("Enter the username:");
+                if (username) {
+                    const data = {
+                        username: username
+                    }
+                    const res = await fetch(route, {
+                        method: "POST",
+                        headers: {
+                        "Accept":"application/json", 
+                        "Content-Type":"application/json"
+                        },
+                        body: JSON.stringify(data)
+                    }).then(res => res.text()).then(text => JSON.parse(text))
+                    alert(res.message);
+                } else {
+                    alert("Username cannot be empty.");
+                }
             }
-        }
+
+            function editMember(username, fullName, currentRole) {
+                    selectedUsername = username;
+
+                    document.getElementById("modalFullName").textContent = fullName;
+                    document.getElementById("modalCurrentRole").textContent = currentRole;
+
+                    const roleSelect = document.getElementById("roleSelect");
+                    roleSelect.innerHTML = "";
+
+                    roles.forEach(role => {
+                        let option = document.createElement("option");
+                        option.value = role;
+                        option.textContent = role;
+                        if (role === currentRole) option.selected = true;
+                        roleSelect.appendChild(option);
+                    });
+
+                    document.getElementById("editModal").style.display = "block";
+            }
+            function closeEditModal() {
+                document.getElementById("editModal").style.display = "none";
+            }
+            async function confirmEdit() {
+                const newRole = document.getElementById("roleSelect").value;
+
+                const route = "<%=request.getContextPath()%>/guild/members?name=" + name;
+                const data = {
+                    username: selectedUsername,
+                    roleName: newRole
+                };
+
+                try {
+                    const res = await fetch(route, {
+                        method: "PUT",
+                        headers: {
+                            "Accept": "application/json",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    }).then(res => res.json());
+                    alert(res.message);
+                    closeEditModal();
+                } catch (error) {
+                    alert("Failed to update role. Please try again.");
+                }
+            }
+
+            async function deleteMember(username) {
+                const route = "<%=request.getContextPath()%>/guild/members?name=" + name;
+                    if (confirm(`Are you sure you want to delete member ${username}?`)) {
+                const data = {
+                    username: username
+                }
+                const res = await fetch(route, {
+                    method: "DELETE",
+                    headers: {
+                    "Accept":"application/json", 
+                    "Content-Type":"application/json"
+                    },
+                    body: JSON.stringify(data)
+                }).then(res => res.text()).then(text => JSON.parse(text))
+                    alert(res.message);
+                   }
+                }
             </script>
     </body>
 </html>
