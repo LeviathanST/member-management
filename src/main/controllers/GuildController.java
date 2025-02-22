@@ -3,7 +3,8 @@ package controllers;
 import dto.*;
 import dto.role.CDPermissionDTO;
 import dto.role.GetUserFromPrefixDTO;
-import dto.role.AddUserRoleDTO;
+import dto.role.CDUserRoleDTO;
+import dto.role.UpdateUserRoleDTO;
 import exceptions.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -41,7 +42,6 @@ import services.ApplicationService;
 import services.AuthService;
 import services.GuildService;
 import utils.HttpUtil;
-import utils.Pressessor;
 
 @WebServlet("/guild/*")
 public class GuildController extends HttpServlet {
@@ -67,7 +67,11 @@ public class GuildController extends HttpServlet {
                 case "members":
                     checked = AuthService.checkRoleAndPermission(accountId, name, RoleContext.GUILD,
                             "view");
+
                     if (checked) {
+                        List<String> roles = RoleRepository.getAllByPrefix(ApplicationService.getCodeFromName(name));
+                        req.setAttribute("roles", gson.toJson(roles));
+
                         List<GetUserFromPrefixDTO> members = RoleRepository
                                 .getUsersByPrefix(ApplicationService.getCodeFromName(name));
                         req.setAttribute("members", members);
@@ -157,7 +161,7 @@ public class GuildController extends HttpServlet {
                             RoleContext.GUILD,
                             "member.crud");
                     if (checked) {
-                        AddUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, AddUserRoleDTO.class);
+                        CDUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDUserRoleDTO.class);
                         RoleRepository.addDefaultForUserByPrefix(dto.getUsername(),
                                 ApplicationService.getCodeFromName(name),
                                 "LIKE");
@@ -218,18 +222,18 @@ public class GuildController extends HttpServlet {
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
-                case "permission":
+                case "members":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.GUILD,
-                            "role.crud");
+                            "member.crud");
                     if (checked) {
-                        CDPermissionDTO dto = HttpUtil.getBodyContentFromReq(req, CDPermissionDTO.class);
-                        RoleRepository.deletePermission(
-                                GuildRepository.GetCodeByName(name) + "_" + dto.getRoleName(),
-                                dto.getPermissions());
+                        UpdateUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, UpdateUserRoleDTO.class);
+                        RoleRepository.updateSpecifiedForUser(
+                                ApplicationService.getCodeFromName(name),
+                                dto.getUsername(),
+                                dto.getRoleName());
                         out.write(gson.toJson(
-                                new ResponseDTO<>(ResponseStatus.OK,
-                                        "Delete permission to %s successfully!".formatted(dto.getRoleName()),
+                                new ResponseDTO<>(ResponseStatus.OK, "Update user successful!",
                                         null)));
                     } else {
                         throw new AuthException("FORBIDDEN");
@@ -243,7 +247,8 @@ public class GuildController extends HttpServlet {
                     new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
                             null)));
         } catch (SQLException e) {
-            logger.info(e.getStackTrace().toString());
+            logger.info(e.getMessage());
+            e.printStackTrace();
             out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
                             null)));
@@ -267,6 +272,21 @@ public class GuildController extends HttpServlet {
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
+                case "members":
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.GUILD,
+                            "member.crud");
+                    if (checked) {
+                        CDUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDUserRoleDTO.class);
+                        RoleRepository.deleteUserFromPrefix(dto.getUsername(),
+                                ApplicationService.getCodeFromName(name));
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Delete %s from %s successfully!".formatted(dto.getUsername(), name),
+                                        null)));
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
                 case "permission":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.GUILD,
@@ -292,7 +312,8 @@ public class GuildController extends HttpServlet {
                     new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
                             null)));
         } catch (SQLException e) {
-            logger.info(e.getStackTrace().toString());
+            logger.info(e.getMessage());
+            e.printStackTrace();
             out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
                             null)));

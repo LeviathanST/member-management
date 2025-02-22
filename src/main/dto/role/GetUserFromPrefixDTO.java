@@ -6,6 +6,10 @@ import lombok.Setter;
 public class GetUserFromPrefixDTO {
 	@Getter
 	@Setter
+	String username;
+
+	@Getter
+	@Setter
 	String fullName;
 
 	@Getter
