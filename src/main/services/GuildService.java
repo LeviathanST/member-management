@@ -778,6 +778,7 @@ public class GuildService {
 		}
 	}
 
+	// ----------------------------------------------------
 	public static List<String> getAllRolesByGuildName(String name) throws SQLException, NotFoundException {
 		String prefix = GuildRepository.GetCodeByName(name);
 		return RoleRepository.getAllByPrefix(prefix)

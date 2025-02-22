@@ -7,16 +7,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import config.Database;
 import constants.RoleContext;
+import dto.role.GetUserFromPrefixDTO;
 import exceptions.NotFoundException;
 import models.Role;
-import repositories.permissions.PermissionRepository;
+import utils.Pressessor;
 
 public class RoleRepository {
 	public static List<Role> getAll() throws SQLException, IOException, ClassNotFoundException {
@@ -99,6 +99,133 @@ public class RoleRepository {
 			if (row == 0)
 				throw new SQLException("Delete role failed : now row is affected!");
 		}
+	}
+
+	// -----------------------------------------------------------------------------------
+	/// NOTE:
+	/// @param ctx:
+	/// LIKE or NOTE LIKE for filter
+	public static void addDefaultForUserByPrefix(String username, String prefix, String ctx) throws SQLException {
+		String query = """
+					INSERT INTO user_role (account_id, role_id)
+					VALUES (
+						(SELECT id FROM user_account WHERE username = ?),
+						(SELECT id FROM role WHERE name %s ? AND is_default = true)
+					)
+				""".formatted(ctx);
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, username);
+			stmt.setString(2, prefix + "_%");
+
+			int row = stmt.executeUpdate();
+			if (row <= 0) {
+				throw new SQLException("Add default role for user is failed");
+			}
+		}
+	}
+
+	/// NOTE:
+	/// This function will be rollback if one of actions is failed.
+	/// @param prefix:
+	/// - We need to remove all roles in the same guild, crew, app before insert new
+	/// one for the user.
+	/// @param roleName:
+	/// - The specified role is assigned for the user.
+	public static void updateSpecifiedForUser(String prefix, String username, String roleName) throws SQLException {
+		String insertQuery = """
+				INSERT INTO user_role (account_id, role_id)
+				VALUES (
+					(SELECT id FROM user_account WHERE username = ?),
+					(SELECT id FROM role WHERE name = ?)
+				)
+				""";
+		String deleteQuery = """
+				DELETE FROM user_role
+				WHERE
+					account_id = (SELECT id FROM user_account WHERE username = ?)
+					AND role_id IN (SELECT id FROM role WHERE name LIKE ?)
+				""";
+		try (Connection conn = Database.connection()) {
+			conn.setAutoCommit(false);
+			try {
+				PreparedStatement stmt1 = conn.prepareStatement(deleteQuery);
+				stmt1.setString(1, username);
+				stmt1.setString(2, prefix + "_%");
+				int rowEffect1 = stmt1.executeUpdate();
+				if (rowEffect1 <= 0) {
+					throw new SQLException(
+							"Delete old role of user before insert new one is failed!");
+				}
+
+				PreparedStatement stmt2 = conn.prepareStatement(insertQuery);
+				stmt2.setString(1, username);
+				stmt2.setString(2, prefix + "_" + roleName);
+				int rowEffect2 = stmt2.executeUpdate();
+				if (rowEffect2 <= 0) {
+					throw new SQLException(
+							"Insert new role for user is failed!");
+				}
+
+				conn.commit();
+			} catch (Exception e) {
+				conn.rollback();
+				throw e;
+			}
+		}
+	}
+
+	/// NOTE:
+	/// - Delete a user from guild, crew even application by prefix.
+	/// - Using IN and LIKE keyword to ensure all prefix in guild, crew, app are
+	/// removed.
+	/// - Because we use the prefix in the role to determine whether the user can
+	/// access the specified resource or not.
+	public static void deleteUserFromPrefix(String username, String prefix) throws SQLException {
+		String query = """
+					DELETE FROM user_role
+					WHERE
+						account_id = (SELECT id FROM user_account WHERE username = ?)
+						AND role_id IN (SELECT id FROM role WHERE name LIKE ?)
+				""";
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, username);
+			stmt.setString(2, prefix + "_%");
+
+			int row = stmt.executeUpdate();
+			if (row <= 0) {
+				throw new SQLException("Delete role user is failed");
+			}
+		}
+	}
+
+	public static List<GetUserFromPrefixDTO> getUsersByPrefix(String prefix) throws SQLException {
+		String query = """
+					SELECT up.full_name AS full_name, ua.username as username, r.name AS role
+					FROM user_profile up
+						JOIN user_role ur ON ur.account_id = up.account_id
+						JOIN user_account ua ON ua.id = ur.account_id
+						JOIN role r ON r.id = ur.role_id
+					WHERE r.name LIKE ?
+				""";
+		List<GetUserFromPrefixDTO> list = new ArrayList<>();
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, prefix + "_%");
+
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				GetUserFromPrefixDTO user = new GetUserFromPrefixDTO();
+				user.setFullName(rs.getString("full_name"));
+				user.setUsername(rs.getString("username"));
+				user.setRole(Pressessor.removePrefixFromRole(rs.getString("role")));
+				list.add(user);
+			}
+		}
+		return list;
 	}
 
 	/// NOTE:
@@ -208,10 +335,10 @@ public class RoleRepository {
 
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
-			stmt.setString(1, prefix + "%");
+			stmt.setString(1, prefix + "_%");
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
-				list.add(rs.getString("name"));
+				list.add(Pressessor.removePrefixFromRole(rs.getString("name")));
 			}
 			return list;
 		}
