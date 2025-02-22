@@ -8,6 +8,6 @@
 - Have some beautiful frontend.
 ## Feature
 - Using role-based to authenticate same with some plugins to manage role in Minecraft Server. (Luckperms, ...)
-- Just use a role table for app, guild, crew.
-- User can have multiple roles and multiple context.
-- Add context for role. (Guild, Crew, App)
+    - Just using a role table for app, guild, crew.
+    - User can have multiple roles and multiple context.
+    - Add context for role. (Guild, Crew, App)
