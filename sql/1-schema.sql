@@ -115,21 +115,4 @@ CREATE TABLE IF NOT EXISTS event (
 
     FOREIGN KEY (generation_id) REFERENCES generation(id)
 );
--- Trigger to check count_mistake
-DELIMITER //
-
-CREATE TRIGGER before_update_account
-BEFORE UPDATE ON user_account
-FOR EACH ROW
-BEGIN 
-	IF NEW.count_mistake != OLD.count_mistake THEN
-        IF NEW.count_mistake < 0 OR NEW.count_mistake > 3 THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = "Mistake counting must be between 0 and 3!!!";
-        END IF;
-    END IF;
-END;
-//
-
-DELIMITER ;
 
