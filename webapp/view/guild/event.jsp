@@ -1,5 +1,6 @@
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="java.util.List" %>
+<%@ page import="dto.guild.GetGuildEventDTO" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -320,87 +321,154 @@
         <div class="container">
             <div class="sidebar">
                 <ul>
-                    <li><a href="#">Member</a></li>
-                    <li><a href="#">Role</a></li>
+                    <li><a href='members?name=<%=request.getParameter("name")%>'>Member</a></li>
+                    <li><a href='roles?name=<%=request.getParameter("name")%>'>Role</a></li>
                     <li><a href="#"class="active" >Event</a></li>
-                    <li><a href="#" >Guild</a></li>
-                    <li><a href="#" >Crew</a></li>
                 </ul>
             </div>
             <div class="event-header">
                 <button id="add-event-btn">Nhấn vào đây để tạo</button>
                 <h2>Danh sách Sự Kiện</h2>
                 <div id="event-list">
+        <% 
+            List<GetGuildEventDTO> guildEvents = (List<GetGuildEventDTO>) request.getAttribute("guildEvents");
+            if (guildEvents != null && !guildEvents.isEmpty()) {
+                for (GetGuildEventDTO event : guildEvents) {
+        %>
+        <div class="event-card">
+            <div class="event-info">
+                <h2><%= event.getTitle() %></h2>
+                <h2><%= event.getGuildName() %></h2>
+                <p><%= event.getDescription() %></p>
+                <p><b><%= event.getStartedAt() %></b></p>
+                <p><b><%= event.getEndedAt() %></b></p>
+            </div>
+    <div class="event-actions">
+                <button class="edit-btn" onclick="editEvent(
+                               '<%= event.getId() %>', 
+                               '<%= event.getTitle() %>', 
+                               '<%= event.getDescription() %>', 
+                               '<%= event.getStartedAt() %>', 
+                               '<%= event.getEndedAt() %>')">
+                               Edit
+                </button>
+        <button class="delete-btn" onclick="deleteEvent('<%= event.getId() %>')">Delete</button>
+    </div>
+        </div>
+        <% 
+                }
+            } else { 
+        %>
+        <p>Nothing available.</p>
+        <% } %>
                 </div>
             </div>
             <div id="event-form-container" class="modal">
                 <div class="modal-content">
                     <span class="close">&times;</span>
-                    <h2 id="form-title">Thêm Sự kiện</h2>
+                    <h2 id="form-title">Add Event</h2>
                     <form id="event-form">
                         <input type="hidden" id="event-id">
 
-                        <label for="title">Tiêu đề:</label>
+                        <label for="title">Title:</label>
                         <input type="text" id="title" required>
 
-                        <label for="content">Nội dung:</label>
+                        <label for="content">Description:</label>
                         <textarea id="content" required></textarea>
 
-                        <label for="author">Tác giả:</label>
-                        <input type="text" id="author" required>
+                        <label for="startedAt">Started Datetime:</label>
+                        <input type="datetime-local" id="startedAt" required>
 
-                        <button type="submit">Lưu</button>
+                        <label for="endedAt">Ended Datetime:</label>
+                        <input type="datetime-local" id="endedAt" required>
+
+                        <button type="submit">Save</button>
                     </form>
                 </div>
             </div>
             <script>
-                document.addEventListener("DOMContentLoaded", function () {
-                    const eventList = document.getElementById("event-list");
-                    const addEventBtn = document.getElementById("add-event-btn");
-                    const eventFormContainer = document.getElementById("event-form-container");
-                    const closeModal = document.querySelector(".close");
-                    const eventForm = document.getElementById("event-form");
+const name = '<%=request.getParameter("name")%>';
+const eventFormContainer = document.getElementById("event-form-container");
+const closeModal = document.querySelector(".close");
+const eventForm = document.getElementById("event-form");
 
-                    function fetchEvents() {
-                        fetch("<%=request.getContextPath()%>/guild/event")
-                                .then(response => response.json())
-                                .then(events => {
-                                    eventList.innerHTML = "";
-                                    events.forEach(event => {
-                                        const eventCard = document.createElement("div");
-                                        eventCard.classList.add("event-card");
+document.getElementById("add-event-btn").addEventListener("click", () => {
+    resetForm();
+    eventFormContainer.style.display = "flex";
+});
 
-                                        eventCard.innerHTML = `
-                        <div class="event-info">
-                            <h2>${event.title}</h2>
-                            <p>${event.content}</p>
-                            <p><b>${event.author}</b> - ${event.date}</p>
-                        </div>
-                    `;
-                                        eventList.appendChild(eventCard);
-                                    });
-                                });
-                    }
+closeModal.addEventListener("click", () => {
+    eventFormContainer.style.display = "none";
+});
 
-                    eventForm.addEventListener("submit", (e) => {
-                        e.preventDefault();
-                        const formData = new FormData(eventForm);
-                        formData.append("date", new Date().toLocaleString());
+function resetForm() {
+    document.getElementById("event-id").value = "";
+    document.getElementById("title").value = "";
+    document.getElementById("content").value = "";
+    document.getElementById("startedAt").value = "";
+    document.getElementById("endedAt").value = "";
+}
 
-                        fetch("<%=request.getContextPath()%>/guild/event", {
-                            method: "POST",
-                            body: formData
-                        }).then(() => {
-                            eventFormContainer.style.display = "none";
-                            fetchEvents();
-                        });
-                    });
+eventForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
 
-                    addEventBtn.addEventListener("click", () => eventFormContainer.style.display = "flex");
-                    closeModal.addEventListener("click", () => eventFormContainer.style.display = "none");
+    const eventId = document.getElementById("event-id").value.trim() || null;
+    const title = document.getElementById("title").value;
+    const content = document.getElementById("content").value;
+    const startedAt = formatDateTime(document.getElementById("startedAt").value);
+    const endedAt = formatDateTime(document.getElementById("endedAt").value);
 
-                    fetchEvents();
-                });
+    const eventData = { eventId, title, description: content, startedAt, endedAt };
+
+    const res = await fetch(`<%=request.getContextPath()%>/guild/events?name=` + name, {
+        method: eventId ? "PUT" : "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(eventData)
+    });
+    const json = await res.json();
+
+    if (json.status == "OK") {
+        eventFormContainer.style.display = "none";
+    } else {
+        alert(json.message)
+    }
+});
+
+function formatDateTime(dateTimeString) {
+    return dateTimeString ? dateTimeString.replace("T", " ") + ":00" : null;
+}
+
+function editEvent(id, title, description, startedAt, endedAt) {
+    document.getElementById("event-id").value = id;
+    document.getElementById("title").value = title;
+    document.getElementById("content").value = description;
+    document.getElementById("startedAt").value = startedAt.replace(" ", "T").slice(0, 16);
+    document.getElementById("endedAt").value = endedAt.replace(" ", "T").slice(0, 16);
+    
+    document.getElementById("form-title").textContent = "Edit Event";
+    eventFormContainer.style.display = "flex";
+}
+async function deleteEvent (id) {
+    const data = {
+        eventId: id
+    }
+    const res = await fetch(`<%=request.getContextPath()%>/guild/events?name=` + name, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data)
+    });
+
+    const json = await res.json();
+    if (json.status != "OK") {
+        location.reload()
+    } else {
+        alert(json.message);
+    }
+}
             </script>
     </body>
 </html>
