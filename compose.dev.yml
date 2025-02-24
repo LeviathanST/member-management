@@ -12,6 +12,7 @@ services:
       DB_URL: ${DB_URL}
       DB_DATABASE: ${DB_DATABASE}
       DB_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Ho_Chi_Minh
     ports:
       - ${APP_PORT}:${APP_PORT}
     networks:
@@ -24,6 +25,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
+      TZ: Asia/Ho_Chi_Minh
     ports:
       - ${DB_PORT}:3306
     volumes:

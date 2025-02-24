@@ -296,10 +296,9 @@ button {
     <div class="container">
         <div class="sidebar">
             <ul>
-                <li><a href="#">Member</a></li>
+                <li><a href='members?name=<%=request.getParameter("name")%>'>Member</a></li>
                 <li><a href="#"class="menu-item active">Role</a></li>
-                <li><a href="#" >Event</a></li>
-                <li><a href="#" >Information</a></li>
+                <li><a href='events?name=<%=request.getParameter("name")%>' >Event</a></li>
             </ul>
         </div>
         <div class="content">

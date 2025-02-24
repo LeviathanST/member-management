@@ -259,9 +259,8 @@
             <div class="sidebar">
                 <ul>
                     <li><a href="#"class="active">Member</a></li>
-                    <li><a href="#">Role</a></li>
-                    <li><a href="#" >Event</a></li>
-                    <li><a href="#" >Information</a></li>
+                    <li><a href='roles?name=<%=request.getParameter("name")%>'>Role</a></li>
+                    <li><a href='events?name=<%=request.getParameter("name")%>' >Event</a></li>
                 </ul>
             </div>
             <div class="member-list-container">

@@ -49,6 +49,7 @@ INSERT INTO permission (context, name) VALUES ('guild', 'view');
 INSERT INTO permission (context, name) VALUES ('guild', 'delete');
 INSERT INTO permission (context, name) VALUES ('guild', 'update');
 INSERT INTO permission (context, name) VALUES ('guild', 'role.crud');
+INSERT INTO permission (context, name) VALUES ('guild', 'event.cud');
 INSERT INTO permission (context, name) VALUES ('guild', 'member.crud');
 
 INSERT INTO role_permission (role_id, permission_id) VALUES (
@@ -60,6 +61,9 @@ INSERT INTO role_permission (role_id, permission_id) VALUES (
 ), (
 	(SELECT id FROM role WHERE name = 'T_Leader'), 
 	(SELECT id FROM permission WHERE name = 'view' AND context = 'guild')
+), (
+	(SELECT id FROM role WHERE name = 'T_Leader'), 
+	(SELECT id FROM permission WHERE name = 'event.cud' AND context = 'guild')
 );
 INSERT INTO role_permission (role_id, permission_id) VALUES (
 	(SELECT id FROM role WHERE name = 'T_Member'), 
