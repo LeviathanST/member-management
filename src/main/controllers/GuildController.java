@@ -1,6 +1,9 @@
 package controllers;
 
 import dto.*;
+import dto.guild.GetGuildEventDTO;
+import dto.guild.CUGuildEventDTO;
+import dto.guild.DeleteGuildEventDTO;
 import dto.role.CDPermissionDTO;
 import dto.role.GetUserFromPrefixDTO;
 import dto.role.CDUserRoleDTO;
@@ -14,12 +17,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import models.Guild;
 import models.GuildEvent;
-import models.GuildPermission;
-import models.GuildRole;
-import models.UserGuildRole;
 import models.UserProfile;
 import repositories.GenerationRepository;
 import repositories.GuildRepository;
+import repositories.events.GuildEventRepository;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -35,8 +36,6 @@ import com.google.gson.Gson;
 
 import constants.ResponseStatus;
 import constants.RoleContext;
-import repositories.permissions.GuildPermissionRepository;
-import repositories.roles.GuildRoleRepository;
 import repositories.roles.RoleRepository;
 import services.ApplicationService;
 import services.AuthService;
@@ -48,6 +47,7 @@ public class GuildController extends HttpServlet {
     private final String NOTIFYERROR_VIEW = "/view/notifyError.jsp";
     private final String ROLE_VIEW = "/view/guild/role.jsp";
     private final String MEMBER_VIEW = "/view/guild/member.jsp";
+    private final String EVENT_VIEW = "/view/guild/event.jsp";
 
     private Gson gson = new Gson();
     private Logger logger = LoggerFactory.getLogger(GuildController.class);
@@ -64,6 +64,17 @@ public class GuildController extends HttpServlet {
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
+                case "events":
+                    checked = AuthService.checkRoleAndPermission(accountId, name, RoleContext.GUILD,
+                            "view");
+                    if (checked) {
+                        List<GetGuildEventDTO> guildEvents = GuildEventRepository.getAllGuildEvent(name);
+                        req.setAttribute("guildEvents", guildEvents);
+                        redirectView = EVENT_VIEW;
+                        break;
+                    } else {
+                        throw new AuthException("FORBIDDEN!");
+                    }
                 case "members":
                     checked = AuthService.checkRoleAndPermission(accountId, name, RoleContext.GUILD,
                             "view");
@@ -119,7 +130,7 @@ public class GuildController extends HttpServlet {
                 default:
                     throw new NotFoundException("A page is not found!");
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             logger.error(e.getStackTrace().toString());
             req.setAttribute("response", gson.toJson(
                     new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
@@ -156,10 +167,25 @@ public class GuildController extends HttpServlet {
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
+                case "events":
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.GUILD,
+                            "event.cud");
+                    if (checked) {
+                        CUGuildEventDTO dto = HttpUtil.getBodyContentFromReq(req, CUGuildEventDTO.class);
+                        GuildService.insertGuildEvent(name, dto);
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Create event for %s successful!".formatted(name),
+                                        null)));
+                        break;
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
                 case "members":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.GUILD,
-                            "member.crud");
+                            "member.cud");
                     if (checked) {
                         CDUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDUserRoleDTO.class);
                         RoleRepository.addDefaultForUserByPrefix(dto.getUsername(),
@@ -169,10 +195,10 @@ public class GuildController extends HttpServlet {
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Add user %s to %s guild successful!".formatted(dto.getUsername(), name),
                                         null)));
+                        break;
                     } else {
                         throw new AuthException("FORBIDDEN");
                     }
-                    break;
                 case "permission":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.GUILD,
@@ -186,10 +212,10 @@ public class GuildController extends HttpServlet {
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Add permission to %s successfully!".formatted(dto.getRoleName()),
                                         null)));
+                        break;
                     } else {
                         throw new AuthException("FORBIDDEN");
                     }
-                    break;
                 default:
                     throw new NotFoundException("Not found the page!");
             }
@@ -197,12 +223,12 @@ public class GuildController extends HttpServlet {
             out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
                             null)));
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException | IOException e) {
             logger.info(e.getStackTrace().toString());
             out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
                             null)));
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | IllegalArgumentException e) {
             out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(),
                             null)));
@@ -222,6 +248,24 @@ public class GuildController extends HttpServlet {
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
+                case "roles":
+                    // TODO: edit role name
+                    break;
+                case "events":
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.GUILD,
+                            "event.cud");
+                    if (checked) {
+                        CUGuildEventDTO dto = HttpUtil.getBodyContentFromReq(req, CUGuildEventDTO.class);
+                        GuildService.updateGuildEvent(name, dto);
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Update event successfully!",
+                                        null)));
+                        break;
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
                 case "members":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.GUILD,
@@ -246,13 +290,13 @@ public class GuildController extends HttpServlet {
             out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
                             null)));
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException | IOException e) {
             logger.info(e.getMessage());
             e.printStackTrace();
             out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
                             null)));
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | IllegalArgumentException e) {
             out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.BAD_REQUEST, e.getMessage(),
                             null)));
@@ -272,6 +316,24 @@ public class GuildController extends HttpServlet {
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
+                case "roles":
+                    // TODO: delete role with is_default is false
+                    break;
+                case "events":
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.GUILD,
+                            "event.cud");
+                    if (checked) {
+                        DeleteGuildEventDTO dto = HttpUtil.getBodyContentFromReq(req, DeleteGuildEventDTO.class);
+                        GuildEventRepository.delete(dto.getEventId());
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Delete event successfully!",
+                                        null)));
+                        break;
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
                 case "members":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.GUILD,
@@ -311,7 +373,7 @@ public class GuildController extends HttpServlet {
             out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
                             null)));
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             logger.info(e.getMessage());
             e.printStackTrace();
             out.write(gson.toJson(

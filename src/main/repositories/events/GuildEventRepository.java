@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import config.Database;
+import dto.guild.GetGuildEventDTO;
 import exceptions.NotFoundException;
 import models.GuildEvent;
 import repositories.GuildRepository;
@@ -15,101 +18,104 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GuildEventRepository {
-	// Insert
-	public static void insert(GuildEvent data) throws SQLException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = """
-					    INSERT INTO guild_event (guild_id, title, description, generation_id, start_at, end_at, type)
-					    VALUES (?, ?, ?, ?, ?, ?, ?)
-					""";
-			try (PreparedStatement stmt = con.prepareStatement(query)) {
-				stmt.setInt(1, data.getGuildId());
-				stmt.setString(2, data.getTitle());
-				stmt.setString(3, data.getDescription());
-				stmt.setInt(4, data.getGenerationId());
-				stmt.setTimestamp(5, data.getStartAt());
-				stmt.setTimestamp(6, data.getEndAt());
-				stmt.setString(7, data.getType());
+	public static void insert(String guildName, String title, String description, LocalDateTime startedAt,
+			LocalDateTime endedAt)
+			throws SQLException, IOException, ClassNotFoundException {
+		String query = """
+				    INSERT INTO guild_event (guild_id, title, description, started_at, ended_at)
+				    VALUES (
+					(SELECT id FROM guild WHERE name = ?),
+					?, ?, ?, ?)
+				""";
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
 
-				int rowEffected = stmt.executeUpdate();
-				if (rowEffected == 0) {
-					throw new SQLException(
-							String.format("Insert %s to GuildEvent is failed",
-									data.getTitle()));
-				}
+			stmt.setString(1, guildName);
+			stmt.setString(2, title);
+			stmt.setString(3, description);
+			stmt.setTimestamp(4, Timestamp.valueOf(startedAt));
+			stmt.setTimestamp(5, Timestamp.valueOf(endedAt));
+
+			int rowEffected = stmt.executeUpdate();
+			if (rowEffected <= 0) {
+				throw new SQLException("Event for guild is failed!");
 			}
 		}
-
 	}
 
-	// Update
-	public static void update(GuildEvent data, int guildEventID)
+	// TODO:
+	// Dynamic update for each field
+	public static void update(String guildName, int eventId, String title, String description,
+			LocalDateTime startedAt,
+			LocalDateTime endedAt)
 			throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = """
 					    UPDATE guild_event
-					    SET guild_id = ? , title = ?, description = ?, generation_id = ?, start_at = ?, end_at = ?, type = ?
-					    WHERE id = ?
+					    SET title = ?, description = ?, started_at = ?, ended_at = ?
+					    WHERE
+						id = ?
+						AND guild_id = (SELECT id FROM guild WHERE name = ?)
 					""";
 			try (PreparedStatement stmt = con.prepareStatement(query)) {
-				stmt.setInt(1, data.getGuildId());
-				stmt.setString(2, data.getTitle());
-				stmt.setString(3, data.getDescription());
-				stmt.setInt(4, data.getGenerationId());
-				stmt.setTimestamp(5, data.getStartAt());
-				stmt.setTimestamp(6, data.getEndAt());
-				stmt.setString(7, data.getType());
-				stmt.setInt(8, guildEventID);
+				stmt.setString(1, title);
+				stmt.setString(2, description);
+				stmt.setTimestamp(3, Timestamp.valueOf(startedAt));
+				stmt.setTimestamp(4, Timestamp.valueOf(endedAt));
+				stmt.setInt(5, eventId);
+				stmt.setString(6, guildName);
 
 				int rowEffected = stmt.executeUpdate();
-				if (rowEffected == 0) {
-					throw new SQLException(
-							String.format("Update of GuildEvent with guildId %d failed",
-									data.getGuildId()));
+				if (rowEffected <= 0) {
+					throw new SQLException("Update of event for guild is failed!");
 				}
 			}
 		}
 
 	}
 
-	// Delete
-	public static void delete(int guildEventId) throws SQLException, IOException, ClassNotFoundException {
+	public static void delete(int eventId) throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = "DELETE FROM guild_event WHERE id = ?";
 
 			try (PreparedStatement stmt = con.prepareStatement(query)) {
-				stmt.setInt(1, guildEventId);
+				stmt.setInt(1, eventId);
 
 				int rowEffected = stmt.executeUpdate();
 				if (rowEffected == 0) {
 					throw new SQLException(
 							String.format("Delete of GuildEvent with Id %d failed",
-									guildEventId));
+									eventId));
 				}
 			}
 		}
 
 	}
 
-	public static List<GuildEvent> getAllGuildEvent()
+	public static List<GetGuildEventDTO> getAllGuildEvent(String guildName)
 			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
-			List<GuildEvent> guildEvent = new ArrayList<>();
-			String query = "SELECT * FROM guild_event";
+			List<GetGuildEventDTO> list = new ArrayList<>();
+			String query = """
+						SELECT id, title, description, started_at, ended_at FROM guild_event
+						WHERE guild_id = (SELECT id FROM guild WHERE name = ?)
+					""";
 			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, guildName);
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
-				guildEvent.add(new GuildEvent(rs.getInt("id"),
-						GuildRepository.getNameByID(rs.getInt("guild_id")),
-						rs.getString("title"),
-						rs.getString("description"),
-						rs.getInt("generation_id"),
-						rs.getTimestamp("start_at"), rs.getTimestamp("end_at"),
-						rs.getString("type")));
+				GetGuildEventDTO guildEvent = new GetGuildEventDTO();
+				guildEvent.setGuildName(guildName);
+				guildEvent.setId(rs.getInt("id"));
+				guildEvent.setTitle(rs.getString("title"));
+				guildEvent.setDescription(rs.getString("description"));
+				guildEvent.setStartedAt(rs.getTimestamp("started_at"));
+				guildEvent.setEndedAt(rs.getTimestamp("ended_at"));
 
+				list.add(guildEvent);
 			}
-			return guildEvent;
+			return list;
 		}
 	}
 }
