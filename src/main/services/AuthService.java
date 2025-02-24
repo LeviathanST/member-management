@@ -12,12 +12,9 @@ import dto.TokenPairDTO;
 import exceptions.*;
 import jakarta.servlet.http.Cookie;
 import models.CrewPermission;
-import models.GuildPermission;
 import models.Permission;
 import models.UserProfile;
 import repositories.GuildRepository;
-import repositories.permissions.CrewPermissionRepository;
-import repositories.permissions.GuildPermissionRepository;
 import repositories.permissions.PermissionRepository;
 import repositories.roles.RoleRepository;
 import repositories.users.UserAccountRepository;
@@ -118,93 +115,6 @@ public class AuthService {
 		String bcryptHashing = BCrypt.withDefaults()
 				.hashToString(round, password.toCharArray());
 		return bcryptHashing;
-	}
-
-	public static boolean AppAuthorization(
-			String namePermission)
-			throws SQLException, NotFoundException, TokenException, IOException, ClassNotFoundException {
-		return Authorization(0, RoleType.Application, namePermission);
-	}
-
-	public static boolean GuildAuthorization(int guildId,
-			String namePermission)
-			throws SQLException, NotFoundException, TokenException, IOException, ClassNotFoundException {
-		return Authorization(guildId, RoleType.Guild, namePermission);
-	}
-
-	public static boolean CrewAuthorization(int crewId,
-			String namePermission)
-			throws SQLException, NotFoundException, TokenException, IOException, ClassNotFoundException {
-		return Authorization(crewId, RoleType.Crew, namePermission);
-	}
-
-	/// ID
-	/// + crew_id
-	/// + guild_id
-	/// if using for application let id = 0
-	public static boolean Authorization(int id, RoleType type,
-			String namePermission)
-			throws NotFoundException, SQLException, TokenException, IOException, ClassNotFoundException {
-		boolean isAuthorized;
-		Path path = (Path) Paths.get("storage.json");
-		String accessToken = TokenService.loadFromFile(path).getAccessToken();
-		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
-		try {
-			switch (type) {
-				case RoleType.Guild -> {
-					List<GuildPermission> guildPermissions = GuildPermissionRepository
-							.getAllByAccountIdAndGuildId(
-									accountId, id);
-
-					isAuthorized = false;
-					if (guildPermissions.isEmpty()) {
-						throw new NotFoundException(
-								"This account is not have needed permission!");
-					}
-					for (GuildPermission permission : guildPermissions) {
-						System.out.println(permission.getName());
-						if (permission.getName().equals(namePermission)) {
-							isAuthorized = true;
-						}
-					}
-					break;
-				}
-				case RoleType.Crew -> {
-					List<CrewPermission> crewPermissions = CrewPermissionRepository
-							.getAllByAccountIdAndCrewId(
-									accountId, id);
-
-					isAuthorized = false;
-					if (crewPermissions.isEmpty()) {
-						throw new NotFoundException(
-								"This account is not have needed permission!");
-					}
-					for (CrewPermission permission : crewPermissions) {
-						if (permission.getName().equals(namePermission)) {
-							isAuthorized = true;
-						}
-					}
-					break;
-				}
-				case RoleType.Application -> {
-					List<Permission> permissions = PermissionRepository
-							.getByAccountId(accountId);
-					isAuthorized = false;
-					for (Permission permission : permissions) {
-						if (permission.getName().equals(namePermission)) {
-							isAuthorized = true;
-						}
-					}
-					break;
-				}
-				default -> throw new NotFoundException("Authorization: Your permission is not found!");
-			}
-			return isAuthorized;
-		} catch (SQLException e) {
-			throw new SQLException(e.getMessage(), e);
-		} catch (NotFoundException e) {
-			throw new NotFoundException(e.getMessage());
-		}
 	}
 
 	// NOTE: Authenticate user with multiple roles and multiple context
