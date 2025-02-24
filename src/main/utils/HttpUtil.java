@@ -6,6 +6,9 @@ import com.google.gson.JsonSyntaxException;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 public class HttpUtil {
@@ -23,10 +26,12 @@ public class HttpUtil {
 			return null;
 		}
 
+		Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 		// Deserialize JSON -> Object
 		try {
 			return gson.fromJson(jsonBody.toString(), clazz);
 		} catch (JsonSyntaxException e) {
+			logger.error(e.getMessage());
 			e.printStackTrace();
 			return null;
 		}
