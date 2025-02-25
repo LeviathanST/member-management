@@ -1,4 +1,4 @@
-package repositories.permissions;
+package repositories;
 
 import config.Database;
 import models.Permission;
@@ -145,20 +145,20 @@ public class PermissionRepository {
 		}
 
 	}
-		public static void deleteRolePermission(int permissionID)
+
+	public static void deleteRolePermission(int permissionID)
 			throws SQLException, IOException, ClassNotFoundException {
-			try (Connection con = Database.connection()) {
-				String query = "DELETE FROM role_permission WHERE permission_id = ? ";
+		try (Connection con = Database.connection()) {
+			String query = "DELETE FROM role_permission WHERE permission_id = ? ";
 
-				PreparedStatement stmt = con.prepareStatement(query);
-				stmt.setInt(1, permissionID);
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setInt(1, permissionID);
 
-				int row = stmt.executeUpdate();
-				if (row == 0)
-					throw new SQLException("A application role permission is failed when deleting!");
-			}
+			int row = stmt.executeUpdate();
+			if (row == 0)
+				throw new SQLException("A application role permission is failed when deleting!");
+		}
 	}
-
 
 	public static void deletePermissionRole(int permissionID, int roleID)
 			throws SQLException, IOException, ClassNotFoundException {
