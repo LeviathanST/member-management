@@ -12,25 +12,33 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class UserProfileRepository {
-	public static void insert(UserProfile data)
-			throws SQLException, IOException, ClassNotFoundException {
+	public static void insert(String username, Sex sex, int generationId, Date dob)
+			throws SQLException, IOException, ClassNotFoundException,
+			SQLIntegrityConstraintViolationException {
+		String query = """
+						INSERT INTO user_profile (account_id, sex, generation_id, dob)
+						VALUES (
+							(SELECT id FROM user_account WHERE username = ?),
+							?, ?, ?
+						)
+				""";
 		try (Connection con = Database.connection()) {
-			String query = "INSERT INTO user_profile (account_id, full_name, student_code, email, contact_email, generation_id, dob) VALUES (?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, data.getAccountId());
-			stmt.setString(2, data.getFullName());
-			stmt.setString(3, data.getStudentCode());
-			stmt.setString(4, data.getEmail());
-			stmt.setString(5, data.getContactEmail());
-			stmt.setInt(6, data.getGenerationId());
-			stmt.setDate(7, data.getDateOfBirth());
+			stmt.setString(1, username);
+			stmt.setString(2, sex.name().toUpperCase());
+			stmt.setInt(3, generationId);
+			stmt.setDate(4, dob);
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected == 0) {
-				throw new SQLException("Insert failed: No rows effected.");
+				throw new SQLException("Insert profile failed!");
 			}
 		}
 
@@ -76,8 +84,8 @@ public class UserProfileRepository {
 		try (Connection con = Database.connection()) {
 			String query = """
 						SELECT *
-									FROM user_profile
-									WHERE username LIKE ?;
+						FROM user_profile
+						WHERE username LIKE ?;
 					""";
 			List<UserProfile> result = new ArrayList<>();
 			PreparedStatement stmt = con.prepareStatement(query);
