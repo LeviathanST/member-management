@@ -4,7 +4,7 @@ import lombok.Getter;
 
 public class CUGuildEventDTO {
 	@Getter
-	int eventId;
+	Integer eventId;
 
 	@Getter
 	String title;

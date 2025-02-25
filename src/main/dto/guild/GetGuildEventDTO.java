@@ -8,7 +8,7 @@ import lombok.Setter;
 public class GetGuildEventDTO {
 	@Setter
 	@Getter
-	int id;
+	Integer id;
 
 	@Setter
 	@Getter
