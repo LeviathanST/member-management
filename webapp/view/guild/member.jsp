@@ -296,9 +296,11 @@
                         <p><strong>Role:</strong> <%= role %></p>
                     </div>
                     <div class="member-actions">
-                        <button class="btn-ban" onclick="banMember('<%= fullName %>')">Ban</button>
+                        <% boolean ade = (Boolean) request.getAttribute("ade"); %>
+                <% if (canEditAndDelete) { %>
                         <button class="btn-edit" onclick="editMember('<%= username %>', '<%= fullName %>', '<%= role %>')">Edit</button>
                         <button class="btn-delete" onclick="deleteMember('<%= fullName %>')">Delete</button>
+                <% } %>
                     </div>
                 </div>
             <% 

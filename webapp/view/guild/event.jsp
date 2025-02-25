@@ -327,7 +327,10 @@
                 </ul>
             </div>
             <div class="event-header">
-                <button id="add-event-btn">Nhấn vào đây để tạo</button>
+                <% boolean ade = (Boolean) request.getAttribute("ade"); %>
+                <% if (ade) { %>
+                    <button id="add-event-btn">Nhấn vào đây để tạo</button>
+                <% } %>
                 <h2>Danh sách Sự Kiện</h2>
                 <div id="event-list">
         <% 
@@ -344,6 +347,7 @@
                 <p><b><%= event.getEndedAt() %></b></p>
             </div>
     <div class="event-actions">
+                <% if (ade) { %>
                 <button class="edit-btn" onclick="editEvent(
                                '<%= event.getId() %>', 
                                '<%= event.getTitle() %>', 
@@ -352,7 +356,8 @@
                                '<%= event.getEndedAt() %>')">
                                Edit
                 </button>
-        <button class="delete-btn" onclick="deleteEvent('<%= event.getId() %>')">Delete</button>
+                <button class="delete-btn" onclick="deleteEvent('<%= event.getId() %>')">Delete</button>
+                <% } %>
     </div>
         </div>
         <% 
