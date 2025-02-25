@@ -425,7 +425,7 @@ eventForm.addEventListener("submit", async function(event) {
 
     const eventData = { eventId, title, description: content, startedAt, endedAt };
 
-    const res = await fetch(`<%=request.getContextPath()%>/guild/events?name=` + name, {
+    const res = await fetch(`<%=request.getContextPath()%>/crew/events?name=` + name, {
         method: eventId ? "PUT" : "POST",
         headers: {
             "Content-Type": "application/json",
@@ -459,7 +459,7 @@ async function deleteEvent (id) {
     const data = {
         eventId: id
     }
-    const res = await fetch(`<%=request.getContextPath()%>/guild/events?name=` + name, {
+    const res = await fetch(`<%=request.getContextPath()%>/crew/events?name=` + name, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",

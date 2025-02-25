@@ -347,7 +347,7 @@ let permissionForDeleting = new Set();
 
 async function fetchPermissionsOfRole() {
     const role = document.getElementById("role-select").value;
-    const route = "<%=request.getContextPath()%>/crew/permission?name=" + name +"&role=" + role;
+    const route = "<%=request.getContextPath()%>/crew/permissions?name=" + name +"&role=" + role;
     const res = await fetch(route, {
         headers: {
             "Accept":"application/json", 
@@ -477,7 +477,7 @@ function removePermission(permission, notsaved) {
 }
 async function applyChange() {
     const role = document.getElementById("role-select").value;
-    const route = "<%=request.getContextPath()%>/crew/permission?name=" + name;
+    const route = "<%=request.getContextPath()%>/crew/permissions?name=" + name;
 
     const data1 = {
         roleName: role,
