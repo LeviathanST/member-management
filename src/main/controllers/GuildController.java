@@ -173,7 +173,6 @@ public class GuildController extends HttpServlet {
         boolean checked;
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
-            Boolean god = RoleRepository.existPermissionWithContext(RoleContext.CREW, "*", accountId);
             switch (route) {
                 case "events":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
