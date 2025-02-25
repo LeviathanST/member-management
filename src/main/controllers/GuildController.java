@@ -5,7 +5,7 @@ import dto.guild.GetGuildEventDTO;
 import dto.guild.CUGuildEventDTO;
 import dto.guild.DeleteGuildEventDTO;
 import dto.role.CDPermissionDTO;
-import dto.role.GetUserFromPrefixDTO;
+import dto.role.GetUserDTO;
 import dto.role.CDUserRoleDTO;
 import dto.role.UpdateUserRoleDTO;
 import exceptions.*;
@@ -36,7 +36,7 @@ import com.google.gson.Gson;
 
 import constants.ResponseStatus;
 import constants.RoleContext;
-import repositories.roles.RoleRepository;
+import repositories.RoleRepository;
 import services.ApplicationService;
 import services.AuthService;
 import services.GuildService;
@@ -70,6 +70,9 @@ public class GuildController extends HttpServlet {
                     if (checked) {
                         List<GetGuildEventDTO> guildEvents = GuildEventRepository.getAllGuildEvent(name);
                         req.setAttribute("guildEvents", guildEvents);
+                        req.setAttribute("ade",
+                                AuthService.checkRoleAndPermission(accountId, name, RoleContext.GUILD,
+                                        "event.cud"));
                         redirectView = EVENT_VIEW;
                         break;
                     } else {
@@ -80,11 +83,14 @@ public class GuildController extends HttpServlet {
                             "view");
 
                     if (checked) {
-                        List<String> roles = RoleRepository.getAllByPrefix(ApplicationService.getCodeFromName(name));
+                        List<String> roles = RoleRepository.getAllByPrefix(GuildRepository.getCodeByName(name));
                         req.setAttribute("roles", gson.toJson(roles));
+                        req.setAttribute("ade",
+                                AuthService.checkRoleAndPermission(accountId, name, RoleContext.GUILD,
+                                        "event.cud"));
 
-                        List<GetUserFromPrefixDTO> members = RoleRepository
-                                .getUsersByPrefix(ApplicationService.getCodeFromName(name));
+                        List<GetUserDTO> members = RoleRepository
+                                .getUsersByPrefix(GuildRepository.getCodeByName(name));
                         req.setAttribute("members", members);
                         redirectView = MEMBER_VIEW;
                         break;
@@ -106,14 +112,14 @@ public class GuildController extends HttpServlet {
                     } else {
                         throw new AuthException("FORBIDDEN!");
                     }
-                case "permission":
+                case "permissions":
                     checked = AuthService.checkRoleAndPermission(accountId, name, RoleContext.GUILD,
                             "role.crud");
                     if (checked) {
                         String roleName = req.getParameter("role");
                         if (roleName != null && !roleName.isBlank()) {
                             List<String> permissionsOfRole = RoleRepository
-                                    .getAllPermissionOfARole(ApplicationService.getCodeFromName(name) + "_" + roleName);
+                                    .getAllPermissionOfARole(GuildRepository.getCodeByName(name) + "_" + roleName);
                             res.setContentType("application/json");
                             out.write(gson.toJson(
                                     new ResponseDTO<List<String>>(ResponseStatus.OK,
@@ -151,6 +157,7 @@ public class GuildController extends HttpServlet {
         } finally {
             if (redirectView != null) {
                 req.getRequestDispatcher(redirectView).forward(req, res);
+            } else {
                 out.flush();
                 out.close();
             }
@@ -166,6 +173,7 @@ public class GuildController extends HttpServlet {
         boolean checked;
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
+            Boolean god = RoleRepository.existPermissionWithContext(RoleContext.CREW, "*", accountId);
             switch (route) {
                 case "events":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
@@ -189,7 +197,7 @@ public class GuildController extends HttpServlet {
                     if (checked) {
                         CDUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDUserRoleDTO.class);
                         RoleRepository.addDefaultForUserByPrefix(dto.getUsername(),
-                                ApplicationService.getCodeFromName(name),
+                                GuildRepository.getCodeByName(name),
                                 "LIKE");
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
@@ -206,7 +214,7 @@ public class GuildController extends HttpServlet {
                     if (checked) {
                         CDPermissionDTO dto = HttpUtil.getBodyContentFromReq(req, CDPermissionDTO.class);
                         RoleRepository.insertPermissionRole(
-                                GuildRepository.GetCodeByName(name) + "_" + dto.getRoleName(),
+                                GuildRepository.getCodeByName(name) + "_" + dto.getRoleName(),
                                 dto.getPermissions());
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
@@ -273,7 +281,7 @@ public class GuildController extends HttpServlet {
                     if (checked) {
                         UpdateUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, UpdateUserRoleDTO.class);
                         RoleRepository.updateSpecifiedForUser(
-                                ApplicationService.getCodeFromName(name),
+                                GuildRepository.getCodeByName(name),
                                 dto.getUsername(),
                                 dto.getRoleName());
                         out.write(gson.toJson(
@@ -341,7 +349,7 @@ public class GuildController extends HttpServlet {
                     if (checked) {
                         CDUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDUserRoleDTO.class);
                         RoleRepository.deleteUserFromPrefix(dto.getUsername(),
-                                ApplicationService.getCodeFromName(name));
+                                GuildRepository.getCodeByName(name));
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Delete %s from %s successfully!".formatted(dto.getUsername(), name),
@@ -356,7 +364,7 @@ public class GuildController extends HttpServlet {
                     if (checked) {
                         CDPermissionDTO dto = HttpUtil.getBodyContentFromReq(req, CDPermissionDTO.class);
                         RoleRepository.deletePermission(
-                                GuildRepository.GetCodeByName(name) + "_" + dto.getRoleName(),
+                                GuildRepository.getCodeByName(name) + "_" + dto.getRoleName(),
                                 dto.getPermissions());
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
