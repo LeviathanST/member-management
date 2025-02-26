@@ -15,10 +15,12 @@ import models.CrewPermission;
 import models.Permission;
 import models.UserProfile;
 import repositories.GuildRepository;
-import repositories.permissions.PermissionRepository;
-import repositories.roles.RoleRepository;
+import repositories.CrewRepository;
+import repositories.PermissionRepository;
+import repositories.RoleRepository;
 import repositories.users.UserAccountRepository;
 import repositories.users.UserProfileRepository;
+import repositories.GenerationRepository;
 import repositories.users.UserRoleRepository;
 import utils.EnvLoader;
 
@@ -29,6 +31,9 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -48,22 +53,14 @@ public class AuthService {
 		int round = appConfig.getRoundHashing();
 		data.setPassword(hashingPassword(data.getPassword(), round));
 		UserAccountRepository.insert(data);
-		String account_id = UserAccountRepository.getIdByUsername(data.getUsername());
-		int role_id = RoleRepository.getByName("Member").getId();
+		RoleRepository.addDefaultForUserByPrefix(data.getUsername(), "APP");
 		Logger logger = LoggerFactory.getLogger(AuthService.class);
-		logger.info("Before");
-		UserProfile userProfile = new UserProfile(
-				account_id,
-				"Empty",
+		logger.debug("Added role for " + data.getUsername());
+		UserProfileRepository.insert(
+				data.getUsername(),
 				Sex.NONE,
-				"Empty",
-				"Empty",
-				"Empty",
-				ApplicationService.getMaxGenerationId(),
+				GenerationRepository.getMax(),
 				Date.valueOf(LocalDate.now()));
-		UserProfileRepository.insert(userProfile);
-		logger.info("After");
-		UserRoleRepository.insert(account_id, role_id);
 	}
 
 	// Update for refresh token
@@ -90,41 +87,10 @@ public class AuthService {
 
 	}
 
-	public static void changeAccessToken(SignUpDTO data)
-			throws TokenException, SQLException, NotFoundException, IOException, ClassNotFoundException {
-		Path path = (Path) Paths.get("storage.json");
-		String accountId = UserAccountRepository.getIdByUsername(data.getUsername());
-		ClaimsDTO claimsData = new ClaimsDTO(accountId, 2);
-		TokenPairDTO tokenData = TokenPairDTO.GenerateNew(claimsData);
-		TokenService.saveToFile(path, tokenData);
-	}
-
-	public static boolean checkAccessToken()
-			throws TokenException, SQLException, IOException, ClassNotFoundException {
-		Path path = (Path) Paths.get("storage.json");
-		String accessToken = TokenService.loadFromFile(path).getAccessToken();
-		String accountId = TokenPairDTO.Verify(accessToken).getClaim("account_id").asString();
-		List<String> list = UserAccountRepository.getAllId();
-		for (String i : list)
-			if (i.equals(accountId))
-				return true;
-		return false;
-	}
-
 	public static String hashingPassword(String password, int round) {
 		String bcryptHashing = BCrypt.withDefaults()
 				.hashToString(round, password.toCharArray());
 		return bcryptHashing;
-	}
-
-	// NOTE: Authenticate user with multiple roles and multiple context
-	public static boolean checkPermissionWithContext(String accountId, RoleContext ctx, String permission)
-			throws SQLException, AuthException {
-
-		boolean checked = RoleRepository.existPermissionWithContext(ctx,
-				permission,
-				accountId);
-		return checked;
 	}
 
 	/// @param f:
@@ -158,11 +124,23 @@ public class AuthService {
 		throw new AuthException("Your credentials is not found!");
 	}
 
+	public static boolean checkPermissionWithContext(String accountId, RoleContext ctx,
+			String permission)
+			throws SQLException, AuthException, NotFoundException {
+		List<String> list = new ArrayList<>(Collections.singletonList("*"));
+		list.add(permission);
+		Boolean checked = RoleRepository.existPermissionWithContext(ctx,
+				list,
+				accountId);
+		return checked;
+	}
+
 	/// NOTE:
 	/// This method is used for check specified guild, crew role in user_role
 	/// @param name:
 	/// - It can be guild or crew name which is determined by @param ctx.
 	/// Sample: BE, BE1, FE, FE1
+	/// - User will be bypassed all if have '*' permission
 	/// HACK: It will be return false when guild, crew or specified level not found!
 	/// TODO: Making exception can be more context
 	/// - NOT FOUND GUILD, CREW
@@ -170,11 +148,17 @@ public class AuthService {
 	public static boolean checkRoleAndPermission(String accountId, String name, RoleContext ctx,
 			String permission)
 			throws SQLException, AuthException, NotFoundException {
-		String prefix = GuildRepository.GetCodeByName(name);
+		String prefix = switch (ctx) {
+			case RoleContext.GUILD -> GuildRepository.getCodeByName(name);
+			case RoleContext.CREW -> CrewRepository.getCodeByName(name);
+			default -> "Not valid with your code";
+		};
+		boolean god1 = RoleRepository.existPermissionWithContext(ctx, "*", accountId);
+		boolean god2 = RoleRepository.existPermissionWithContext(ctx, prefix + ".*", accountId);
 		boolean checked = RoleRepository.existPermissionWithPrefix(prefix, ctx,
 				permission,
 				accountId);
-		return checked;
+		return checked || god1 || god2;
 	}
 
 }

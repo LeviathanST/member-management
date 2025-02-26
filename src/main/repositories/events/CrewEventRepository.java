@@ -1,112 +1,124 @@
 package repositories.events;
 
 import config.Database;
+import dto.crew.GetCrewEventDTO;
 import exceptions.NotFoundException;
-import models.CrewEvent;
-import repositories.CrewRepository;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CrewEventRepository {
-	public static void insert(CrewEvent data) throws SQLException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = """
-					    INSERT INTO crew_event (crew_id, title, description, generation_id, start_at, end_at, type)
-					    VALUES (?, ?, ?, ?, ?, ?, ?)
-					""";
-			try (PreparedStatement stmt = con.prepareStatement(query)) {
-				stmt.setInt(1, data.getCrewId());
-				stmt.setString(2, data.getTitle());
-				stmt.setString(3, data.getDescription());
-				stmt.setInt(4, data.getGenerationId());
-				stmt.setTimestamp(5, data.getStartAt());
-				stmt.setTimestamp(6, data.getEndAt());
-				stmt.setString(7, data.getType());
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-				int rowEffected = stmt.executeUpdate();
-				if (rowEffected == 0) {
-					throw new SQLException(
-							String.format("Insert %s to CrewEvent is failed",
-									data.getTitle()));
-				}
+public class CrewEventRepository {
+	public static void insert(String crewName, String title, String description, LocalDateTime startedAt,
+			LocalDateTime endedAt)
+			throws SQLException, IOException, ClassNotFoundException {
+		String query = """
+				    INSERT INTO crew_event (crew_id, title, description, started_at, ended_at)
+				    VALUES (
+					(SELECT id FROM crew WHERE name = ?),
+					?, ?, ?, ?)
+				""";
+		Logger logger = LoggerFactory.getLogger(CrewEventRepository.class);
+		logger.debug("Hi");
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+
+			stmt.setString(1, crewName);
+			stmt.setString(2, title);
+			stmt.setString(3, description);
+			stmt.setTimestamp(4, Timestamp.valueOf(startedAt));
+			stmt.setTimestamp(5, Timestamp.valueOf(endedAt));
+
+			int rowEffected = stmt.executeUpdate();
+			if (rowEffected <= 0) {
+				throw new SQLException("Created crew event failed!");
 			}
 		}
-
 	}
 
-	public static void update(CrewEvent data, int crewEventID)
+	// TODO:
+	// Dynamic update for each field
+	public static void update(String crewName, int eventId, String title, String description,
+			LocalDateTime startedAt,
+			LocalDateTime endedAt)
 			throws SQLException, IOException, ClassNotFoundException {
+
+		Logger logger = LoggerFactory.getLogger(CrewEventRepository.class);
+		logger.debug("Hi");
 		try (Connection con = Database.connection()) {
 			String query = """
 					    UPDATE crew_event
-					    SET crew_id = ? ,title = ?, description = ?, generation_id = ?, start_at = ?, end_at = ?, type = ?
-					    WHERE id = ?
+					    SET title = ?, description = ?, started_at = ?, ended_at = ?
+					    WHERE
+						id = ?
+						AND crew_id = (SELECT id FROM crew WHERE name = ?)
 					""";
 			try (PreparedStatement stmt = con.prepareStatement(query)) {
-				stmt.setInt(1, data.getCrewId());
-				stmt.setString(2, data.getTitle());
-				stmt.setString(3, data.getDescription());
-				stmt.setInt(4, data.getGenerationId());
-				stmt.setTimestamp(5, data.getStartAt());
-				stmt.setTimestamp(6, data.getEndAt());
-				stmt.setString(7, data.getType());
-				stmt.setInt(8, crewEventID);
+				stmt.setString(1, title);
+				stmt.setString(2, description);
+				stmt.setTimestamp(3, Timestamp.valueOf(startedAt));
+				stmt.setTimestamp(4, Timestamp.valueOf(endedAt));
+				stmt.setInt(5, eventId);
+				stmt.setString(6, crewName);
 
 				int rowEffected = stmt.executeUpdate();
-				if (rowEffected == 0) {
-					throw new SQLException(
-							String.format("Update of CrewEvent with crewId %d failed",
-									data.getCrewId()));
+				if (rowEffected <= 0) {
+					throw new SQLException("Update of event for crew is failed!");
 				}
 			}
 		}
 
 	}
 
-	// Delete
-	public static void delete(int crewEventId) throws SQLException, IOException, ClassNotFoundException {
+	public static void delete(int eventId) throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = "DELETE FROM crew_event WHERE id = ?";
 
 			try (PreparedStatement stmt = con.prepareStatement(query)) {
-				stmt.setInt(1, crewEventId);
+				stmt.setInt(1, eventId);
 
 				int rowEffected = stmt.executeUpdate();
 				if (rowEffected == 0) {
-					throw new SQLException(
-							String.format("Delete of CrewEvent with crewId %d failed",
-									crewEventId));
+					throw new SQLException("Delete event failed");
 				}
 			}
 		}
 
 	}
 
-	public static List<CrewEvent> getAllCrewEvent()
+	public static List<GetCrewEventDTO> getAllCrewEvent(String crewName)
 			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
-			List<CrewEvent> crewEvents = new ArrayList<>();
-			String query = "SELECT * FROM crew_event";
+			List<GetCrewEventDTO> list = new ArrayList<>();
+			String query = """
+						SELECT id, title, description, started_at, ended_at FROM crew_event
+						WHERE crew_id = (SELECT id FROM crew WHERE name = ?)
+					""";
 			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, crewName);
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
-				crewEvents.add(new CrewEvent(rs.getInt("id"),
-						CrewRepository.getNameByID(rs.getInt("crew_id")),
-						rs.getString("title"),
-						rs.getString("description"),
-						rs.getInt("generation_id"),
-						rs.getTimestamp("start_at"), rs.getTimestamp("end_at"),
-						rs.getString("type")));
-			}
-			return crewEvents;
-		}
+				GetCrewEventDTO guildEvent = new GetCrewEventDTO();
+				guildEvent.setCrewName(crewName);
+				guildEvent.setId(rs.getInt("id"));
+				guildEvent.setTitle(rs.getString("title"));
+				guildEvent.setDescription(rs.getString("description"));
+				guildEvent.setStartedAt(rs.getTimestamp("started_at"));
+				guildEvent.setEndedAt(rs.getTimestamp("ended_at"));
 
+				list.add(guildEvent);
+			}
+			return list;
+		}
 	}
 }

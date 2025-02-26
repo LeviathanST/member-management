@@ -259,9 +259,9 @@
             <div class="sidebar">
                 <ul>
                     <li><a href="#"class="active">Member</a></li>
-                    <li><a href='<%=request.getContextPath()%>/guild/roles?name=<%=request.getParameter("name")%>'>Role</a></li>
-                    <li><a href='<%=request.getContextPath()%>/guild/events?name=<%=request.getParameter("name")%>' >Event</a></li>
-                    <li><a href='<%=request.getContextPath()%>/guild/info?name=<%=request.getParameter("name")%>'>Information</a></li>
+                    <li><a href='<%=request.getContextPath()%>/crew/roles?name=<%=request.getParameter("name")%>'>Role</a></li>
+                    <li><a href='<%=request.getContextPath()%>/crew/events?name=<%=request.getParameter("name")%>' >Event</a></li>
+                    <li><a href='<%=request.getContextPath()%>/crew/info?name=<%=request.getParameter("name")%>' >Information</a></li>
                 </ul>
             </div>
             <div class="member-list-container">
@@ -298,7 +298,7 @@
                         <p><strong>Role:</strong> <%= role %></p>
                     </div>
                     <div class="member-actions">
-                        <% boolean ade = (Boolean) request.getAttribute("ade"); %>
+                <% boolean ade = (Boolean) request.getAttribute("ade"); %>
                 <% if (ade) { %>
                         <button class="btn-edit" onclick="editMember('<%= username %>', '<%= fullName %>', '<%= role %>')">Edit</button>
                         <button class="btn-delete" onclick="deleteMember('<%= fullName %>')">Delete</button>
@@ -317,9 +317,9 @@
             <script>
             const roles = JSON.parse('<%=request.getAttribute("roles")%>')
             const name = '<%=request.getParameter("name")%>'
+            const route = "<%=request.getContextPath()%>/crew/members?name=" + name
             let selectedUsername = "";
             async function addMember() {
-                const route = "<%=request.getContextPath()%>/guild/members?name=" + name;
                 const username = prompt("Enter the username:");
                 if (username) {
                     const data = {
@@ -364,7 +364,6 @@
             async function confirmEdit() {
                 const newRole = document.getElementById("roleSelect").value;
 
-                const route = "<%=request.getContextPath()%>/guild/members?name=" + name;
                 const data = {
                     username: selectedUsername,
                     roleName: newRole
@@ -387,7 +386,6 @@
             }
 
             async function deleteMember(username) {
-                const route = "<%=request.getContextPath()%>/guild/members?name=" + name;
                     if (confirm(`Are you sure you want to delete member ${username}?`)) {
                 const data = {
                     username: username

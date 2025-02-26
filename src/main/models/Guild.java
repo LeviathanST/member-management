@@ -1,27 +1,17 @@
 package models;
 
+import lombok.Getter;
+
 public class Guild {
-	private int id;
+	@Getter
+	private Integer id;
+	@Getter
 	private String name;
+	@Getter
+	private String code;
 
 	public Guild(int id, String name) {
 		this.id = id;
-		this.name = name;
-	}
-
-	public Guild(String name) {
-		this.name = name;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
 		this.name = name;
 	}
 }

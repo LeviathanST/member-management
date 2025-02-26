@@ -1,6 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
-<%@ page import="dto.guild.GetGuildEventDTO" %>
+<%@ page import="dto.crew.GetCrewEventDTO" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -321,10 +321,10 @@
         <div class="container">
             <div class="sidebar">
                 <ul>
-                    <li><a href='<%=request.getContextPath()%>/guild/members?name=<%=request.getParameter("name")%>'>Member</a></li>
-                    <li><a href='<%=request.getContextPath()%>/guild/roles?name=<%=request.getParameter("name")%>'>Role</a></li>
+                    <li><a href='<%=request.getContextPath()%>/crew/members?name=<%=request.getParameter("name")%>'>Member</a></li>
+                    <li><a href='<%=request.getContextPath()%>/crew/roles?name=<%=request.getParameter("name")%>'>Role</a></li>
                     <li><a href="#"class="active" >Event</a></li>
-                    <li><a href='<%=request.getContextPath()%>/guild/info?name=<%=request.getParameter("name")%>'>Information</a></li>
+                    <li><a href='<%=request.getContextPath()%>/crew/info?name=<%=request.getParameter("name")%>'>Information</a></li>
                 </ul>
             </div>
             <div class="event-header">
@@ -335,14 +335,14 @@
                 <h2>Danh sách Sự Kiện</h2>
                 <div id="event-list">
         <% 
-            List<GetGuildEventDTO> guildEvents = (List<GetGuildEventDTO>) request.getAttribute("guildEvents");
-            if (guildEvents != null && !guildEvents.isEmpty()) {
-                for (GetGuildEventDTO event : guildEvents) {
+            List<GetCrewEventDTO> crewEvents = (List<GetCrewEventDTO>) request.getAttribute("crewEvents");
+            if (crewEvents != null && !crewEvents.isEmpty()) {
+                for (GetCrewEventDTO event : crewEvents) {
         %>
         <div class="event-card">
             <div class="event-info">
                 <h2><%= event.getTitle() %></h2>
-                <h2><%= event.getGuildName() %></h2>
+                <h2><%= event.getCrewName() %></h2>
                 <p><%= event.getDescription() %></p>
                 <p><b><%= event.getStartedAt() %></b></p>
                 <p><b><%= event.getEndedAt() %></b></p>
@@ -426,7 +426,7 @@ eventForm.addEventListener("submit", async function(event) {
 
     const eventData = { eventId, title, description: content, startedAt, endedAt };
 
-    const res = await fetch(`<%=request.getContextPath()%>/guild/events?name=` + name, {
+    const res = await fetch(`<%=request.getContextPath()%>/crew/events?name=` + name, {
         method: eventId ? "PUT" : "POST",
         headers: {
             "Content-Type": "application/json",
@@ -460,7 +460,7 @@ async function deleteEvent (id) {
     const data = {
         eventId: id
     }
-    const res = await fetch(`<%=request.getContextPath()%>/guild/events?name=` + name, {
+    const res = await fetch(`<%=request.getContextPath()%>/crew/events?name=` + name, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",

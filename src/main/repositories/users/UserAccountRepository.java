@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
+
 import java.util.ArrayList;
 
 import config.Database;
@@ -14,7 +15,6 @@ import dto.LoginDTO;
 import dto.SignUpDTO;
 import exceptions.DataEmptyException;
 import exceptions.NotFoundException;
-import models.UserAccount;
 
 public class UserAccountRepository {
 	public static List<String> getAllId() throws SQLException, IOException, ClassNotFoundException {
@@ -122,16 +122,14 @@ public class UserAccountRepository {
 
 	}
 
-	public static void delete(String accountId)
+	public static void delete(String username)
 			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
-			UserProfileRepository.delete(accountId);
-			UserRoleRepository.delete(accountId);
 			String query = """
-					DELETE FROM user_account WHERE id = ?
+					DELETE FROM user_account WHERE username = ?
 					""";
 			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, accountId);
+			stmt.setString(1, username);
 			int row = stmt.executeUpdate();
 			if (row == 0)
 				throw new SQLException("Delete user account failed!");

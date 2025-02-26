@@ -39,8 +39,6 @@ public class TokenPairDTO {
 		AppConfig appConfig = EnvLoader.load(AppConfig.class);
 		Algorithm algo = Algorithm.HMAC384(appConfig.getSecretKey());
 
-		System.out.println(data.getAccountId());
-
 		String accessToken = JWT
 				.create()
 				.withIssuedAt(new Date())

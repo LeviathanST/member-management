@@ -1,4 +1,4 @@
-package repositories.roles;
+package repositories;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -6,113 +6,56 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import config.Database;
 import constants.RoleContext;
-import dto.role.GetUserFromPrefixDTO;
+import dto.role.GetUserDTO;
 import exceptions.NotFoundException;
 import models.Role;
 import utils.Pressessor;
 
 public class RoleRepository {
-	public static List<Role> getAll() throws SQLException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = "SELECT * FROM role";
-			List<Role> list = new ArrayList<>();
+	/// NOTE:
+	/// Delete role then convert all user assigned to the role to the role default
+	/// of that context
+	public static void delete(String roleName) throws SQLException {
+		// TODO:using procedure sql
+	}
 
-			PreparedStatement stmt = con.prepareStatement(query);
-			ResultSet rs = stmt.executeQuery();
+	public static void create(String roleName) throws SQLException {
+		String query = """
+					INSERT INTO role (name)
+					VALUES (?)
+				""";
 
-			while (rs.next()) {
-				list.add(new Role(rs.getInt("id"), rs.getString("name")));
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, roleName);
+
+			int row = stmt.executeUpdate();
+			if (row <= 0) {
+				throw new SQLException("Add role failed");
 			}
-
-			return list;
-		}
-
-	}
-
-	public static Role getByName(String name)
-			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = "SELECT id FROM role WHERE name = ?";
-
-			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, name);
-
-			ResultSet rs = stmt.executeQuery();
-
-			while (rs.next()) {
-				return new Role(rs.getInt("id"), name);
-			}
-
-			throw new NotFoundException("Your specified role is not found!");
-		}
-
-	}
-
-	public static void create(String nameRole) throws SQLException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = """
-					INSERT INTO role (name) VALUES (?)
-					""";
-			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, nameRole);
-			int row = stmt.executeUpdate();
-			if (row == 0)
-				throw new SQLException("Create role failed : now row is affected!");
-		}
-
-	}
-
-	public static void update(int roleId, String newNameRole)
-			throws SQLException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = """
-					UPDATE role
-					SET name = ?
-					WHERE id = ?
-					""";
-			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, newNameRole);
-			stmt.setInt(2, roleId);
-			int row = stmt.executeUpdate();
-			if (row == 0)
-				throw new SQLException("Update role failed : now row is affected!");
-		}
-
-	}
-
-	public static void delete(int roleId) throws SQLException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = """
-					DELETE FROM role
-					WHERE id = ?
-					""";
-			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setInt(1, roleId);
-			int row = stmt.executeUpdate();
-			if (row == 0)
-				throw new SQLException("Delete role failed : now row is affected!");
 		}
 	}
 
-	// -----------------------------------------------------------------------------------
 	/// NOTE:
 	/// @param ctx:
-	/// LIKE or NOTE LIKE for filter
-	public static void addDefaultForUserByPrefix(String username, String prefix, String ctx) throws SQLException {
+	/// LIKE or NOT LIKE for filter
+	public static void addDefaultForUserByPrefix(String username, String prefix) throws SQLException {
 		String query = """
 					INSERT INTO user_role (account_id, role_id)
 					VALUES (
 						(SELECT id FROM user_account WHERE username = ?),
-						(SELECT id FROM role WHERE name %s ? AND is_default = true)
+						(SELECT id FROM role WHERE name LIKE ? AND is_default = true)
 					)
-				""".formatted(ctx);
+				""";
 
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
@@ -126,6 +69,7 @@ public class RoleRepository {
 		}
 	}
 
+	/// TODO: We can change multi query into procedure
 	/// NOTE:
 	/// This function will be rollback if one of actions is failed.
 	/// @param prefix:
@@ -133,7 +77,8 @@ public class RoleRepository {
 	/// one for the user.
 	/// @param roleName:
 	/// - The specified role is assigned for the user.
-	public static void updateSpecifiedForUser(String prefix, String username, String roleName) throws SQLException {
+	public static void updateSpecifiedForUserWithPrefix(String prefix, String username, String roleName)
+			throws SQLException {
 		String insertQuery = """
 				INSERT INTO user_role (account_id, role_id)
 				VALUES (
@@ -176,6 +121,32 @@ public class RoleRepository {
 		}
 	}
 
+	public static void addSpecifiedForUserWithPrefix(String prefix, String username, String roleName)
+			throws SQLException {
+		String insertQuery = """
+				INSERT INTO user_role (account_id, role_id)
+				VALUES (
+					(SELECT id FROM user_account WHERE username = ?),
+					(SELECT id FROM role WHERE name = ?)
+				)
+				""";
+		try (Connection conn = Database.connection()) {
+			try {
+				PreparedStatement stmt = conn.prepareStatement(insertQuery);
+				stmt.setString(1, username);
+				stmt.setString(2, prefix + "_" + roleName);
+				int rowEffect = stmt.executeUpdate();
+				if (rowEffect <= 0) {
+					throw new SQLException(
+							"Insert new role for user is failed!");
+				}
+			} catch (Exception e) {
+				conn.rollback();
+				throw e;
+			}
+		}
+	}
+
 	/// NOTE:
 	/// - Delete a user from guild, crew even application by prefix.
 	/// - Using IN and LIKE keyword to ensure all prefix in guild, crew, app are
@@ -202,7 +173,7 @@ public class RoleRepository {
 		}
 	}
 
-	public static List<GetUserFromPrefixDTO> getUsersByPrefix(String prefix) throws SQLException {
+	public static List<GetUserDTO> getUsersByPrefix(String prefix) throws SQLException {
 		String query = """
 					SELECT up.full_name AS full_name, ua.username as username, r.name AS role
 					FROM user_profile up
@@ -211,14 +182,38 @@ public class RoleRepository {
 						JOIN role r ON r.id = ur.role_id
 					WHERE r.name LIKE ?
 				""";
-		List<GetUserFromPrefixDTO> list = new ArrayList<>();
+		List<GetUserDTO> list = new ArrayList<>();
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
 			stmt.setString(1, prefix + "_%");
 
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
-				GetUserFromPrefixDTO user = new GetUserFromPrefixDTO();
+				GetUserDTO user = new GetUserDTO();
+				user.setFullName(rs.getString("full_name"));
+				user.setUsername(rs.getString("username"));
+				user.setRole(Pressessor.removePrefixFromRole(rs.getString("role")));
+				list.add(user);
+			}
+		}
+		return list;
+	}
+
+	public static List<GetUserDTO> getUsers() throws SQLException {
+		String query = """
+					SELECT up.full_name AS full_name, ua.username as username, r.name AS role
+					FROM user_profile up
+						JOIN user_account ua ON ua.id = up.account_id
+						JOIN user_role ur ON ur.account_id = ua.id
+						JOIN role r ON r.id = ur.role_id
+				""";
+		List<GetUserDTO> list = new ArrayList<>();
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				GetUserDTO user = new GetUserDTO();
 				user.setFullName(rs.getString("full_name"));
 				user.setUsername(rs.getString("username"));
 				user.setRole(Pressessor.removePrefixFromRole(rs.getString("role")));
@@ -294,8 +289,67 @@ public class RoleRepository {
 		return listError;
 	}
 
+	public static void update(String roleName, String newRoleName) throws SQLException {
+		String query = """
+					UPDATE role
+					SET name = ?
+					WHERE name = ?
+				""";
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, newRoleName);
+			stmt.setString(2, roleName);
+
+			ResultSet checked = stmt.executeQuery();
+		}
+	}
+
+	/// NOTE:
+	/// Multiple checking if user have specified permissions in list
+	public static boolean existPermissionWithContext(RoleContext ctx, List<String> permissions, String accountId)
+			throws SQLException {
+		if (permissions == null || permissions.isEmpty()) {
+			return false;
+		}
+
+		String placeholder = String.join(", ", Collections.nCopies(permissions.size(), "?"));
+		String query = """
+				SELECT 1
+				FROM permission p
+					JOIN role_permission rp ON rp.permission_id = p.id
+					JOIN user_role ur ON ur.role_id = rp.role_id
+				WHERE ur.account_id = ?
+					AND p.context = ?
+					AND p.name IN (%s)
+				""".formatted(placeholder);
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, accountId);
+			stmt.setString(2, ctx.name().toLowerCase());
+			int i = 3;
+			for (String permission : permissions) {
+				stmt.setString(i++, permission);
+			}
+			ResultSet checked = stmt.executeQuery();
+
+			if (checked.next()) {
+				return checked.getBoolean(1);
+			} else {
+				return false;
+			}
+
+		}
+	}
+
+	/// NOTE:
+	/// Single checking if user have specified permission
 	public static boolean existPermissionWithContext(RoleContext ctx, String permission, String accountId)
 			throws SQLException {
+		if (permission == null || permission.isEmpty()) {
+			return false;
+		}
 
 		String query = """
 				SELECT 1
@@ -303,15 +357,17 @@ public class RoleRepository {
 					JOIN role_permission rp ON rp.permission_id = p.id
 					JOIN user_role ur ON ur.role_id = rp.role_id
 				WHERE ur.account_id = ?
-					AND p.name = ?
 					AND p.context = ?
+					AND p.name = ?
+				LIMIT 1
 				""";
 
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
 			stmt.setString(1, accountId);
-			stmt.setString(2, permission);
-			stmt.setString(3, ctx.name().toLowerCase());
+			stmt.setString(2, ctx.name().toLowerCase());
+			stmt.setString(3, permission);
+
 			ResultSet checked = stmt.executeQuery();
 
 			if (checked.next()) {
@@ -335,7 +391,7 @@ public class RoleRepository {
 
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
-			stmt.setString(1, prefix + "_%");
+			stmt.setString(1, prefix + "\\_%");
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				list.add(Pressessor.removePrefixFromRole(rs.getString("name")));
@@ -356,7 +412,10 @@ public class RoleRepository {
 			stmt.setString(1, ctx.name().toLowerCase());
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
-				list.add(rs.getString("name"));
+				String permission = rs.getString("name");
+				if (Pressessor.validPermission(permission)) {
+					list.add(permission);
+				}
 			}
 			return list;
 		}

@@ -1,4 +1,5 @@
-package dto.guild;
+
+package dto.crew;
 
 import java.sql.Timestamp;
 
@@ -6,14 +7,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 // TODO: REFACTOR
-public class GetGuildEventDTO {
+public class GetCrewEventDTO {
 	@Setter
 	@Getter
 	Integer id;
 
 	@Setter
 	@Getter
-	String guildName;
+	String crewName;
 
 	@Setter
 	@Getter

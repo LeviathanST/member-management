@@ -1,169 +1,126 @@
 package repositories;
 
 import config.Database;
+import dto.crew.CrewInfoDTO;
 import exceptions.NotFoundException;
-import repositories.users.UserAccountRepository;
 
-import java.io.IOException;
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.*;
 
 public class CrewRepository {
-	public static void insert(String name)
-			throws SQLException, SQLIntegrityConstraintViolationException, IOException,
-			ClassNotFoundException {
+	public static CrewInfoDTO getInfo(String crewName) throws SQLException {
+		String query = """
+				SELECT c.name, COUNT(ur.account_id) as totalMember FROM crew c
+					JOIN role r ON r.name LIKE CONCAT(c.code, '\\_%')
+					JOIN user_role ur ON ur.role_id = r.id
+				WHERE c.name = ?
+				GROUP BY c.name
+				""";
 		try (Connection con = Database.connection()) {
-			String query = "INSERT INTO crew (name) VALUES (?)";
-			try (PreparedStatement stmt = con.prepareStatement(query)) {
-				stmt.setString(1, name);
-
-				int rowEffected = stmt.executeUpdate();
-				if (rowEffected == 0) {
-					throw new SQLException(String.format("Insert crew %s is failed", name));
-				}
-			}
-		}
-
-	}
-
-	public static List<String> getMemberInCrew(int crewId)
-			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = """
-					SELECT ucr.account_id as account_id
-					FROM crew c
-					JOIN crew_role cr ON cr.crew_id = c.id
-					JOIN user_crew_role ucr ON ucr.crew_role_id = cr.id
-					WHERE c.id = ?
-					""";
-
-			List<String> list = new ArrayList<>();
-
 			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setInt(1, crewId);
-
-			ResultSet rs = stmt.executeQuery();
-
-			while (rs.next()) {
-				list.add(UserAccountRepository.getNameById(rs.getString("account_id")));
-			}
-
-			return list;
-		}
-
-	}
-
-	public static void update(int crewId, String newName) throws SQLException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = "UPDATE crew SET name = ? WHERE id = ?";
-			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, newName);
-			stmt.setInt(2, crewId);
-			int rowEffected = stmt.executeUpdate();
-			if (rowEffected == 0) {
-				throw new SQLException(String.format("Update name crew into %s is failed", newName));
-			}
-		}
-	}
-
-	public static void delete(int crewId) throws SQLException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = "DELETE FROM crew WHERE id = ?";
-			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setInt(1, crewId);
-
-			int rowEffected = stmt.executeUpdate();
-			if (rowEffected == 0) {
-				throw new SQLException("Delete crew is failed");
-			}
-		}
-
-	}
-
-	public static void getAllName() throws SQLException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = "SELECT name FROM crew ";
-			PreparedStatement stmt = con.prepareStatement(query);
-			ResultSet rs = stmt.executeQuery();
-
-			while (rs.next()) {
-				System.out.println(rs.getString("name"));
-			}
-		}
-
-	}
-
-	public static int getIdByName(String name)
-			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = "SELECT id FROM crew WHERE name = ?";
-			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, name);
+			stmt.setString(1, crewName);
 			ResultSet rs = stmt.executeQuery();
 
 			if (rs.next()) {
-				return rs.getInt("id");
+				CrewInfoDTO dto = new CrewInfoDTO();
+				dto.setGuildName(rs.getString("name"));
+				dto.setTotalMember(rs.getString("totalMember"));
+				return dto;
 			}
-
-			throw new NotFoundException("Crew ID is not existed!");
+			throw new SQLException("Get info of %s failed".formatted(crewName));
 		}
 
 	}
 
-	public static String getNameByID(int id)
-			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
+	public static List<String> getAllOfUser(String accountId) throws SQLException {
+		String query = """
+				SELECT c.name FROM crew c
+					JOIN role r ON c.code = LEFT(r.name, LENGTH(c.code))
+					JOIN user_role ur ON ur.role_id = r.id
+					JOIN user_account ua ON ua.id = ur.account_id
+				WHERE ua.id = ?
+				""";
+		List<String> list = new ArrayList<>();
 		try (Connection con = Database.connection()) {
-			String query = "SELECT name FROM crew WHERE id = ?";
-			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setInt(1, id);
-			ResultSet rs = stmt.executeQuery();
-
-			if (rs.next()) {
-				return rs.getString("name");
-			}
-
-			throw new NotFoundException("Crew is not existed!");
-		}
-	}
-
-	public static List<String> getAllNameToList() throws SQLException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			List<String> crewNames = new ArrayList<>();
-			String query = "SELECT name FROM crew ";
-			PreparedStatement stmt = con.prepareStatement(query);
-			ResultSet rs = stmt.executeQuery();
-
-			while (rs.next()) {
-				crewNames.add(rs.getString("name"));
-			}
-			return crewNames;
-		}
-	}
-
-	public static List<String> getAllCrewByAccountId(String accountId)
-			throws SQLException, IOException, ClassNotFoundException {
-		try (Connection con = Database.connection()) {
-			String query = """
-					SELECT c.name as name
-					FROM crew g
-					JOIN crew_role cr ON cr.crew_id = c.id
-					JOIN user_crew_role ucr ON ucr.crew_role_id = cr.id
-					WHERE ucr.account_id = ?
-					""";
-
-			List<String> list = new ArrayList<>();
-
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, accountId);
-
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
 				list.add(rs.getString("name"));
 			}
-
 			return list;
+		}
+	}
+
+	public static List<String> getAll() throws SQLException {
+		String query = """
+				SELECT * FROM crew
+				""";
+		List<String> list = new ArrayList<>();
+		try (Connection con = Database.connection()) {
+			PreparedStatement stmt = con.prepareStatement(query);
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+				list.add(rs.getString("name"));
+			}
+			return list;
+		}
+	}
+
+	/// NOTE:
+	/// @param code:
+	/// Crew abbreviation
+	/// Sample: Backend1 -> BE1
+	public static void create(String code, String name) throws SQLException {
+		String query = """
+					INSERT INTO crew (code, name)
+					VALUES (?, ?)
+				""";
+		try (Connection con = Database.connection()) {
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, code);
+			stmt.setString(2, name);
+			int rows = stmt.executeUpdate();
+
+			if (rows <= 0) {
+				throw new SQLException("Created crew failed!");
+			}
+		}
+	}
+
+	public static void update(String oldName, String newName) throws SQLException {
+		String query = """
+					UPDATE crew
+					SET name = ?
+					WHERE name = ?
+				""";
+		try (Connection con = Database.connection()) {
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, newName);
+			stmt.setString(2, oldName);
+			int rows = stmt.executeUpdate();
+
+			if (rows <= 0) {
+				throw new SQLException("Updated crew failed!");
+			}
+		}
+	}
+
+	public static String getCodeByName(String name) throws SQLException, NotFoundException {
+		String query = "SELECT code FROM crew WHERE name = ?";
+		try (Connection con = Database.connection()) {
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, name);
+			ResultSet rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				return rs.getString("code");
+			}
+
+			throw new NotFoundException("Not found crew code of: " + name);
 		}
 	}
 }

@@ -215,20 +215,52 @@
     <div class="container">
         <div class="sidebar">
             <ul>
-                li><a href="#">Member</a></li>
-                <li><a href="#">Role</a></li>
-                <li><a href="#" >Event</a></li>
-                <li><a href="#" >Guild</a></li>
+
+                <li><a href='<%=request.getContextPath()%>/app/members'>Member</a></li>
+                <li><a href='<%=request.getContextPath()%>/app/roles'>Role</a></li>
+                <li><a href='<%=request.getContextPath()%>/app/events' >Event</a></li>
+                <li><a href='<%=request.getContextPath()%>/app/guilds' >Guild</a></li>
                 <li><a href="#"class="active" >Crew</a></li>
             </ul>
         </div>
         <div class="crew-list-container">
             <h1>Crew List</h1>
-    
             <div class="add-crew">
                 <button onclick="addCrew()">Add crew</button>
             </div>
-            <div id="crew-list"></div>
+            <div class="crew-list">
+<% 
+                    List<String> crews = (List<String>) request.getAttribute("crews");
+                    if (crews != null && !crews.isEmpty()) {
+                        for (String crew : crews) {
+                %>
+                    <div class="crew-item">
+                        <div class="crew-info">
+                        <p style="margin: 0; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5;">
+                            <strong style="color: #444; font-weight: 600;">Name:</strong>
+                            <a href="<%= request.getContextPath() %>/crew/info?name=<%= crewName %>" style="color: #007bff; text-decoration: none; padding: 2px 6px; border-radius: 4px; transition: background 0.3s;">
+                                <%= crewName %>
+                            </a>
+                        </p>
+                        </div>
+                        <div class="crew-actions">
+                            <% if (ade != null && ade) { %>
+                                    <button style="background-color: #007bff;" type="submit" class="btn-edit">Edit</button>
+                                    <button style="background-color: #dc3545;" type="submit" class="btn-delete">Delete</button>
+                                </form>
+                            <% } %>
+                        </div>
+                    </div>
+                <% 
+                        }
+                    } else {
+                %>
+                    <p>No crew found.</p>
+                <% 
+                    }
+                %>
+            </div> 
+</div>
         </div>
     
         <script>

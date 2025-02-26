@@ -179,13 +179,13 @@
     UserProfile userProfile = (UserProfile) request.getAttribute("profile");
     if (userProfile != null) {
 %>
-<p><strong>Full Name:</strong> <%= userProfile.getFullName() %></p>
+<p><strong>Full Name:</strong> <%= userProfile.getFullName() == null ? "Empty" : userProfile.getFullName()%></p>
 
-<p><strong>Date of Birth:</strong> <%= userProfile.getDateOfBirth() == null ? "Empty" : userProfile.getDateOfBirth() %></p>
+<p><strong>Date of Birth:</strong> <%= userProfile.getDateOfBirth()%></p>
 <p><strong>Sex:</strong> <%= userProfile.getSex() %></p>
-<p><strong>Student Code:</strong> <%= userProfile.getStudentCode() %></p>
-<p><strong>Personal Email:</strong> <%= userProfile.getEmail() %></p>
-<p><strong>Contact Email:</strong> <%= userProfile.getContactEmail() %></p>
+<p><strong>Student Code:</strong> <%= userProfile.getStudentCode() == null ? "Empty" : userProfile.getStudentCode()%></p>
+<p><strong>Personal Email:</strong> <%= userProfile.getEmail() == null ? "Empty" : userProfile.getEmail()%></p>
+<p><strong>Contact Email:</strong> <%= userProfile.getContactEmail() == null ? "Empty" : userProfile.getContactEmail()%></p>
 <p><strong>Generation:</strong> F-<%= userProfile.getGenerationId() %></p>
 <%
     } else {
@@ -202,7 +202,7 @@
     <div class="form-group">
         <h3>Edit Profile</h3>
         <label>Full Name</label>
-        <input type="text" id="full-name" placeholder="Nguyen Van A" value="<%= userProfile != null ? userProfile.getFullName() : "" %>" />
+        <input type="text" id="full-name" placeholder="Nguyen Van A" value="<%= userProfile.getFullName() != null ? userProfile.getFullName() : "" %>" />
     </div>
     <div class="form-row">
         <div class="form-group">
@@ -210,7 +210,7 @@
             <%
     String formattedDob = "";
     if (userProfile != null && userProfile.getDateOfBirth() != null) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         formattedDob = sdf.format(userProfile.getDateOfBirth());
     }
 %>
@@ -228,12 +228,16 @@
     <div class="form-row">
         <div class="form-group">
             <label>Personal Email</label>
-            <input type="email" id="personal-email" placeholder="nguyenvana123@gmail.com" value="<%= userProfile != null ? userProfile.getEmail() : "" %>" />
+            <input type="email" id="personal-email" placeholder="nguyenvana123@gmail.com" value="<%= userProfile.getEmail() != null ? userProfile.getEmail() : "" %>" />
         </div>
         <div class="form-group">
             <label>Contact Email</label>
-            <input type="email" id="contact-email" placeholder="nguyenvana123@gmail.com" value="<%= userProfile != null ? userProfile.getContactEmail() : "" %>" />
+            <input type="email" id="contact-email" placeholder="nguyenvana123@gmail.com" value="<%= userProfile.getContactEmail() != null ? userProfile.getContactEmail() : "" %>" />
         </div>
+        <div class="form-group">
+                    <label>Student Code</label>
+                    <input type="text" id="student-code" placeholder="SE123456" value="<%= userProfile.getStudentCode() != null ? userProfile.getStudentCode() : "" %>" maxlength="8" />
+                </div>
     </div>
 </form>
 </div>
@@ -246,6 +250,7 @@
                 sex: document.getElementById("gender").value,
                 email: document.getElementById("personal-email").value,
                 contactEmail: document.getElementById("contact-email").value,
+                studentCode: document.getElementById("student-code").value
             };
 
             fetch("<%=request.getContextPath()%>/app/profile", {

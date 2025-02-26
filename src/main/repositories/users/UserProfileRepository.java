@@ -12,25 +12,33 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class UserProfileRepository {
-	public static void insert(UserProfile data)
-			throws SQLException, IOException, ClassNotFoundException {
+	public static void insert(String username, Sex sex, int generationId, Date dob)
+			throws SQLException, IOException, ClassNotFoundException,
+			SQLIntegrityConstraintViolationException {
+		String query = """
+						INSERT INTO user_profile (account_id, sex, generation_id, dob)
+						VALUES (
+							(SELECT id FROM user_account WHERE username = ?),
+							?, ?, ?
+						)
+				""";
 		try (Connection con = Database.connection()) {
-			String query = "INSERT INTO user_profile (account_id, full_name, student_code, email, contact_email, generation_id, dob) VALUES (?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, data.getAccountId());
-			stmt.setString(2, data.getFullName());
-			stmt.setString(3, data.getStudentCode());
-			stmt.setString(4, data.getEmail());
-			stmt.setString(5, data.getContactEmail());
-			stmt.setInt(6, data.getGenerationId());
-			stmt.setDate(7, data.getDateOfBirth());
+			stmt.setString(1, username);
+			stmt.setString(2, sex.name().toUpperCase());
+			stmt.setInt(3, generationId);
+			stmt.setDate(4, dob);
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected == 0) {
-				throw new SQLException("Insert failed: No rows effected.");
+				throw new SQLException("Insert profile failed!");
 			}
 		}
 
@@ -39,15 +47,16 @@ public class UserProfileRepository {
 	public static void update(UpdateProfileDTO data, String accountId)
 			throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
-			String query = "UPDATE user_profile SET full_name = ?, sex = ?, email = ?, contact_email = ?, dob = ? WHERE account_id = ?";
+			String query = "UPDATE user_profile SET full_name = ?, student_code = ?, sex = ?, email = ?, contact_email = ?, dob = ? WHERE account_id = ?";
 			PreparedStatement stmt = con.prepareStatement(query);
 
 			stmt.setString(1, data.getFullName());
 			stmt.setString(2, data.getSex().name());
-			stmt.setString(3, data.getEmail());
-			stmt.setString(4, data.getContactEmail());
-			stmt.setDate(5, data.getDateOfBirth());
-			stmt.setString(6, accountId);
+			stmt.setString(3, data.getStudentCode());
+			stmt.setString(4, data.getEmail());
+			stmt.setString(5, data.getContactEmail());
+			stmt.setDate(6, data.getDateOfBirth());
+			stmt.setString(7, accountId);
 
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected == 0) {
@@ -66,41 +75,43 @@ public class UserProfileRepository {
 
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected == 0) {
-				throw new NotFoundException("Delete failed: No rows affected.");
+				throw new NotFoundException("Delete failed!");
 			}
 		}
 	}
 
-	public static List<UserProfile> findByUsername(String username)
+	/// NOTE:
+	/// Read specified user profile
+	public static UserProfile findByUsername(String username)
 			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
 			String query = """
-						SELECT *
-									FROM user_profile
-									WHERE username LIKE ?;
+					SELECT * FROM user_profile
+					WHERE account_id = (SELECT id FROM user_account WHERE username = ?)
 					""";
-			List<UserProfile> result = new ArrayList<>();
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, username);
-			UserProfile dto = new UserProfile();
 			ResultSet rs = stmt.executeQuery();
-			if (!rs.next())
-				throw new NotFoundException("User profile is not existed");
-			while (rs.next()) {
-				dto.setAccountId(rs.getString("account_id"));
-				dto.setFullName(rs.getString("full_name"));
-				dto.setSex(Sex.valueOf(rs.getString("sex")));
-				dto.setStudentCode(rs.getString("student_code"));
-				dto.setEmail(rs.getString("email"));
-				dto.setContactEmail(rs.getString("contact_email"));
-				dto.setGenerationId(rs.getInt("generation_id"));
-				dto.setDateOfBirth(rs.getDate("dob"));
-				result.add(dto);
+
+			if (rs.next()) {
+				UserProfile userProfile = new UserProfile();
+				userProfile.setAccountId(rs.getString("account_id"));
+				userProfile.setFullName(rs.getString("full_name"));
+				userProfile.setSex(Sex.valueOf(rs.getString("sex")));
+				userProfile.setStudentCode(rs.getString("student_code"));
+				userProfile.setEmail(rs.getString("email"));
+				userProfile.setContactEmail(rs.getString("contact_email"));
+				userProfile.setGenerationId(rs.getInt("generation_id"));
+				userProfile.setDateOfBirth(rs.getDate("dob"));
+				return userProfile;
 			}
-			return result;
+
+			throw new NotFoundException("Not found profile of %s".formatted(username));
 		}
 	}
 
+	/// NOTE:
+	/// For read myself
 	public static UserProfile read(String accountId)
 			throws SQLException, NotFoundException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {

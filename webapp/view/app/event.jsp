@@ -1,6 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
-<%@ page import="dto.guild.GetGuildEventDTO" %>
+<%@ page import="dto.app.GetEventDTO" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -321,10 +321,11 @@
         <div class="container">
             <div class="sidebar">
                 <ul>
-                    <li><a href='<%=request.getContextPath()%>/guild/members?name=<%=request.getParameter("name")%>'>Member</a></li>
-                    <li><a href='<%=request.getContextPath()%>/guild/roles?name=<%=request.getParameter("name")%>'>Role</a></li>
+                    <li><a href='<%=request.getContextPath()%>/app/members'>Member</a></li>
+                    <li><a href='<%=request.getContextPath()%>/app/roles'>Role</a></li>
                     <li><a href="#"class="active" >Event</a></li>
-                    <li><a href='<%=request.getContextPath()%>/guild/info?name=<%=request.getParameter("name")%>'>Information</a></li>
+                    <li><a href='<%=request.getContextPath()%>/app/guilds'>Guild</a></li>
+                    <li><a href='<%=request.getContextPath()%>/app/crews'>Crew</a></li>
                 </ul>
             </div>
             <div class="event-header">
@@ -335,14 +336,13 @@
                 <h2>Danh sách Sự Kiện</h2>
                 <div id="event-list">
         <% 
-            List<GetGuildEventDTO> guildEvents = (List<GetGuildEventDTO>) request.getAttribute("guildEvents");
-            if (guildEvents != null && !guildEvents.isEmpty()) {
-                for (GetGuildEventDTO event : guildEvents) {
+            List<GetEventDTO> events = (List<GetEventDTO>) request.getAttribute("events");
+            if (events != null && !events.isEmpty()) {
+                for (GetEventDTO event : events) {
         %>
         <div class="event-card">
             <div class="event-info">
                 <h2><%= event.getTitle() %></h2>
-                <h2><%= event.getGuildName() %></h2>
                 <p><%= event.getDescription() %></p>
                 <p><b><%= event.getStartedAt() %></b></p>
                 <p><b><%= event.getEndedAt() %></b></p>
@@ -393,7 +393,6 @@
                 </div>
             </div>
             <script>
-const name = '<%=request.getParameter("name")%>';
 const eventFormContainer = document.getElementById("event-form-container");
 const closeModal = document.querySelector(".close");
 const eventForm = document.getElementById("event-form");
@@ -426,7 +425,7 @@ eventForm.addEventListener("submit", async function(event) {
 
     const eventData = { eventId, title, description: content, startedAt, endedAt };
 
-    const res = await fetch(`<%=request.getContextPath()%>/guild/events?name=` + name, {
+    const res = await fetch(`<%=request.getContextPath()%>/app/events`, {
         method: eventId ? "PUT" : "POST",
         headers: {
             "Content-Type": "application/json",
@@ -460,7 +459,7 @@ async function deleteEvent (id) {
     const data = {
         eventId: id
     }
-    const res = await fetch(`<%=request.getContextPath()%>/guild/events?name=` + name, {
+    const res = await fetch(`<%=request.getContextPath()%>/app/events`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
