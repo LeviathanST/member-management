@@ -1,6 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
-<%@ page import="dto.role.GetUserFromPrefixDTO" %>
+<%@ page import="dto.role.GetUserDTO" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -258,9 +258,11 @@
             <!-- Sidebar -->
             <div class="sidebar">
                 <ul>
-                    <li><a href="#"class="active">Member</a></li>
-                    <li><a href='roles?name=<%=request.getParameter("name")%>'>Role</a></li>
-                    <li><a href='events?name=<%=request.getParameter("name")%>' >Event</a></li>
+                <li><a href='#' class="active">Member</a></li>
+                <li><a href='<%=request.getContextPath()%>/app/roles'>Role</a></li>
+                <li><a href='<%=request.getContextPath()%>/app/events' >Event</a></li>
+                <li><a href='<%=request.getContextPath()%>/app/guilds' >Guild</a></li>
+                <li><a href='<%=request.getContextPath()%>/app/crews' >Crew</a></li>
                 </ul>
             </div>
             <div class="member-list-container">
@@ -285,7 +287,7 @@
                 List<GetUserDTO> members = (List<GetUserDTO>) request.getAttribute("members");
                 if (!members.isEmpty()) {
                     for (GetUserDTO member : members) {
-                        String username = member.getUsername();
+                        String username = member.getUsername() != null ? member.getUsername() : "Empty";
                         String fullName = member.getFullName();
                         String role = member.getRole();
 
@@ -293,11 +295,12 @@
                 <div class="member-item">
                     <div class="member-info">
                         <p><strong>FullName:</strong> <%= fullName %></p>
+                        <p><strong>Username:</strong> <%= username %></p>
                         <p><strong>Role:</strong> <%= role %></p>
                     </div>
                     <div class="member-actions">
                         <% boolean ade = (Boolean) request.getAttribute("ade"); %>
-                <% if (canEditAndDelete) { %>
+                <% if (ade) { %>
                         <button class="btn-edit" onclick="editMember('<%= username %>', '<%= fullName %>', '<%= role %>')">Edit</button>
                         <button class="btn-delete" onclick="deleteMember('<%= fullName %>')">Delete</button>
                 <% } %>

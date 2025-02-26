@@ -321,9 +321,11 @@
         <div class="container">
             <div class="sidebar">
                 <ul>
-                    <li><a href='members?name=<%=request.getParameter("name")%>'>Member</a></li>
-                    <li><a href='roles?name=<%=request.getParameter("name")%>'>Role</a></li>
+                    <li><a href='<%=request.getContextPath()%>/app/members'>Member</a></li>
+                    <li><a href='<%=request.getContextPath()%>/app/roles'>Role</a></li>
                     <li><a href="#"class="active" >Event</a></li>
+                    <li><a href='<%=request.getContextPath()%>/app/guilds'>Guild</a></li>
+                    <li><a href='<%=request.getContextPath()%>/app/crews'>Crew</a></li>
                 </ul>
             </div>
             <div class="event-header">

@@ -296,9 +296,11 @@ button {
     <div class="container">
         <div class="sidebar">
             <ul>
-                <li><a href='members?name=<%=request.getParameter("name")%>'>Member</a></li>
+                <li><a href='<%=request.getContextPath()%>/app/members'>Member</a></li>
                 <li><a href="#"class="menu-item active">Role</a></li>
-                <li><a href='events?name=<%=request.getParameter("name")%>' >Event</a></li>
+                <li><a href='<%=request.getContextPath()%>/app/events' >Event</a></li>
+                <li><a href='<%=request.getContextPath()%>/app/guilds' >Guild</a></li>
+                <li><a href='<%=request.getContextPath()%>/app/crews' >Crew</a></li>
             </ul>
         </div>
         <div class="content">
