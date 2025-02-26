@@ -5,6 +5,8 @@ import services.CrewService;
 import services.ApplicationService;
 import dto.role.GetUserDTO;
 import dto.ResponseDTO;
+import dto.role.UpdateRoleDTO;
+import dto.crew.UpdateCrewDTO;
 import dto.role.CDUserRoleDTO;
 import dto.role.CDPermissionDTO;
 import dto.role.UpdateUserRoleDTO;
@@ -14,6 +16,7 @@ import repositories.RoleRepository;
 import dto.crew.DeleteCrewEventDTO;
 import dto.crew.GetCrewEventDTO;
 import dto.crew.CUCrewEventDTO;
+import dto.crew.CrewInfoDTO;
 import constants.RoleContext;
 import constants.ResponseStatus;
 import exceptions.AuthException;
@@ -43,6 +46,7 @@ public class CrewController extends HttpServlet {
     private final String ROLE_VIEW = "/view/crew/role.jsp";
     private final String MEMBER_VIEW = "/view/crew/member.jsp";
     private final String EVENT_VIEW = "/view/crew/event.jsp";
+    private final String INFO_VIEW = "/view/crew/info.jsp";
 
     private Gson gson = new Gson();
     private Logger logger = LoggerFactory.getLogger(GuildController.class);
@@ -60,6 +64,20 @@ public class CrewController extends HttpServlet {
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
+                case "info":
+                    checked = AuthService.checkPermissionWithContext(accountId, RoleContext.APP,
+                            "view");
+                    if (checked) {
+                        CrewInfoDTO info = CrewRepository.getInfo(name);
+                        req.setAttribute("info", info);
+                        req.setAttribute("ade",
+                                AuthService.checkRoleAndPermission(accountId, name, RoleContext.CREW,
+                                        "event.cud"));
+                        redirectView = INFO_VIEW;
+                        break;
+                    } else {
+                        throw new AuthException("FORBIDDEN!");
+                    }
                 case "events":
                     checked = AuthService.checkRoleAndPermission(accountId, name, RoleContext.CREW,
                             "view");
@@ -108,7 +126,7 @@ public class CrewController extends HttpServlet {
                     } else {
                         throw new AuthException("FORBIDDEN!");
                     }
-                case "permission":
+                case "permissions":
                     checked = AuthService.checkRoleAndPermission(accountId, name, RoleContext.CREW,
                             "role.crud");
                     if (checked) {
@@ -192,8 +210,7 @@ public class CrewController extends HttpServlet {
                     if (checked) {
                         CDUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDUserRoleDTO.class);
                         RoleRepository.addDefaultForUserByPrefix(dto.getUsername(),
-                                CrewRepository.getCodeByName(name),
-                                "LIKE");
+                                CrewRepository.getCodeByName(name));
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Add user %s to %s guild successful!".formatted(dto.getUsername(), name),
@@ -202,7 +219,7 @@ public class CrewController extends HttpServlet {
                     } else {
                         throw new AuthException("FORBIDDEN");
                     }
-                case "permission":
+                case "permissions":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.CREW,
                             "role.crud");
@@ -227,7 +244,8 @@ public class CrewController extends HttpServlet {
                     new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
                             null)));
         } catch (SQLException | ClassNotFoundException | IOException e) {
-            logger.info(e.getStackTrace().toString());
+            logger.error("ERROR");
+            e.printStackTrace();
             out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
                             null)));
@@ -251,8 +269,34 @@ public class CrewController extends HttpServlet {
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
+                case "info":
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.CREW,
+                            "update");
+                    if (checked) {
+                        UpdateCrewDTO dto = HttpUtil.getBodyContentFromReq(req, UpdateCrewDTO.class);
+                        CrewRepository.update(name, dto.getNewCrewName());
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Update guild info successfully!",
+                                        null)));
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
+                    break;
                 case "roles":
-                    // TODO: edit role name
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.CREW,
+                            "role.crud");
+                    if (checked) {
+                        String prefix = CrewRepository.getCodeByName(name);
+                        UpdateRoleDTO dto = HttpUtil.getBodyContentFromReq(req, UpdateRoleDTO.class);
+                        RoleRepository.update(
+                                prefix + "_" + dto.getRoleName(),
+                                prefix + "_" + dto.getNewRoleName());
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
                     break;
                 case "events":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
@@ -275,7 +319,7 @@ public class CrewController extends HttpServlet {
                             "member.cud");
                     if (checked) {
                         UpdateUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, UpdateUserRoleDTO.class);
-                        RoleRepository.updateSpecifiedForUser(
+                        RoleRepository.updateSpecifiedForUserWithPrefix(
                                 CrewRepository.getCodeByName(name),
                                 dto.getUsername(),
                                 dto.getRoleName());
@@ -352,7 +396,7 @@ public class CrewController extends HttpServlet {
                     } else {
                         throw new AuthException("FORBIDDEN");
                     }
-                case "permission":
+                case "permissions":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.CREW,
                             "role.crud");

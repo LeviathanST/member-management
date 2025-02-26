@@ -259,8 +259,9 @@
             <div class="sidebar">
                 <ul>
                     <li><a href="#"class="active">Member</a></li>
-                    <li><a href='roles?name=<%=request.getParameter("name")%>'>Role</a></li>
-                    <li><a href='events?name=<%=request.getParameter("name")%>' >Event</a></li>
+                    <li><a href='<%=request.getContextPath()%>/crew/roles?name=<%=request.getParameter("name")%>'>Role</a></li>
+                    <li><a href='<%=request.getContextPath()%>/crew/events?name=<%=request.getParameter("name")%>' >Event</a></li>
+                    <li><a href='<%=request.getContextPath()%>/crew/info?name=<%=request.getParameter("name")%>' >Information</a></li>
                 </ul>
             </div>
             <div class="member-list-container">
@@ -285,7 +286,7 @@
                 List<GetUserDTO> members = (List<GetUserDTO>) request.getAttribute("members");
                 if (!members.isEmpty()) {
                     for (GetUserDTO member : members) {
-                        String username = member.getUsername();
+                        String username = member.getUsername() != null ? member.getUsername() : "Empty";
                         String fullName = member.getFullName();
                         String role = member.getRole();
 
@@ -293,6 +294,7 @@
                 <div class="member-item">
                     <div class="member-info">
                         <p><strong>FullName:</strong> <%= fullName %></p>
+                        <p><strong>Username:</strong> <%= username %></p>
                         <p><strong>Role:</strong> <%= role %></p>
                     </div>
                     <div class="member-actions">
