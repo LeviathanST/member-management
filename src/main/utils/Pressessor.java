@@ -70,4 +70,21 @@ public class Pressessor {
 
 		return true;
 	}
+
+	public static String validateRoleName(String roleName) throws IllegalArgumentException {
+		String pattern = "^[a-zA-Z0-9_-]+$";
+		if (!roleName.matches(pattern)) {
+			throw new IllegalArgumentException(
+					"Please name the role in the following format! \nFor example: Admin, User-Group, Role_Name");
+		}
+		return roleName;
+	}
+
+	public static boolean validPermission(String permission) {
+		String pattern = "^[a-zA-z0-9]+(\\.[a-zA-z0-9]+)*$";
+		if (!permission.matches(pattern)) {
+			return false;
+		}
+		return true;
+	}
 }
