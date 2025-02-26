@@ -14,16 +14,21 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class CrewEventRepository {
 	public static void insert(String crewName, String title, String description, LocalDateTime startedAt,
 			LocalDateTime endedAt)
 			throws SQLException, IOException, ClassNotFoundException {
 		String query = """
-				    INSERT INTO crew_event (guild_id, title, description, started_at, ended_at)
+				    INSERT INTO crew_event (crew_id, title, description, started_at, ended_at)
 				    VALUES (
 					(SELECT id FROM crew WHERE name = ?),
 					?, ?, ?, ?)
 				""";
+		Logger logger = LoggerFactory.getLogger(CrewEventRepository.class);
+		logger.debug("Hi");
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
 
@@ -35,7 +40,7 @@ public class CrewEventRepository {
 
 			int rowEffected = stmt.executeUpdate();
 			if (rowEffected <= 0) {
-				throw new SQLException("Event for guild is failed!");
+				throw new SQLException("Created crew event failed!");
 			}
 		}
 	}
@@ -46,6 +51,9 @@ public class CrewEventRepository {
 			LocalDateTime startedAt,
 			LocalDateTime endedAt)
 			throws SQLException, IOException, ClassNotFoundException {
+
+		Logger logger = LoggerFactory.getLogger(CrewEventRepository.class);
+		logger.debug("Hi");
 		try (Connection con = Database.connection()) {
 			String query = """
 					    UPDATE crew_event
@@ -64,7 +72,7 @@ public class CrewEventRepository {
 
 				int rowEffected = stmt.executeUpdate();
 				if (rowEffected <= 0) {
-					throw new SQLException("Update of event for guild is failed!");
+					throw new SQLException("Update of event for crew is failed!");
 				}
 			}
 		}
@@ -93,7 +101,7 @@ public class CrewEventRepository {
 			List<GetCrewEventDTO> list = new ArrayList<>();
 			String query = """
 						SELECT id, title, description, started_at, ended_at FROM crew_event
-						WHERE crew_id = (SELECT id FROM guild WHERE name = ?)
+						WHERE crew_id = (SELECT id FROM crew WHERE name = ?)
 					""";
 			PreparedStatement stmt = con.prepareStatement(query);
 			stmt.setString(1, crewName);

@@ -22,16 +22,40 @@ import utils.Pressessor;
 
 public class RoleRepository {
 	/// NOTE:
+	/// Delete role then convert all user assigned to the role to the role default
+	/// of that context
+	public static void delete(String roleName) throws SQLException {
+		// TODO:using procedure sql
+	}
+
+	public static void create(String roleName) throws SQLException {
+		String query = """
+					INSERT INTO role (name)
+					VALUES (?)
+				""";
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, roleName);
+
+			int row = stmt.executeUpdate();
+			if (row <= 0) {
+				throw new SQLException("Add role failed");
+			}
+		}
+	}
+
+	/// NOTE:
 	/// @param ctx:
 	/// LIKE or NOT LIKE for filter
-	public static void addDefaultForUserByPrefix(String username, String prefix, String ctx) throws SQLException {
+	public static void addDefaultForUserByPrefix(String username, String prefix) throws SQLException {
 		String query = """
 					INSERT INTO user_role (account_id, role_id)
 					VALUES (
 						(SELECT id FROM user_account WHERE username = ?),
-						(SELECT id FROM role WHERE name %s ? AND is_default = true)
+						(SELECT id FROM role WHERE name LIKE ? AND is_default = true)
 					)
-				""".formatted(ctx);
+				""";
 
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
@@ -45,6 +69,7 @@ public class RoleRepository {
 		}
 	}
 
+	/// TODO: We can change multi query into procedure
 	/// NOTE:
 	/// This function will be rollback if one of actions is failed.
 	/// @param prefix:
@@ -52,7 +77,8 @@ public class RoleRepository {
 	/// one for the user.
 	/// @param roleName:
 	/// - The specified role is assigned for the user.
-	public static void updateSpecifiedForUser(String prefix, String username, String roleName) throws SQLException {
+	public static void updateSpecifiedForUserWithPrefix(String prefix, String username, String roleName)
+			throws SQLException {
 		String insertQuery = """
 				INSERT INTO user_role (account_id, role_id)
 				VALUES (
@@ -88,6 +114,32 @@ public class RoleRepository {
 				}
 
 				conn.commit();
+			} catch (Exception e) {
+				conn.rollback();
+				throw e;
+			}
+		}
+	}
+
+	public static void addSpecifiedForUserWithPrefix(String prefix, String username, String roleName)
+			throws SQLException {
+		String insertQuery = """
+				INSERT INTO user_role (account_id, role_id)
+				VALUES (
+					(SELECT id FROM user_account WHERE username = ?),
+					(SELECT id FROM role WHERE name = ?)
+				)
+				""";
+		try (Connection conn = Database.connection()) {
+			try {
+				PreparedStatement stmt = conn.prepareStatement(insertQuery);
+				stmt.setString(1, username);
+				stmt.setString(2, prefix + "_" + roleName);
+				int rowEffect = stmt.executeUpdate();
+				if (rowEffect <= 0) {
+					throw new SQLException(
+							"Insert new role for user is failed!");
+				}
 			} catch (Exception e) {
 				conn.rollback();
 				throw e;
@@ -152,6 +204,8 @@ public class RoleRepository {
 					SELECT up.full_name AS full_name, ua.username as username, r.name AS role
 					FROM user_profile up
 						JOIN user_account ua ON ua.id = up.account_id
+						JOIN user_role ur ON ur.account_id = ua.id
+						JOIN role r ON r.id = ur.role_id
 				""";
 		List<GetUserDTO> list = new ArrayList<>();
 		try (Connection conn = Database.connection()) {
@@ -233,6 +287,22 @@ public class RoleRepository {
 			}
 		}
 		return listError;
+	}
+
+	public static void update(String roleName, String newRoleName) throws SQLException {
+		String query = """
+					UPDATE role
+					SET name = ?
+					WHERE name = ?
+				""";
+
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, newRoleName);
+			stmt.setString(2, roleName);
+
+			ResultSet checked = stmt.executeQuery();
+		}
 	}
 
 	/// NOTE:
@@ -321,29 +391,10 @@ public class RoleRepository {
 
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
-			stmt.setString(1, prefix + "_%");
+			stmt.setString(1, prefix + "\\_%");
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				list.add(Pressessor.removePrefixFromRole(rs.getString("name")));
-			}
-			return list;
-		}
-	}
-
-	/// NOTE:
-	/// This function use for application
-	public static List<String> getAll() throws SQLException {
-		List<String> list = new ArrayList<>();
-		String query = """
-					SELECT name from role
-					WHERE name NOT LIKE '%\\_%'
-				""";
-
-		try (Connection conn = Database.connection()) {
-			PreparedStatement stmt = conn.prepareStatement(query);
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				list.add(rs.getString("name"));
 			}
 			return list;
 		}
@@ -362,7 +413,7 @@ public class RoleRepository {
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				String permission = rs.getString("name");
-				if (!"*".equals(permission)) {
+				if (Pressessor.validPermission(permission)) {
 					list.add(permission);
 				}
 			}

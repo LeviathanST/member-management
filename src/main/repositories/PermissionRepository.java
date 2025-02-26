@@ -1,7 +1,9 @@
 package repositories;
 
 import config.Database;
+import constants.RoleContext;
 import models.Permission;
+import utils.Pressessor;
 
 import java.io.IOException;
 import java.sql.PreparedStatement;
@@ -12,6 +14,37 @@ import java.util.List;
 import java.sql.Connection;
 
 public class PermissionRepository {
+	/// NOTE:
+	/// Generate new bypass permission
+	/// Format: prefix + .*
+	public static void generateForNew(String prefix, RoleContext ctx) throws SQLException {
+		String query = """
+					INSERT INTO permission (context, name)
+					VALUES (?, ?)
+				""";
+		try (Connection con = Database.connection()) {
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, ctx.name().toLowerCase());
+			stmt.setString(2, prefix + ".*");
+
+			int rows = stmt.executeUpdate();
+			if (rows <= 0) {
+				throw new SQLException("Generate permission pair for guild failed!");
+			}
+		}
+	}
+
+	public static void delete(String prefix) throws SQLException {
+		String query = """
+					DELETE FROM permission
+					WHERE name LIKE ?
+				""";
+		try (Connection con = Database.connection()) {
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, prefix);
+		}
+	}
+
 	public static List<Permission> getAllPermission()
 			throws SQLException, IOException, ClassNotFoundException {
 		try (Connection con = Database.connection()) {
@@ -114,18 +147,28 @@ public class PermissionRepository {
 		}
 	}
 
-	public static void addPermissionToRole(int roleID, int permissionId)
-			throws SQLException, IOException, ClassNotFoundException {
+	public static void addPermissionToRole(String roleName, String permission)
+			throws SQLException, IOException, ClassNotFoundException, IllegalArgumentException {
+		if (Pressessor.validPermission(permission)) {
+			throw new IllegalArgumentException(
+					"%s is not valid permission to insert!".formatted(permission));
+		}
 		try (Connection con = Database.connection()) {
-			String query = "INSERT INTO role_permission (role_id,permission_id) VALUES (?,?)";
+			String query = """
+					INSERT INTO role_permission (role_id, permission_id)
+					VALUES (
+						(SELECT id FROM role WHERE name = ?),
+						(SELECT id FROM permission WHERE name = ?)
+					)
+					""";
 
 			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setInt(1, roleID);
-			stmt.setInt(2, permissionId);
+			stmt.setString(1, roleName);
+			stmt.setString(2, permission);
 
 			int row = stmt.executeUpdate();
 			if (row == 0)
-				throw new SQLException("A permission is failed when adding to guild role!");
+				throw new SQLException("Add %s to %s failed!".formatted(permission, roleName));
 		}
 	}
 

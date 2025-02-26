@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import lombok.Getter;
 import lombok.Setter;
 
+// TODO: REFACTOR
 public class GetCrewEventDTO {
 	@Setter
 	@Getter

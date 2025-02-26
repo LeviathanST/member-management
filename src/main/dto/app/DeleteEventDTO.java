@@ -1,9 +1,9 @@
-package dto.crew;
+package dto.app;
 
 import lombok.Getter;
 
 // TODO: REFACTOR
-public class DeleteCrewEventDTO {
+public class DeleteEventDTO {
 	@Getter
 	Integer eventId;
 }

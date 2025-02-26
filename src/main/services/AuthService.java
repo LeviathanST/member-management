@@ -53,7 +53,7 @@ public class AuthService {
 		int round = appConfig.getRoundHashing();
 		data.setPassword(hashingPassword(data.getPassword(), round));
 		UserAccountRepository.insert(data);
-		RoleRepository.addDefaultForUserByPrefix(data.getUsername(), "%\\", "NOT LIKE");
+		RoleRepository.addDefaultForUserByPrefix(data.getUsername(), "APP");
 		Logger logger = LoggerFactory.getLogger(AuthService.class);
 		logger.debug("Added role for " + data.getUsername());
 		UserProfileRepository.insert(
@@ -125,10 +125,10 @@ public class AuthService {
 	}
 
 	public static boolean checkPermissionWithContext(String accountId, RoleContext ctx,
-			List<String> permissions)
+			String permission)
 			throws SQLException, AuthException, NotFoundException {
 		List<String> list = new ArrayList<>(Collections.singletonList("*"));
-		list.addAll(permissions);
+		list.add(permission);
 		Boolean checked = RoleRepository.existPermissionWithContext(ctx,
 				list,
 				accountId);
@@ -153,11 +153,12 @@ public class AuthService {
 			case RoleContext.CREW -> CrewRepository.getCodeByName(name);
 			default -> "Not valid with your code";
 		};
-		boolean god = RoleRepository.existPermissionWithContext(ctx, "*", accountId);
+		boolean god1 = RoleRepository.existPermissionWithContext(ctx, "*", accountId);
+		boolean god2 = RoleRepository.existPermissionWithContext(ctx, prefix + ".*", accountId);
 		boolean checked = RoleRepository.existPermissionWithPrefix(prefix, ctx,
 				permission,
 				accountId);
-		return checked || god;
+		return checked || god1 || god2;
 	}
 
 }

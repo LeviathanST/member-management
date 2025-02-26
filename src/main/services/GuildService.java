@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 public class GuildService {
-	// TODO: Guild CRUD
 	public static void insertGuildEvent(String guildName, CUGuildEventDTO dto)
 			throws SQLException, NotFoundException,
 			IllegalArgumentException, IOException,
