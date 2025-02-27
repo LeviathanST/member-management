@@ -281,9 +281,7 @@
                         </div>
                         <div class="guild-actions">
                             <% if (ade != null && ade) { %>
-                                    <button style="background-color: #007bff;" type="submit" class="btn-edit">Edit</button>
-                                    <button style="background-color: #dc3545;" type="submit" class="btn-delete">Delete</button>
-                                </form>
+                            <button style="background-color: #dc3545;" onClick='deleteGuild("<%=guildName%>")' class="btn-delete">Delete</button>
                             <% } %>
                         </div>
                     </div>
@@ -352,6 +350,34 @@
                 console.error("Error:", error);
                 alert("Failed to create guild: " + error.message);
             });
+        }
+        function deleteGuild(guildName) {
+            const data = {
+                name: guildName
+            }
+            if (confirm('Are you sure you want to delete the guild "' + guildName + '"?')) {
+                fetch('<%=request.getContextPath()%>/app/guilds', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '<%= request.getContextPath() %>/guildList.jsp'; // Redirect to guild list
+                        alert("Removed guild successfully!");
+                    } else {
+                        alert(data.message || 'Failed to delete guild.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the guild.');
+                });
+            }
         }
     </script>
 </body>
