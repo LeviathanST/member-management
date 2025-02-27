@@ -13,13 +13,13 @@ BEGIN
     
     START TRANSACTION;
 
-    SELECT id INTO v_role_id FROM role WHERE name = role_name LIMIT 1;
+    SELECT id INTO v_role_id FROM role WHERE name = role_name AND is_default = false LIMIT 1;
     SELECT id INTO v_new_role_id FROM role WHERE name LIKE CONCAT(prefix, '_%') AND is_default = TRUE LIMIT 1;
 
     IF v_role_id IS NULL THEN
         ROLLBACK;
         SET rows_affected = 0;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Role to remove not found';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Role to remove not found or is default';
     END IF;
     IF v_new_role_id IS NULL THEN
         ROLLBACK;
