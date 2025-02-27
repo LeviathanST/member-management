@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS role_permission (
 	permission_id INTEGER UNSIGNED NOT NULL,
 
 	PRIMARY KEY (role_id, permission_id),
-	FOREIGN KEY (permission_id) REFERENCES permission(id),
+	FOREIGN KEY (permission_id) REFERENCES permission(id) ON DELETE CASCADE,
 	FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE 
 );
 CREATE TABLE IF NOT EXISTS user_role (
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS user_role (
 
 	PRIMARY KEY (account_id, role_id),
 	FOREIGN KEY (account_id) REFERENCES user_account(id) ON DELETE CASCADE,
-	FOREIGN KEY (role_id) REFERENCES role(id)
+	FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE
 );
 -- END permission
 
