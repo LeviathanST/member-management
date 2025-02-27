@@ -8,7 +8,7 @@ import dto.guild.CUGuildEventDTO;
 import dto.guild.DeleteGuildEventDTO;
 import dto.role.CDPermissionDTO;
 import dto.role.GetUserDTO;
-import dto.role.CreateRoleDTO;
+import dto.role.CDRoleDTO;
 import dto.role.UpdateRoleDTO;
 import dto.role.CDUserRoleDTO;
 import dto.role.UpdateUserRoleDTO;
@@ -229,7 +229,8 @@ public class GuildController extends HttpServlet {
                             RoleContext.GUILD,
                             "role.crud");
                     if (checked) {
-                        CreateRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CreateRoleDTO.class);
+                        CDRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDRoleDTO.class);
+                        dto.checkNullOrEmpty();
                         RoleRepository.create(
                                 GuildRepository.getCodeByName(name) + "_" + dto.getRoleName());
                         out.write(gson.toJson(
@@ -248,7 +249,7 @@ public class GuildController extends HttpServlet {
                         CDPermissionDTO dto = HttpUtil.getBodyContentFromReq(req, CDPermissionDTO.class);
                         RoleRepository.insertPermissionRole(
                                 GuildRepository.getCodeByName(name) + "_" + dto.getRoleName(),
-                                dto.getPermissions());
+                                dto.getPermissions(), RoleContext.GUILD);
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Add permission to %s successfully!".formatted(dto.getRoleName()),
@@ -388,8 +389,21 @@ public class GuildController extends HttpServlet {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
                 case "roles":
-                    // TODO: delete role with is_default is false
-                    break;
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.GUILD,
+                            "role.crud");
+                    if (checked) {
+                        CDRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDRoleDTO.class);
+                        dto.checkNullOrEmpty();
+                        RoleRepository.delete(GuildRepository.getCodeByName(name), dto.getRoleName());
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Delete role successfully!",
+                                        null)));
+                        break;
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
                 case "events":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.GUILD,
@@ -428,7 +442,7 @@ public class GuildController extends HttpServlet {
                         CDPermissionDTO dto = HttpUtil.getBodyContentFromReq(req, CDPermissionDTO.class);
                         RoleRepository.deletePermission(
                                 GuildRepository.getCodeByName(name) + "_" + dto.getRoleName(),
-                                dto.getPermissions());
+                                dto.getPermissions(), RoleContext.GUILD);
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Delete permission to %s successfully!".formatted(dto.getRoleName()),
