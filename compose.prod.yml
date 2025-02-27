@@ -12,7 +12,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       TZ: Asia/Ho_Chi_Minh
     ports:
-      - ${APP_PORT}:${APP_PORT}
+      - ${APP_PORT}:8080
     networks:
       - member-management
     restart: unless-stopped

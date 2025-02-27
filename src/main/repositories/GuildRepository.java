@@ -71,23 +71,23 @@ public class GuildRepository {
 	}
 
 	/// NOTE:
+	/// Create guild with at least a leader
 	/// @param code:
 	/// Guild abbreviation
 	/// Sample: Technical -> T, Media -> M
-	public static void create(String code, String name) throws SQLException {
+	/// @param username
+	/// Who is leader
+	public static void create(String name, String code, String username) throws SQLException {
 		String query = """
-					INSERT INTO guild (code, name)
-					VALUES (?, ?)
+					CALL createParty(?, ?, ?, ?)
 				""";
 		try (Connection con = Database.connection()) {
 			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, code);
+			stmt.setString(1, "guild");
 			stmt.setString(2, name);
-			int rows = stmt.executeUpdate();
-
-			if (rows <= 0) {
-				throw new SQLException("Created guild failed!");
-			}
+			stmt.setString(3, code);
+			stmt.setString(4, username);
+			stmt.execute();
 		}
 	}
 
@@ -106,6 +106,18 @@ public class GuildRepository {
 			if (rows <= 0) {
 				throw new SQLException("Updated guild failed!");
 			}
+		}
+	}
+
+	public static void delete(String prefix) throws SQLException {
+		String query = """
+					CALL removeParty(?, ?)
+				""";
+		try (Connection con = Database.connection()) {
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, "guild");
+			stmt.setString(2, prefix);
+			stmt.execute();
 		}
 	}
 

@@ -9,9 +9,11 @@ import dto.role.UpdateRoleDTO;
 import dto.crew.UpdateCrewDTO;
 import dto.role.CDUserRoleDTO;
 import dto.role.CDPermissionDTO;
+import dto.role.CDRoleDTO;
 import dto.role.UpdateUserRoleDTO;
 import repositories.events.CrewEventRepository;
 import repositories.CrewRepository;
+import repositories.GuildRepository;
 import repositories.RoleRepository;
 import dto.crew.DeleteCrewEventDTO;
 import dto.crew.GetCrewEventDTO;
@@ -188,6 +190,23 @@ public class CrewController extends HttpServlet {
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
+                case "roles":
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.CREW,
+                            "role.crud");
+                    if (checked) {
+                        CDRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDRoleDTO.class);
+                        dto.checkNullOrEmpty();
+                        RoleRepository.create(
+                                CrewRepository.getCodeByName(name) + "_" + dto.getRoleName());
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Created role %s successfully!".formatted(dto.getRoleName()),
+                                        null)));
+                        break;
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
                 case "events":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.CREW,
@@ -227,7 +246,7 @@ public class CrewController extends HttpServlet {
                         CDPermissionDTO dto = HttpUtil.getBodyContentFromReq(req, CDPermissionDTO.class);
                         RoleRepository.insertPermissionRole(
                                 CrewRepository.getCodeByName(name) + "_" + dto.getRoleName(),
-                                dto.getPermissions());
+                                dto.getPermissions(), RoleContext.CREW);
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Add permission to %s successfully!".formatted(dto.getRoleName()),
@@ -364,8 +383,21 @@ public class CrewController extends HttpServlet {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
                 case "roles":
-                    // TODO: delete role with is_default is false
-                    break;
+                    checked = AuthService.checkRoleAndPermission(accountId, name,
+                            RoleContext.CREW,
+                            "role.crud");
+                    if (checked) {
+                        CDRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDRoleDTO.class);
+                        dto.checkNullOrEmpty();
+                        RoleRepository.delete(CrewRepository.getCodeByName(name), dto.getRoleName());
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Delete event successfully!",
+                                        null)));
+                        break;
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
                 case "events":
                     checked = AuthService.checkRoleAndPermission(accountId, name,
                             RoleContext.CREW,
@@ -404,7 +436,7 @@ public class CrewController extends HttpServlet {
                         CDPermissionDTO dto = HttpUtil.getBodyContentFromReq(req, CDPermissionDTO.class);
                         RoleRepository.deletePermission(
                                 CrewRepository.getCodeByName(name) + "_" + dto.getRoleName(),
-                                dto.getPermissions());
+                                dto.getPermissions(), RoleContext.CREW);
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Delete permission to %s successfully!".formatted(dto.getRoleName()),

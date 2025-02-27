@@ -6,7 +6,7 @@ import lombok.Setter;
 public class CrewInfoDTO {
 	@Getter
 	@Setter
-	String guildName;
+	String crewName;
 
 	@Getter
 	@Setter

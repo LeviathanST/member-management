@@ -325,6 +325,7 @@
                     <div class="role-container">
                         <div class="update-permission">
                             <button onclick="applyChange()">Apply Changes</button>
+                            <button onclick="deleteRole()" style="background-color: #ff4444; margin-left: 10px;">Delete Role</button>
                         </div>
                         <div class="add-role">
                             <button onclick="showAddRoleModal()">Add Role</button>
@@ -346,7 +347,6 @@
         </div>
     </div>
 
-    <!-- Add Role Modal -->
     <div id="addRoleModal" class="modal">
         <div class="modal-content">
             <h2>Create New Role</h2>
@@ -541,7 +541,7 @@
         function closeAddRoleModal() {
             const modal = document.getElementById("addRoleModal");
             modal.style.display = "none";
-            document.getElementById("roleName").value = ""; // Clear input on close
+            document.getElementById("roleName").value = "";
         }
 
         function addRole() {
@@ -573,17 +573,65 @@
             .then(data => {
                 if (data.status === "OK") {
                     alert(data.message);
-                    closeAddRoleModal(); // Close modal on success
-                    location.reload(); // Reload to update the role list
+                    closeAddRoleModal();
+                    location.reload();
                 } else {
                     alert("Error: " + data.message);
                 }
             })
             .catch(error => {
-                console.error("Error:", error);
                 alert("Failed to create role: " + error.message);
             });
         }
+async function deleteRole() {
+    const role = document.getElementById("role-select").value;
+    if (!role || role === "") {
+        alert("Please select a role to delete");
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to delete the role "${role}"? This action cannot be undone.`)) {
+        return;
+    }
+
+    const route = "<%=request.getContextPath()%>/guild/roles?name=" + name;
+    const data = {
+        roleName: role,
+    }
+    
+    try {
+        const res = await fetch(route, {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        }).then(res => res.text()).then(text => JSON.parse(text));
+
+        if (res.status === "OK") {
+            const select = document.getElementById("role-select");
+            const optionToRemove = select.querySelector(`option[value="${role}"]`);
+            if (optionToRemove) {
+                optionToRemove.remove();
+            }
+            
+            document.getElementById("current-permissions-list").innerHTML = "";
+            document.getElementById("available-permissions-list").innerHTML = "";
+            
+            permissionForAdding.clear();
+            permissionForDeleting.clear();
+            
+            alert("Role deleted successfully");
+            
+            select.value = "";
+        } else {
+            throw new Error(res.message || "Failed to delete role");
+        }
+    } catch (error) {
+        alert("Failed to delete role: " + error.message);
+    }
+}
     </script>
 </body>
 </html>

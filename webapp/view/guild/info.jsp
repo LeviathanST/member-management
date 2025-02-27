@@ -203,15 +203,14 @@
                     Boolean ade = (Boolean) request.getAttribute("ade");
                     if (ade != null && ade) {
                 %>
-                    <p class="permission-note">You have permission to edit or delete this guild.</p>
+                    <p class="permission-note">You have permission to edit this guild.</p>
                     <div class="action-buttons">
                         <button class="btn-edit" onclick="editGuild('<%= guildName %>')">Edit Guild Name</button>
-                        <button class="btn-delete" onclick="deleteGuild('<%= guildName %>')">Delete Guild</button>
                     </div>
                 <% 
                     } else {
                 %>
-                    <p class="permission-note">You do not have permission to edit or delete this guild.</p>
+                    <p class="permission-note">You do not have permission to edit this guild.</p>
                 <% 
                     }
                 } else {
@@ -257,29 +256,7 @@
             }
         }
 
-        function deleteGuild(guildName) {
-            if (confirm('Are you sure you want to delete the guild "' + guildName + '"?')) {
-                fetch(route, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = '<%= request.getContextPath() %>/guildList.jsp'; // Redirect to guild list
-                    } else {
-                        alert(data.message || 'Failed to delete guild.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while deleting the guild.');
-                });
-            }
-        }
+        
     </script>
 </body>
 </html>

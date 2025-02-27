@@ -24,7 +24,7 @@ public class CrewRepository {
 
 			if (rs.next()) {
 				CrewInfoDTO dto = new CrewInfoDTO();
-				dto.setGuildName(rs.getString("name"));
+				dto.setCrewName(rs.getString("name"));
 				dto.setTotalMember(rs.getString("totalMember"));
 				return dto;
 			}
@@ -71,18 +71,22 @@ public class CrewRepository {
 	}
 
 	/// NOTE:
+	/// Create crew with at least a leader
 	/// @param code:
-	/// Crew abbreviation
-	/// Sample: Backend1 -> BE1
-	public static void create(String code, String name) throws SQLException {
+	/// Guild abbreviation
+	/// Sample: Technical -> T, Media -> M
+	/// @param username
+	/// Who is leader
+	public static void create(String name, String code, String username) throws SQLException {
 		String query = """
-					INSERT INTO crew (code, name)
-					VALUES (?, ?)
+					CALL createParty(?, ?, ?, ?)
 				""";
 		try (Connection con = Database.connection()) {
 			PreparedStatement stmt = con.prepareStatement(query);
-			stmt.setString(1, code);
+			stmt.setString(1, "crew");
 			stmt.setString(2, name);
+			stmt.setString(3, code);
+			stmt.setString(4, username);
 			int rows = stmt.executeUpdate();
 
 			if (rows <= 0) {
@@ -105,6 +109,22 @@ public class CrewRepository {
 
 			if (rows <= 0) {
 				throw new SQLException("Updated crew failed!");
+			}
+		}
+	}
+
+	public static void delete(String prefix) throws SQLException {
+		String query = """
+					CALL removeParty(?, ?)
+				""";
+		try (Connection con = Database.connection()) {
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, "crew");
+			stmt.setString(2, prefix);
+			int rows = stmt.executeUpdate();
+
+			if (rows <= 0) {
+				throw new SQLException("Updated guild failed!");
 			}
 		}
 	}

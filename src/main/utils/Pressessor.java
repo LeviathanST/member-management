@@ -81,8 +81,16 @@ public class Pressessor {
 	}
 
 	public static boolean validPermission(String permission) {
-		String pattern = "^[a-zA-z0-9]+(\\.[a-zA-z0-9]+)*$";
+		String pattern = "^[a-zA-Z0-9]+(\\.[a-zA-z0-9]+)*$";
 		if (!permission.matches(pattern)) {
+			return false;
+		}
+		return true;
+	}
+
+	public static boolean validCode(String code) {
+		String pattern = "^[A-Z0-9]";
+		if (!code.matches(pattern)) {
 			return false;
 		}
 		return true;

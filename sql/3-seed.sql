@@ -180,4 +180,3 @@ INSERT INTO user_role (account_id, role_id) VALUES (
 		(SELECT id FROM role WHERE name = 'CREW_President')
 );
 
-
