@@ -51,8 +51,8 @@ public class UserProfileRepository {
 			PreparedStatement stmt = con.prepareStatement(query);
 
 			stmt.setString(1, data.getFullName());
-			stmt.setString(2, data.getSex().name());
 			stmt.setString(3, data.getStudentCode());
+			stmt.setString(2, data.getSex().name());
 			stmt.setString(4, data.getEmail());
 			stmt.setString(5, data.getContactEmail());
 			stmt.setDate(6, data.getDateOfBirth());
