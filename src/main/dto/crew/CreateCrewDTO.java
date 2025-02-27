@@ -11,7 +11,8 @@ public class CreateCrewDTO {
 	private String username;
 
 	public void checkNullOrEmpty() throws IllegalArgumentException {
-		if (this.crewName == null || this.crewName.isEmpty() || this.crewCode == null || this.crewCode.isEmpty()
+		if (this.crewName == null || this.crewName.trim().isEmpty() || this.crewCode == null
+				|| this.crewCode.trim().isEmpty()
 				|| this.username == null || this.username.isEmpty()) {
 			throw new IllegalArgumentException("Data is empty or null, please check again!");
 		}

@@ -7,7 +7,7 @@ public class UpdateGuildDTO {
 	String newGuildName;
 
 	public void checkNullOrEmpty() throws IllegalArgumentException {
-		if (this.newGuildName == null || this.newGuildName.isEmpty()) {
+		if (this.newGuildName == null || this.newGuildName.trim().isEmpty()) {
 			throw new IllegalArgumentException("New guild name is empty or null!");
 		}
 	}

@@ -7,7 +7,7 @@ public class UpdateCrewDTO {
 	String newCrewName;
 
 	public void checkNullOrEmpty() throws IllegalArgumentException {
-		if (this.newCrewName == null || this.newCrewName.isEmpty()) {
+		if (this.newCrewName == null || this.newCrewName.trim().isEmpty()) {
 			throw new IllegalArgumentException("New crew name is empty or null");
 		}
 	}

@@ -11,8 +11,8 @@ public class AddUserToGuildDTO {
 	String username;
 
 	public boolean checkNullAndEmpty() {
-		return this.guildName != null && this.guildName.isEmpty() &&
-				this.guildCode != null && this.guildCode.isEmpty() &&
-				this.username != null && this.username.isEmpty();
+		return this.guildName != null && this.guildName.trim().isEmpty() &&
+				this.guildCode != null && this.guildCode.trim().isEmpty() &&
+				this.username != null && this.username.trim().isEmpty();
 	}
 }
