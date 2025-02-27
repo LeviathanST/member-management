@@ -8,11 +8,13 @@ import com.google.gson.Gson;
 
 import constants.ResponseStatus;
 import constants.RoleContext;
+import dto.DeletePartyDTO;
 import dto.ResponseDTO;
 import dto.app.*;
 import dto.crew.CreateCrewDTO;
 import dto.guild.CreateGuildDTO;
 import dto.role.CDPermissionDTO;
+import dto.role.CDRoleDTO;
 import dto.role.UpdateRoleDTO;
 import dto.role.CDUserRoleDTO;
 import dto.role.GetUserDTO;
@@ -23,6 +25,8 @@ import models.UserProfile;
 import repositories.users.UserAccountRepository;
 import repositories.users.UserProfileRepository;
 import repositories.events.EventRepository;
+import repositories.CrewRepository;
+import repositories.GuildRepository;
 import repositories.RoleRepository;
 import services.ApplicationService;
 import services.AuthService;
@@ -151,12 +155,9 @@ public class ApplicationController extends HttpServlet {
                 case "crews":
                     checked = AuthService.checkPermissionWithContext(accountId, RoleContext.APP,
                             "view");
-                    Logger logger = LoggerFactory.getLogger(ApplicationController.class);
-                    logger.debug("Bool 2: " + checked);
                     if (checked) {
                         Boolean ade = AuthService.checkPermissionWithContext(accountId, RoleContext.APP, "crew.cud");
                         List<String> crews = ApplicationService.getCrews(ade, accountId);
-                        logger.debug("Bool 3: " + ade);
                         req.setAttribute("crews", crews);
                         req.setAttribute("ade", ade);
 
@@ -171,7 +172,7 @@ public class ApplicationController extends HttpServlet {
                     if (checked) {
                         String roleName = req.getParameter("role");
                         if (roleName != null && !roleName.isBlank()) {
-                            List<String> permissionsOfRole = RoleRepository.getAllPermissionOfARole(roleName);
+                            List<String> permissionsOfRole = RoleRepository.getAllPermissionOfARole("APP_" + roleName);
                             res.setContentType("application/json");
                             out.write(gson.toJson(
                                     new ResponseDTO<List<String>>(ResponseStatus.OK,
@@ -227,6 +228,23 @@ public class ApplicationController extends HttpServlet {
         try {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
+                case "roles":
+                    checked = AuthService.checkPermissionWithContext(accountId,
+                            RoleContext.APP,
+                            "role.crud");
+                    if (checked) {
+                        CDRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDRoleDTO.class);
+                        dto.checkNullOrEmpty();
+                        RoleRepository.create(
+                                "APP_" + dto.getRoleName());
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Created role %s successfully!".formatted(dto.getRoleName()),
+                                        null)));
+                        break;
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
                 case "events":
                     checked = AuthService.checkPermissionWithContext(accountId,
                             RoleContext.APP,
@@ -242,21 +260,6 @@ public class ApplicationController extends HttpServlet {
                     } else {
                         throw new AuthException("FORBIDDEN");
                     }
-                case "members":
-                    checked = AuthService.checkPermissionWithContext(accountId,
-                            RoleContext.APP,
-                            "member.cud");
-                    if (checked) {
-                        CDUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDUserRoleDTO.class);
-                        RoleRepository.addDefaultForUserByPrefix(dto.getUsername(), prefix);
-                        out.write(gson.toJson(
-                                new ResponseDTO<>(ResponseStatus.OK,
-                                        "Add user %s to %s guild successful!".formatted(dto.getUsername(), name),
-                                        null)));
-                        break;
-                    } else {
-                        throw new AuthException("FORBIDDEN");
-                    }
                 case "guilds":
                     checked = AuthService.checkPermissionWithContext(accountId,
                             RoleContext.APP,
@@ -264,7 +267,7 @@ public class ApplicationController extends HttpServlet {
                     if (checked) {
                         CreateGuildDTO dto = HttpUtil.getBodyContentFromReq(req, CreateGuildDTO.class);
                         dto.checkNullOrEmpty();
-                        ApplicationService.createGuild(dto.getGuildName(), dto.getGuildCode(), dto.getUsername());
+                        GuildRepository.create(dto.getGuildName(), dto.getGuildCode(), dto.getUsername());
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Created guild successful!".formatted(dto.getUsername(), name),
@@ -277,12 +280,10 @@ public class ApplicationController extends HttpServlet {
                     checked = AuthService.checkPermissionWithContext(accountId,
                             RoleContext.APP,
                             "crew.cud");
-                    Logger logger = LoggerFactory.getLogger(ApplicationController.class);
-                    logger.debug("Bool 1: " + checked);
                     if (checked) {
                         CreateCrewDTO dto = HttpUtil.getBodyContentFromReq(req, CreateCrewDTO.class);
                         dto.checkNullOrEmpty();
-                        ApplicationService.createCrew(dto.getCrewName(), dto.getCrewCode(), dto.getUsername());
+                        CrewRepository.create(dto.getCrewName(), dto.getCrewCode(), dto.getUsername());
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Created crew successful!".formatted(dto.getUsername(), name),
@@ -299,7 +300,7 @@ public class ApplicationController extends HttpServlet {
                         CDPermissionDTO dto = HttpUtil.getBodyContentFromReq(req, CDPermissionDTO.class);
                         RoleRepository.insertPermissionRole(
                                 "APP_" + dto.getRoleName(),
-                                dto.getPermissions());
+                                dto.getPermissions(), RoleContext.APP);
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Add permission to %s successfully!".formatted(dto.getRoleName()),
@@ -316,7 +317,8 @@ public class ApplicationController extends HttpServlet {
                     new ResponseDTO<>(ResponseStatus.UNAUTHORIZED, e.getMessage(),
                             null)));
         } catch (SQLException | ClassNotFoundException | IOException e) {
-            logger.info(e.getStackTrace().toString());
+            logger.error("ERROR");
+            e.printStackTrace();
             out.write(gson.toJson(
                     new ResponseDTO<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
                             null)));
@@ -391,7 +393,7 @@ public class ApplicationController extends HttpServlet {
                             "role.crud");
                     if (checked) {
                         UpdateRoleDTO dto = HttpUtil.getBodyContentFromReq(req, UpdateRoleDTO.class);
-                        RoleRepository.update(dto.getRoleName(), dto.getNewRoleName());
+                        RoleRepository.update("APP_" + dto.getRoleName(), "APP_" + dto.getNewRoleName());
                     } else {
                         throw new AuthException("FORBIDDEN");
                     }
@@ -432,12 +434,25 @@ public class ApplicationController extends HttpServlet {
             String accountId = AuthService.handleCookieAndGetAccountId(cookies);
             switch (route) {
                 case "roles":
-                    // TODO: delete role with is_default is false
-                    break;
+                    checked = AuthService.checkPermissionWithContext(accountId,
+                            RoleContext.APP,
+                            "role.crud");
+                    if (checked) {
+                        CDRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDRoleDTO.class);
+                        dto.checkNullOrEmpty();
+                        RoleRepository.delete("APP", dto.getRoleName());
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Delete event successfully!",
+                                        null)));
+                        break;
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
                 case "events":
-                    checked = RoleRepository.existPermissionWithContext(RoleContext.APP,
-                            Arrays.asList("event.cud"),
-                            accountId);
+                    checked = AuthService.checkPermissionWithContext(accountId,
+                            RoleContext.APP,
+                            "event.cud");
                     if (checked) {
                         DeleteEventDTO dto = HttpUtil.getBodyContentFromReq(req, DeleteEventDTO.class);
                         EventRepository.delete(dto.getEventId());
@@ -450,9 +465,9 @@ public class ApplicationController extends HttpServlet {
                         throw new AuthException("FORBIDDEN");
                     }
                 case "members":
-                    checked = RoleRepository.existPermissionWithContext(RoleContext.APP,
-                            Arrays.asList("member.cud"),
-                            accountId);
+                    checked = AuthService.checkPermissionWithContext(accountId,
+                            RoleContext.APP,
+                            "member.cud");
                     if (checked) {
                         CDUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, CDUserRoleDTO.class);
                         UserAccountRepository.delete(dto.getUsername());
@@ -464,17 +479,44 @@ public class ApplicationController extends HttpServlet {
                         throw new AuthException("FORBIDDEN");
                     }
                 case "guilds":
-                    // TODO: Guild delete
+                    checked = AuthService.checkPermissionWithContext(accountId,
+                            RoleContext.APP,
+                            "guild.cud");
+                    if (checked) {
+                        DeletePartyDTO dto = HttpUtil.getBodyContentFromReq(req, DeletePartyDTO.class);
+                        GuildRepository.delete(GuildRepository.getCodeByName(dto.getName()));
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Delete %s successfully!".formatted(dto.getName()),
+                                        null)));
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
+                    break;
+                case "crews":
+                    checked = AuthService.checkPermissionWithContext(accountId,
+                            RoleContext.APP,
+                            "crew.cud");
+                    if (checked) {
+                        DeletePartyDTO dto = HttpUtil.getBodyContentFromReq(req, DeletePartyDTO.class);
+                        CrewRepository.delete(CrewRepository.getCodeByName(dto.getName()));
+                        out.write(gson.toJson(
+                                new ResponseDTO<>(ResponseStatus.OK,
+                                        "Delete %s successfully!".formatted(dto.getName()),
+                                        null)));
+                    } else {
+                        throw new AuthException("FORBIDDEN");
+                    }
                     break;
                 case "permission":
-                    checked = RoleRepository.existPermissionWithContext(RoleContext.APP,
-                            Arrays.asList("role.cud"),
-                            accountId);
+                    checked = AuthService.checkPermissionWithContext(accountId,
+                            RoleContext.APP,
+                            "role.cud");
                     if (checked) {
                         CDPermissionDTO dto = HttpUtil.getBodyContentFromReq(req, CDPermissionDTO.class);
                         RoleRepository.deletePermission(
                                 dto.getRoleName(),
-                                dto.getPermissions());
+                                dto.getPermissions(), RoleContext.APP);
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Delete permission to %s successfully!".formatted(dto.getRoleName()),

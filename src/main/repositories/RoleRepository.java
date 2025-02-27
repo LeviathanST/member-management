@@ -10,9 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import config.Database;
 import constants.RoleContext;
 import dto.role.GetUserDTO;
@@ -24,8 +21,16 @@ public class RoleRepository {
 	/// NOTE:
 	/// Delete role then convert all user assigned to the role to the role default
 	/// of that context
-	public static void delete(String roleName) throws SQLException {
-		// TODO:using procedure sql
+	public static void delete(String prefix, String roleName) throws SQLException {
+		String query = """
+					CALL removeRoleAndReassigned(?, ?, @row)
+				""";
+		try (Connection conn = Database.connection()) {
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, prefix);
+			stmt.setString(2, prefix + "_" + roleName);
+			stmt.execute();
+		}
 	}
 
 	public static void create(String roleName) throws SQLException {
@@ -228,7 +233,7 @@ public class RoleRepository {
 	/// Using for multiple deleted permissions
 	/// @return listError:
 	/// Exception without preventing other permissions is deleted
-	public static List<String> deletePermission(String roleName, List<String> permissions)
+	public static List<String> deletePermission(String roleName, List<String> permissions, RoleContext ctx)
 			throws SQLException, IOException {
 		List<String> listError = new ArrayList<>();
 		if (permissions.isEmpty()) {
@@ -239,7 +244,7 @@ public class RoleRepository {
 				FROM role_permission rp
 				WHERE
 					role_id = (SELECT id FROM role WHERE name = ?)
-					AND permission_id = (SELECT id FROM permission WHERE name = ?)
+					AND permission_id = (SELECT id FROM permission WHERE name = ? AND context = ?)
 				""";
 
 		try (Connection con = Database.connection()) {
@@ -247,6 +252,7 @@ public class RoleRepository {
 				PreparedStatement stmt = con.prepareStatement(query);
 				stmt.setString(1, roleName);
 				stmt.setString(2, permission);
+				stmt.setString(3, ctx.name().toLowerCase());
 
 				int row = stmt.executeUpdate();
 				if (row == 0)
@@ -261,7 +267,7 @@ public class RoleRepository {
 	/// Using for multiple inserted permissions
 	/// @return listError:
 	/// Exception without preventing other permissions is inserted
-	public static List<String> insertPermissionRole(String roleName, List<String> permissions)
+	public static List<String> insertPermissionRole(String roleName, List<String> permissions, RoleContext ctx)
 			throws SQLException, IOException {
 		List<String> listError = new ArrayList<>();
 		if (permissions.isEmpty()) {
@@ -270,8 +276,8 @@ public class RoleRepository {
 		String query = """
 				INSERT INTO role_permission (role_id, permission_id)
 				VALUES (
-					(SELECT id FROM role WHERE name = ?),
-					(SELECT id FROM permission WHERE name = ?)
+					(SELECT id FROM role WHERE name = ? LIMIT 1),
+					(SELECT id FROM permission WHERE name = ? AND context = ? LIMIT 1)
 				)
 				""";
 
@@ -280,6 +286,7 @@ public class RoleRepository {
 				PreparedStatement stmt = con.prepareStatement(query);
 				stmt.setString(1, roleName);
 				stmt.setString(2, permission);
+				stmt.setString(3, ctx.name().toLowerCase());
 
 				int row = stmt.executeUpdate();
 				if (row == 0)
@@ -426,8 +433,6 @@ public class RoleRepository {
 	/// - Prevent from crew but not from another guild
 	public static List<String> getAllPermissionOfARole(String name)
 			throws SQLException {
-		Logger logger = LoggerFactory.getLogger(RoleRepository.class);
-		logger.info("Role: " + name);
 		List<String> list = new ArrayList<>();
 		String query = """
 				SELECT p.name
@@ -479,10 +484,8 @@ public class RoleRepository {
 			stmt.setString(4, accountId);
 
 			ResultSet rs = stmt.executeQuery();
-			Logger logger = LoggerFactory.getLogger(RoleRepository.class);
 
 			if (rs.next()) {
-				logger.info("Hi");
 				return true;
 			} else {
 				return false;
