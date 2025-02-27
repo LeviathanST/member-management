@@ -74,7 +74,6 @@ public class AuthController extends HttpServlet {
 
 					Cookie cookie = new Cookie("access_token", at);
 					cookie.setHttpOnly(true);
-					cookie.setSecure(true);
 					cookie.setPath("/");
 					res.addCookie(cookie);
 
