@@ -262,6 +262,60 @@ button {
   .update-permission button:hover {
     background-color: #388e3c;
   }
+.add-role button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-role button:hover {
+            background-color: #218838;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 400px;
+            color: #1c1c1c;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .modal-content button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .modal-content .btn-submit {
+            background-color: #28a745;
+            color: white;
+        }
+        .modal-content .btn-close {
+            background-color: #dc3545;
+            color: white;
+            margin-left: 10px;
+        }
 </style>
 </head>
 <body>
@@ -324,7 +378,11 @@ button {
         </div>
             <div class="update-permission">
                 <button onclick="applyChange()">Apply Changes</button>
+                <button onclick="deleteRole()" style="background-color: #ff4444; margin-left: 10px;">Delete Role</button>
               </div>
+            <div class="add-role">
+                            <button onclick="showAddRoleModal()">Add Role</button>
+                        </div>
             </div>
                 <div class="permissions-wrapper">
                     <div class="current-permissions">
@@ -338,6 +396,14 @@ button {
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+<div id="addRoleModal" class="modal">
+        <div class="modal-content">
+            <h2>Create New Role</h2>
+            <input type="text" id="roleName" placeholder="Role Name" required>
+            <button class="btn-submit" onclick="addRole()">Submit</button>
+            <button class="btn-close" onclick="closeAddRoleModal()">Close</button>
         </div>
     </div>
     <script>
@@ -508,11 +574,116 @@ async function applyChange() {
 
     if (res1.status == "OK") {
         permissionForAdding.clear()
+        alert("Added permission successfully!");
+    } else {
+        alert("Added permission failed!");
     }
     if (res2.status == "OK") {
         permissionForDeleting.clear()
+        alert("Removed permission successfully");
+    } else {
+        alert("Removed permission failed!");
     }
   }
+        function showAddRoleModal() {
+            const modal = document.getElementById("addRoleModal");
+            modal.style.display = "block";
+        }
+
+        function closeAddRoleModal() {
+            const modal = document.getElementById("addRoleModal");
+            modal.style.display = "none";
+            document.getElementById("roleName").value = "";
+        }
+
+        function addRole() {
+            const route = "<%=request.getContextPath()%>/crew/roles?name=" + name;
+            const roleName = document.getElementById("roleName").value;
+
+            if (!roleName) {
+                alert("Role name is required!");
+                return;
+            }
+
+            const formData = {
+                roleName: roleName
+            };
+
+            fetch(route, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === "OK") {
+                    alert(data.message);
+                    closeAddRoleModal(); 
+                    location.reload(); 
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => {
+                alert("Failed to create role: " + error.message);
+            });
+        }
+async function deleteRole() {
+    const role = document.getElementById("role-select").value;
+    if (!role || role === "") {
+        alert("Please select a role to delete");
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to delete the role "${role}"? This action cannot be undone.`)) {
+        return;
+    }
+
+    const route = "<%=request.getContextPath()%>/crew/roles?name=" + name;
+    const data = {
+        roleName: role,
+    }
+    
+    try {
+        const res = await fetch(route, {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        }).then(res => res.text()).then(text => JSON.parse(text));
+
+        if (res.status === "OK") {
+            const select = document.getElementById("role-select");
+            const optionToRemove = select.querySelector(`option[value="${role}"]`);
+            if (optionToRemove) {
+                optionToRemove.remove();
+            }
+            
+            document.getElementById("current-permissions-list").innerHTML = "";
+            document.getElementById("available-permissions-list").innerHTML = "";
+            
+            permissionForAdding.clear();
+            permissionForDeleting.clear();
+            
+            alert("Role deleted successfully");
+            
+            select.value = "";
+        } else {
+            throw new Error(res.message || "Failed to delete role");
+        }
+    } catch (error) {
+        alert("Failed to delete role: " + error.message);
+    }
+}
     </script>
 </body>
 </html>
