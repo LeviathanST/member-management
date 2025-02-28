@@ -220,7 +220,7 @@ BEGIN
                 END IF;
 
                 DELETE FROM crew
-                WHERE crew.code = prefix;
+                WHERE crew.code LIKE CONCAT(prefix, "%");
             ELSE
                 ROLLBACK;
                 SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid context!';
