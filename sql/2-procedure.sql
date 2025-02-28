@@ -158,7 +158,7 @@ BEGIN
             FROM role r
             JOIN user_role ur ON ur.role_id = r.id
             JOIN user_account ua ON ua.id = ur.account_id
-            WHERE ua.username
+            WHERE ua.username = username AND r.name = CONCAT(code, '_Leader')
         );
 
         IF NOT v_exist THEN
