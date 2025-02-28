@@ -297,25 +297,9 @@
                      alt="Logo" />
             </div>
             <ul class="navbar-links">
-                <li class="dropdown">
-                    <button class="drop-btn">Quản lý tài khoản</button>
-                    <div class="dropdown-content">
-                        <a href="userList.jsp">Danh sách tài khoản</a>
-                    </div>
-                </li>
-                <li class="dropdown">
-                    <button class="drop-btn">Quản lý sự kiện</button>
-                    <div class="dropdown-content">
-                        <a href="roleList.jsp">Danh sách sự kiện</a>
-                    </div>
-                </li>
-                <li class="dropdown">
-                    <button class="drop-btn">Quản lý khóa học</button>
-                    <div class="dropdown-content">
-                        <a href="courseList.jsp">Danh sách khóa học</a>
-                    </div>
-                </li>
-                <li class="dropdown"> <a href="main.jsp" class="logout"><button class="drop-btn">Đăng xuất</button></a></li>
+                <form action="<%=request.getContextPath()%>/auth/logout" method="post">
+        <button type="submit" class="drop-btn">Logout</button>
+    </form>
             </ul>
         </nav>
         <div class="container">

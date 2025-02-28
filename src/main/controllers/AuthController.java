@@ -72,10 +72,10 @@ public class AuthController extends HttpServlet {
 					LoginDTO loginDTO = HttpUtil.getBodyContentFromReq(req, LoginDTO.class);
 					String at = AuthService.loginInternal(loginDTO);
 
-					Cookie cookie = new Cookie("access_token", at);
-					cookie.setHttpOnly(true);
-					cookie.setPath("/");
-					res.addCookie(cookie);
+					String cookieHeader = String.format(
+							"access_token=%s; Path=/; HttpOnly; SameSite=Strict",
+							at);
+					res.setHeader("Set-Cookie", cookieHeader);
 
 					out.write(gson
 							.toJson(new ResponseDTO<>(ResponseStatus.OK,
@@ -87,6 +87,12 @@ public class AuthController extends HttpServlet {
 					out.write(gson
 							.toJson(new ResponseDTO<>(ResponseStatus.OK,
 									"Sign up successfully!", null)));
+					break;
+				case "logout":
+					res.setHeader("Set-Cookie",
+							"access_token=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict");
+					// TODO: Refactor here
+					res.sendRedirect("/member-management-1.0" + LOGIN_VIEW);
 					break;
 				default:
 					throw new NotFoundException("Not found the page!");
