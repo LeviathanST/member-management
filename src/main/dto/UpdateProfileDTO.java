@@ -25,7 +25,7 @@ public class UpdateProfileDTO {
 
 	public Date getDateOfBirth() {
 		try {
-			return Date.valueOf(dateOfBirth); // Convert "yyyy-MM-dd" to java.sql.Date
+			return Date.valueOf(dateOfBirth);
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
@@ -33,7 +33,7 @@ public class UpdateProfileDTO {
 
 	public Sex getSex() {
 		try {
-			return Sex.valueOf(this.sex.toUpperCase()); // Convert "yyyy-MM-dd" to java.sql.Date
+			return Sex.valueOf(this.sex.toUpperCase());
 		} catch (IllegalArgumentException e) {
 			return null;
 		}

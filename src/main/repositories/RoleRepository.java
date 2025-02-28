@@ -8,7 +8,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import org.slf4j.LoggerFactory;
 
 import config.Database;
 import constants.RoleContext;
@@ -190,7 +193,7 @@ public class RoleRepository {
 		List<GetUserDTO> list = new ArrayList<>();
 		try (Connection conn = Database.connection()) {
 			PreparedStatement stmt = conn.prepareStatement(query);
-			stmt.setString(1, prefix + "_%");
+			stmt.setString(1, prefix + "\\_%");
 
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -308,7 +311,10 @@ public class RoleRepository {
 			stmt.setString(1, newRoleName);
 			stmt.setString(2, roleName);
 
-			ResultSet checked = stmt.executeQuery();
+			int rows = stmt.executeUpdate();
+			if (rows <= 0) {
+				throw new SQLException("Update role failed");
+			}
 		}
 	}
 
