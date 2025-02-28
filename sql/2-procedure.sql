@@ -99,8 +99,15 @@ BEGIN
                     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Guild code already exists';
                 END IF;
 
-                    INSERT INTO guild (code, name)
-                    VALUES (code, name);
+                INSERT INTO role (name)
+                VALUES (CONCAT(code, '_Leader'));
+                SET v_new_leader_role_id = LAST_INSERT_ID();
+
+                INSERT INTO role (is_default, name)
+                VALUES (true, CONCAT(code, '_Member'));
+
+                INSERT INTO guild (code, name)
+                VALUES (code, name);
             WHEN 'crew' THEN
                 SET v_exist = EXISTS (
                     SELECT 1
@@ -122,8 +129,15 @@ BEGIN
                     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Crew code already exists';
                 END IF;
 
-                    INSERT INTO crew (code, name)
-                    VALUES (code, name);
+                INSERT INTO role (name)
+                VALUES (CONCAT(code, '_Leader'));
+                SET v_new_leader_role_id = LAST_INSERT_ID();
+
+                INSERT INTO role (is_default, name)
+                VALUES (true, CONCAT(code, '_Member'));
+
+                INSERT INTO crew (code, name)
+                VALUES (code, name);
             ELSE
                 ROLLBACK;
                 SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid context!';
@@ -139,18 +153,21 @@ BEGIN
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'User does not exists!';
         END IF;
 
-        INSERT INTO role (name)
-        VALUES (CONCAT(code, '_Leader'));
-        SET v_new_leader_role_id = LAST_INSERT_ID();
-
-        INSERT INTO role (is_default, name)
-        VALUES (true, CONCAT(code, '_Member'));
-
-        INSERT INTO user_role (account_id, role_id)
-        VALUES (
-            (SELECT id FROM user_account ua WHERE ua.username = username),
-            v_new_leader_role_id
+        SET v_exist = EXISTS (
+            SELECT 1
+            FROM role r
+            JOIN user_role ur ON ur.role_id = r.id
+            JOIN user_account ua ON ua.id = ur.account_id
+            WHERE ua.username
         );
+
+        IF NOT v_exist THEN
+            INSERT INTO user_role (account_id, role_id)
+            VALUES (
+                (SELECT id FROM user_account ua WHERE ua.username = username),
+                v_new_leader_role_id
+            );
+        END IF;
 
         INSERT INTO permission (name)
         VALUES (CONCAT(code, '.*'));
@@ -210,7 +227,7 @@ BEGIN
         END CASE;
 
         DELETE FROM permission
-        WHERE name = CONCAT(prefix, '.*');
+        WHERE name = CONCAT(prefix, '%');
 
         DELETE FROM role
         WHERE name LIKE CONCAT(prefix, '%');

@@ -45,7 +45,7 @@ VALUES
 	((SELECT id FROM user_account WHERE username = 'member'), 'member', 'SE000000', 'test@gmail.com', (SELECT MAX(id) FROM generation), (SELECT CURRENT_TIMESTAMP)),
 	((SELECT id FROM user_account WHERE username = 'member1'), 'member1', 'SE000001', 'test1@gmail.com', (SELECT MAX(id) FROM generation), (SELECT CURRENT_TIMESTAMP)),
 	((SELECT id FROM user_account WHERE username = 'member2'), 'member2', 'SE000002', 'test2@gmail.com', (SELECT MAX(id) FROM generation), (SELECT CURRENT_TIMESTAMP)), 
-	((SELECT id FROM user_account WHERE username = 'president'), 'president', 'SE000003', 'test3gmail.com', (SELECT MAX(id) FROM generation), (SELECT CURRENT_TIMESTAMP));
+	((SELECT id FROM user_account WHERE username = 'president'), 'president', 'SE000003', 'test3@gmail.com', (SELECT MAX(id) FROM generation), (SELECT CURRENT_TIMESTAMP));
 
 
 INSERT INTO role_permission (role_id, permission_id) VALUES (
@@ -130,10 +130,9 @@ INSERT INTO user_role (account_id, role_id) VALUES (
 );
 
 -- Crew
+INSERT INTO crew (code, name) VALUES ('BE', 'Backend');
 INSERT INTO crew (code, name) VALUES ('BE1', 'Backend1');
-INSERT INTO crew (code, name) VALUES ('BE2', 'Backend2');
-INSERT INTO crew (code, name) VALUES ('BE3', 'Backend3');
-INSERT INTO crew (code, name) VALUES ('BE4', 'Backend4');
+INSERT INTO crew (code, name) VALUES ('FE', 'Frontend');
 
 INSERT INTO permission (context, name) VALUES ('crew', '*');
 INSERT INTO permission (context, name) VALUES ('crew', 'view');
