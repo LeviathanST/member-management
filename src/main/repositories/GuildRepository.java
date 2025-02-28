@@ -57,6 +57,7 @@ public class GuildRepository {
 	public static List<String> getAll() throws SQLException {
 		String query = """
 				SELECT * FROM guild
+				ORDER BY name
 				""";
 		List<String> list = new ArrayList<>();
 		try (Connection con = Database.connection()) {

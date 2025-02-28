@@ -29,6 +29,14 @@ public class Pressessor {
 		return LocalDateTime.parse(dateTime, formatter);
 	}
 
+	public static String isValidEmail(String email) throws IllegalArgumentException {
+		String pattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+		if (!email.matches(pattern)) {
+			throw new IllegalArgumentException("Invalid email format");
+		}
+		return email;
+	}
+
 	public static boolean validateStudentCode(String studentCode) {
 		List<String> VALID_MAJORS = Arrays.asList(
 				"SE", // Software Engineering
@@ -88,11 +96,11 @@ public class Pressessor {
 		return true;
 	}
 
-	public static boolean validCode(String code) {
-		String pattern = "^[A-Z0-9]";
+	public static String validCode(String code) {
+		String pattern = "^[A-Z0-9]+$";
 		if (!code.matches(pattern)) {
-			return false;
+			throw new IllegalArgumentException("Invalid code format!");
 		}
-		return true;
+		return code;
 	}
 }

@@ -267,7 +267,9 @@ public class ApplicationController extends HttpServlet {
                     if (checked) {
                         CreateGuildDTO dto = HttpUtil.getBodyContentFromReq(req, CreateGuildDTO.class);
                         dto.checkNullOrEmpty();
-                        GuildRepository.create(dto.getGuildName(), dto.getGuildCode(), dto.getUsername());
+                        // TODO: Refactor here
+                        GuildRepository.create(dto.getGuildName(), Pressessor.validCode(dto.getGuildCode()),
+                                dto.getUsername());
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Created guild successful!".formatted(dto.getUsername(), name),
@@ -283,7 +285,9 @@ public class ApplicationController extends HttpServlet {
                     if (checked) {
                         CreateCrewDTO dto = HttpUtil.getBodyContentFromReq(req, CreateCrewDTO.class);
                         dto.checkNullOrEmpty();
-                        CrewRepository.create(dto.getCrewName(), dto.getCrewCode(), dto.getUsername());
+                        // TODO: Refactor here
+                        CrewRepository.create(dto.getCrewName(), Pressessor.validCode(dto.getCrewCode()),
+                                dto.getUsername());
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK,
                                         "Created crew successful!".formatted(dto.getUsername(), name),
@@ -377,9 +381,9 @@ public class ApplicationController extends HttpServlet {
                     if (checked) {
                         UpdateUserRoleDTO dto = HttpUtil.getBodyContentFromReq(req, UpdateUserRoleDTO.class);
                         RoleRepository.updateSpecifiedForUserWithPrefix(
-                                "hehe",
+                                prefix,
                                 dto.getUsername(),
-                                prefix + "_" + Pressessor.validateRoleName(dto.getRoleName()));
+                                Pressessor.validateRoleName(dto.getRoleName()));
                         out.write(gson.toJson(
                                 new ResponseDTO<>(ResponseStatus.OK, "Update user successful!",
                                         null)));
@@ -393,7 +397,7 @@ public class ApplicationController extends HttpServlet {
                             "role.crud");
                     if (checked) {
                         UpdateRoleDTO dto = HttpUtil.getBodyContentFromReq(req, UpdateRoleDTO.class);
-                        RoleRepository.update("APP_" + dto.getRoleName(), "APP_" + dto.getNewRoleName());
+                        RoleRepository.update(prefix + "_" + dto.getRoleName(), prefix + "_" + dto.getNewRoleName());
                     } else {
                         throw new AuthException("FORBIDDEN");
                     }

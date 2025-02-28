@@ -5,6 +5,7 @@ import dto.UpdateProfileDTO;
 import constants.Sex;
 import exceptions.NotFoundException;
 import models.UserProfile;
+import utils.Pressessor;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -51,10 +52,11 @@ public class UserProfileRepository {
 			PreparedStatement stmt = con.prepareStatement(query);
 
 			stmt.setString(1, data.getFullName());
-			stmt.setString(3, data.getStudentCode());
-			stmt.setString(2, data.getSex().name());
-			stmt.setString(4, data.getEmail());
-			stmt.setString(5, data.getContactEmail());
+			stmt.setString(2, data.getStudentCode());
+			stmt.setString(3, data.getSex().name());
+			// TODO: Pls move validation to service after formatter is fixed :((
+			stmt.setString(4, Pressessor.isValidEmail(data.getEmail()));
+			stmt.setString(5, Pressessor.isValidEmail(data.getContactEmail()));
 			stmt.setDate(6, data.getDateOfBirth());
 			stmt.setString(7, accountId);
 

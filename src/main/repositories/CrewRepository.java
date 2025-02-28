@@ -57,6 +57,7 @@ public class CrewRepository {
 	public static List<String> getAll() throws SQLException {
 		String query = """
 				SELECT * FROM crew
+				ORDER BY name
 				""";
 		List<String> list = new ArrayList<>();
 		try (Connection con = Database.connection()) {
@@ -87,11 +88,7 @@ public class CrewRepository {
 			stmt.setString(2, name);
 			stmt.setString(3, code);
 			stmt.setString(4, username);
-			int rows = stmt.executeUpdate();
-
-			if (rows <= 0) {
-				throw new SQLException("Created crew failed!");
-			}
+			stmt.execute();
 		}
 	}
 
