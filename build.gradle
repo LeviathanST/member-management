@@ -1,0 +1,72 @@
+plugins {
+    id 'war'  // For WAR packaging
+    id 'java' // Java plugin
+}
+
+group = 'j4f.akatsuki'
+version = '1.0'
+sourceCompatibility = '21'  // Java 21 source compatibility
+targetCompatibility = '21'  // Java 21 target compatibility
+
+// Define custom directories (similar to Maven config)
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main'
+        }
+        resources {
+            srcDirs = ['src']
+            include '**/*.properties', '**/*.xml'
+        }
+    }
+}
+
+// Repository configuration (using Maven Central by default)
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Web application dependencies
+    providedCompile 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+    
+    // Database
+    implementation 'com.mysql:mysql-connector-j:8.0.33'
+    
+    // Logging
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    
+    // Security/Encryption
+    implementation 'at.favre.lib:bcrypt:0.10.2'
+    
+    // JSON processing
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    implementation 'com.google.code.gson:gson:2.11.0'
+    
+    // Terminal UI
+    implementation 'com.googlecode.lanterna:lanterna:3.1.1'
+    
+    // JWT
+    implementation 'com.auth0:java-jwt:4.4.0'
+    
+    // Text IO
+    implementation 'org.beryx:text-io:3.4.0'
+    
+    // Environment variables
+    implementation 'io.github.cdimascio:java-dotenv:5.2.2'
+    
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+}
+
+// Configure WAR plugin
+war {
+    webAppDirName = 'webapp'  // Matches Maven's warSourceDirectory
+}
+
+// Compiler configuration
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-Aproject=${project.group}/${project.name}'
+}
