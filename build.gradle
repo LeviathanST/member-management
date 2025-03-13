@@ -5,10 +5,10 @@ plugins {
 
 group = 'j4f.akatsuki'
 version = '1.0'
-sourceCompatibility = '21'  // Java 21 source compatibility
-targetCompatibility = '21'  // Java 21 target compatibility
+archivesBaseName = 'member-management'
+sourceCompatibility = '21'
+targetCompatibility = '21'
 
-// Define custom directories (similar to Maven config)
 sourceSets {
     main {
         java {
