@@ -12,6 +12,5 @@ public class Main extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		req.getRequestDispatcher("view/main.jsp").forward(req, res);
-		;
 	}
 }
