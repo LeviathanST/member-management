@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'base'
+    id 'war'
+}
+
+group = 'j4f.akatsuki'
+version = '1.0'
+
+java {
+    sourceCompatibility = '21'
+    targetCompatibility = '21'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs('src')
+        }
+    }
+}
+
+base {
+    archivesName = "member-management"
+}
+
+war {
+    webAppDirectory = file('./webapp')
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    providedCompile 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor "org.projectlombok:lombok:1.18.36"
+
+    implementation 'at.favre.lib:bcrypt:0.10.2'
+    implementation 'com.mysql:mysql-connector-j:8.0.33'
+    implementation 'com.auth0:java-jwt:4.4.0'
+    implementation 'io.github.cdimascio:java-dotenv:5.2.2'
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+}

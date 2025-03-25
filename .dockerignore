@@ -1,3 +1,9 @@
-README.md
-
+.git
+.gradle
 target
+
+.env.sample
+compose.dev.yml
+compose.prod.yml
+README.md
+CHANGELOG.md
