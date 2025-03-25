@@ -2,7 +2,7 @@
 ## Overview
 - Console app. (required Maven for running)
 - Using Docker for database. (suitable with multi-platform)
-# v2.0.0 (In progress)
+# v2.0.0
 ## Overview
 - Convert all to tomcat10.
 - Have some beautiful frontend.
